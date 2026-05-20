@@ -21,6 +21,13 @@
 
 
 
+
+--find out what this does when trying to make a line graph:
+--self:SetDrawState {Mode = "DrawMode_LineStrip", First = 1, Num = #v}
+--where self is an actorMultiVertex
+
+
+
 local focused = false
 local t = Def.ActorFrame {
     Name = "GraphPageFile",
@@ -106,7 +113,7 @@ local actuals = {
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT
 }
 
-local graphButtons = {"MSDoverTimeButton", "AccuracyOverMSDButton"} --list of all graph buttons so we can easily set them all invisible
+local graphButtons = {"MSDoverTimeButton", "AccuracyOverMSDButton", "playerRatingOverTimeButton"} --list of all graph buttons so we can easily set them all invisible
 local plotWidth = (3 / 1920) * SCREEN_WIDTH
 local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 
@@ -171,6 +178,18 @@ local function createGraphContainer()
             self:GetChild("AccuracyOverMSDGraph"):playcommand("Focus") --focus the graph
             graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
             self.FocusedGraph = "AccuracyOverMSDGraph" --set focused graph
+            self:GetChild("Back"):diffusealpha(1) --make the back button visible
+        end,
+
+        PlayerRatingOverTimeCommand = function(self)
+            if not self:GetChild("playerRatingOverTimeGraph") then --if the graph doesnt exist then make it
+                self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/playerRatingOverTime"))
+                BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
+            end
+
+            self:GetChild("playerRatingOverTimeGraph"):playcommand("Focus") --focus the graph
+            graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
+            self.FocusedGraph = "playerRatingOverTimeGraph" --set focused graph
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
         end,
 
@@ -249,6 +268,27 @@ local function createGraphButtons()
                 graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
             end, 
         },
+
+        UIElements.TextToolTip(1, 1, "Common Normal") .. {
+            Name = "playerRatingOverTimeButton",
+            InitCommand = function(self)
+                self:xy(10, 50)
+                self:diffusealpha(1)
+                self:halign(0):valign(0)
+                self:zoom(buttonTextSize)
+                self:maxwidth(200)
+                registerActorToColorConfigElement(self, "main", "PrimaryText")
+                self:settext("Player rating over time")
+            end,
+
+            MouseDownCommand = function(self, params)
+                if self:IsInvisible() then return end
+                local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
+                graphContainer:playcommand("PlayerRatingOverTime")
+                graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+            end, 
+        },
+
 
     }
 
