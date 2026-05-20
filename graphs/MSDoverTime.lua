@@ -110,6 +110,7 @@ local function MSDoverTime() --returns an actorframe of the graph
 
     --i get errors if i dont do this which is annoying
     --loop through scores from earliest until latest until we find a valid date, then break the loop
+    local minDateText = nil
     for i = 1, SCOREMAN:GetTotalNumberOfScores() do
         local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
         if score ~= nil then
@@ -120,7 +121,7 @@ local function MSDoverTime() --returns an actorframe of the graph
         end
     end
 
-    if minDateText == nil and maxDateText == nil then
+    if minDateText == nil then
         return --prevent crashing if therres no data
     end
 
@@ -471,8 +472,9 @@ local function MSDoverTime() --returns an actorframe of the graph
                         local x = (actuals.YaxisX + (actuals.YaxisWidth + (plotWidth / 2))) + (actuals.XaxisWidth * ((date - minDate) / (maxDate - minDate)))
                         local y = (actuals.XaxisY - (plotHeight / 2)) - (actuals.YaxisHeight * ((ssr - minMSD) / (maxMSD - minMSD)))
                         
-
+                        
                         placeDotVertices(vertices, x, y, colorByMSD(ssr))
+                        
                     end
                 end
             end
