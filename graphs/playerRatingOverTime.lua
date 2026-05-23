@@ -84,7 +84,7 @@ local actuals = {
 
 local plotWidth = (3 / 1920) * SCREEN_WIDTH
 local plotHeight = (3 / 1080) * SCREEN_HEIGHT
-local lineThickness = (1 / 1080) * SCREEN_HEIGHT
+local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 1
 local plotAnimationSeconds = 1
 
@@ -318,14 +318,6 @@ local function playerRatingOverTime() --returns an actorframe of the graph
 
     return t
 end
-
-
-
-
-
-
-
-
 
 
 

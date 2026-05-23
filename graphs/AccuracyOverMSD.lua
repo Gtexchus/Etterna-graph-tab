@@ -10,7 +10,7 @@ local maxWife = 100
 local minMSD = 0
 local maxMSD = 40
 --the idea is to have each midgrade take up the same physical space on the graph
-local gradeTiers = {
+local gradeTiers = { --GetGradeFromPercent
     [100] = 0,
     [99.9935] = 1,
     [99.98] = 2,

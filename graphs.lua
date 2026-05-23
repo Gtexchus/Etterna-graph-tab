@@ -113,7 +113,7 @@ local actuals = {
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT
 }
 
-local graphButtons = {"MSDoverTimeButton", "AccuracyOverMSDButton", "playerRatingOverTimeButton"} --list of all graph buttons so we can easily set them all invisible
+local graphButtons = {"MSDoverTimeButton", "AccuracyOverMSDButton", "playerRatingOverTimeButton", "GradeDistributionButton"} --list of all graph buttons so we can easily set them all invisible
 local plotWidth = (3 / 1920) * SCREEN_WIDTH
 local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 
@@ -190,6 +190,18 @@ local function createGraphContainer()
             self:GetChild("playerRatingOverTimeGraph"):playcommand("Focus") --focus the graph
             graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
             self.FocusedGraph = "playerRatingOverTimeGraph" --set focused graph
+            self:GetChild("Back"):diffusealpha(1) --make the back button visible
+        end,
+
+        GradeDistributionCommand = function(self)
+            if not self:GetChild("GradeDistributionGraph") then --if the graph doesnt exist then make it
+                self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/gradeDistribution"))
+                BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
+            end
+
+            self:GetChild("GradeDistributionGraph"):playcommand("Focus") --focus the graph
+            graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
+            self.FocusedGraph = "GradeDistributionGraph" --set focused graph
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
         end,
 
@@ -285,6 +297,26 @@ local function createGraphButtons()
                 if self:IsInvisible() then return end
                 local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
                 graphContainer:playcommand("PlayerRatingOverTime")
+                graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+            end, 
+        },
+
+        UIElements.TextToolTip(1, 1, "Common Normal") .. {
+            Name = "GradeDistributionButton",
+            InitCommand = function(self)
+                self:xy(10, 70)
+                self:diffusealpha(1)
+                self:halign(0):valign(0)
+                self:zoom(buttonTextSize)
+                self:maxwidth(200)
+                registerActorToColorConfigElement(self, "main", "PrimaryText")
+                self:settext("Grade distribution")
+            end,
+
+            MouseDownCommand = function(self, params)
+                if self:IsInvisible() then return end
+                local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
+                graphContainer:playcommand("GradeDistribution")
                 graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
             end, 
         },
