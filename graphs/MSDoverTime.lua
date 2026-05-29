@@ -452,7 +452,7 @@ local function MSDoverTime() --returns an actorframe of the graph
         InitCommand = function(self)
             self.skillset = "Overall"
             self:diffusealpha(plotAlpha)
-            self:xy(0, 0)
+            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
             self:playcommand("Plot")
         end,
 
@@ -469,8 +469,10 @@ local function MSDoverTime() --returns an actorframe of the graph
                         --this is because if the plot wants to be drawn at x=0, and the plot is central to x=0, then half the plot would go inside the y axis which looks ugly
                         --to fix this i add (plotWidth / 2) to the pos of the plot, so the plot is drawn with the data point at the top left of the plot
                         --if you really care, delete (plotWidth / 2) and (plotHeight / 2). it shouldnt matter, its literally 2 pixels difference
-                        local x = (actuals.YaxisX + (actuals.YaxisWidth + (plotWidth / 2))) + (actuals.XaxisWidth * ((date - minDate) / (maxDate - minDate)))
-                        local y = (actuals.XaxisY - (plotHeight / 2)) - (actuals.YaxisHeight * ((ssr - minMSD) / (maxMSD - minMSD)))
+                        local x = (plotWidth / 2) + (actuals.XaxisWidth * ((date - minDate) / (maxDate - minDate)))
+                        --because positive y is downwards, we work out the y coord as we would normally, then subtract that from YaxisHeight
+                        --if we didnt do this then the graph would be drawn upside down
+                        local y = actuals.YaxisHeight - ((plotHeight / 2) + (actuals.YaxisHeight * ((ssr - minMSD) / (maxMSD - minMSD))))
                         
                         
                         placeDotVertices(vertices, x, y, colorByMSD(ssr))

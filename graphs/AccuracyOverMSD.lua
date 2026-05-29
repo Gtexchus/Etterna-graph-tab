@@ -415,7 +415,7 @@ local function AccuracyOverMSD() --returns an actorframe of the graph
         InitCommand = function(self)
             self.skillset = "Overall"
             self:diffusealpha(plotAlpha)
-            self:xy(0, 0)
+            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
             self:playcommand("Plot")
         end,
 
@@ -444,8 +444,8 @@ local function AccuracyOverMSD() --returns an actorframe of the graph
 
                         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
-                        local x = (actuals.YaxisX + (actuals.YaxisWidth + (plotWidth / 2))) + (actuals.XaxisWidth * ((msd - minMSD) / (maxMSD - minMSD)))
-                        local y = (actuals.XaxisY- (plotHeight / 2)) - (((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection)))
+                        local x =  (plotWidth / 2) + (actuals.XaxisWidth * ((msd - minMSD) / (maxMSD - minMSD)))
+                        local y =  actuals.YaxisHeight - ((plotHeight / 2) + (((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))))
                         placeDotVertices(vertices, x, y, colorByGrade(score:GetWifeGrade())) 
                         
                     end

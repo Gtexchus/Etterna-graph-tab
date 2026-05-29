@@ -251,7 +251,7 @@ local function playerRatingOverTime() --returns an actorframe of the graph
         
         InitCommand = function(self)
             self:diffusealpha(plotAlpha)
-            self:xy(0, 0)
+            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
             self:playcommand("Plot")
         end,
 
@@ -286,9 +286,9 @@ local function playerRatingOverTime() --returns an actorframe of the graph
                     local ssr = playerRatingOverTime[dateString][i]
                     local date = os.time({year=dateString:sub(1, 4), month=dateString:sub(6, 7), day=dateString:sub(9, 10)}) --date in ms
 
-                    x = (actuals.YaxisX + (actuals.YaxisWidth)) + ((date - minDate) / (maxDate - minDate)) * actuals.XaxisWidth
+                    x = ((date - minDate) / (maxDate - minDate)) * actuals.XaxisWidth
 
-                    y = (actuals.XaxisY) - ((ssr / maxSSR) * actuals.YaxisHeight)
+                    y = actuals.YaxisHeight - ((ssr / maxSSR) * actuals.YaxisHeight)
 
                     if j == 1 then --this is a very hacky solution to allow all skillsets to be drawn in the same amv
                         placeLineVertices(vertices, x, y, color("#00000000"))

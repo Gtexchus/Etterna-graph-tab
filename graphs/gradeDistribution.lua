@@ -1,3 +1,4 @@
+--credit to martzi for the idea for this graph
 local smallButtonTextSize = 0.5
 local gradeTextSize = 0.5
 local buttonTextSize = 0.7
