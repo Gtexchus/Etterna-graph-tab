@@ -121,13 +121,18 @@ local function MSDoverTime() --returns an actorframe of the graph
         end
     end
 
-    if minDateText == nil then
-        return --prevent crashing if therres no data
+
+    local minDate
+    local maxDate
+
+    if minDateText ~= nil then
+        minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
+    else
+        minDate = os.time(os.date("!*t")) --if we dont have a mindate then today is the mindate
     end
 
-    local minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
-    --local maxDate = os.time({year=maxDateText:sub(1, 4), month=maxDateText:sub(6, 7), day=maxDateText:sub(9, 10)})
-    local maxDate = os.time(os.date("!*t")) --current time
+    maxDate = os.time(os.date("!*t")) --current time
+        
     
     
     local minMSD = 0

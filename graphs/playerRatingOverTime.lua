@@ -135,13 +135,17 @@ local function playerRatingOverTime() --returns an actorframe of the graph
         end
     end
 
-    if minDateText == nil then
-        return --prevent crashing if therres no data
-    end
 
-    local minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
-    --local maxDate = os.time({year=maxDateText:sub(1, 4), month=maxDateText:sub(6, 7), day=maxDateText:sub(9, 10)})
-    local maxDate = os.time(os.date("!*t")) --current time
+    local minDate
+    local maxDate
+
+    if minDateText ~= nil then
+        minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
+    else
+        minDate = os.time(os.date("!*t")) --if we dont have a mindate then today is the mindate
+    end
+    maxDate = os.time(os.date("!*t")) --current time
+
 
     local t = Def.ActorFrame{
         Name = "playerRatingOverTimeGraph",
@@ -240,10 +244,6 @@ local function playerRatingOverTime() --returns an actorframe of the graph
 
 
         }
-
-
-        
-
     }
 
     t[#t + 1] = Def.ActorMultiVertex{
@@ -269,14 +269,16 @@ local function playerRatingOverTime() --returns an actorframe of the graph
             local maxSSR = 1
             --find max ssr (this assumes current ssr is the highest its ever been)
             local latest = playerRatingOverTime[dates[#dates]]
-            for i = 1, #latest do
-                if latest[i] > maxSSR then
-                    maxSSR = latest[i]
+            if latest ~= nil then
+                for i = 1, #latest do
+                    if latest[i] > maxSSR then
+                        maxSSR = latest[i]
+                    end
                 end
             end
             maxSSR = math.floor(maxSSR + 1) --round up
 
-            for i = 1, #skillsetColors do
+            for i = 1, #skillsetColors do --for every skillset
                 local x
                 local y
                 --this can definitely be optimised
@@ -297,15 +299,15 @@ local function playerRatingOverTime() --returns an actorframe of the graph
                         
 
                 end
-
-                placeLineVertices(vertices, x, y, color("#00000000")) --hacky solution part 2
+                
+                if x ~= nil and y ~= nil then --need this nil check incase the player has no scores and the inner for loop is skipped
+                    placeLineVertices(vertices, x, y, color("#00000000")) --hacky solution part 2
+                end
                 --basically this hacky solution makes the line that would normally be drawn from the end of one line to the start of another invisible
                 --if you are wondering why i needed to do this delete them and see what happens
                 --maybe it would have been better to put each skillset in a separate amv
                 
             end
-
-
 
             if self:GetNumVertices() ~= 0 then
                 self:finishtweening()
