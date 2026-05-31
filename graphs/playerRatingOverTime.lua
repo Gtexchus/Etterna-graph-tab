@@ -114,6 +114,14 @@ local function placeLineVertices(vertList, x, y, color)
     vertList[#vertList + 1] = {{x + (lineThickness / 2), y + (lineThickness / 2), 0}, color}
 end
 
+local function placeLineVerticesNoDiagonal(vertList, x, y, color)
+    --this is only used to make the line extend to the edge of the graph
+    vertList[#vertList + 1] = {{x, y - (lineThickness / 2), 0}, color}
+    vertList[#vertList + 1] = {{x, y + (lineThickness / 2), 0}, color}
+end
+
+
+
 
 
 local function playerRatingOverTime() --returns an actorframe of the graph
@@ -300,7 +308,10 @@ local function playerRatingOverTime() --returns an actorframe of the graph
 
                 end
                 
+
                 if x ~= nil and y ~= nil then --need this nil check incase the player has no scores and the inner for loop is skipped
+                    x = actuals.XaxisWidth --so we can extend the line to the end of the graph
+                    placeLineVerticesNoDiagonal(vertices, x, y, skillsetColors[i]) --make the line extend to the end of the graph
                     placeLineVertices(vertices, x, y, color("#00000000")) --hacky solution part 2
                 end
                 --basically this hacky solution makes the line that would normally be drawn from the end of one line to the start of another invisible
