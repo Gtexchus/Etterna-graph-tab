@@ -390,7 +390,6 @@ local function AccuracyOverMSD() --returns an actorframe of the graph
                     local msd = score:GetSkillsetSSR(self.skillset)
                     if wife >= minWife and wife <= maxWife and grade ~= "Failed" and grade ~= "Grade_Failed" and msd >= minMSD and msd <= maxMSD then
                         
-                        
                         local gradeNumber = tonumber(grade:sub(11, 12))
                         local lowerWifeBound = gradeBoundaries[gradeNumber]
                         local upperWifeBound
@@ -405,8 +404,8 @@ local function AccuracyOverMSD() --returns an actorframe of the graph
 
                         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
-                        local x =  (plotWidth / 2) + (actuals.GraphWidth * ((msd - minMSD) / (maxMSD - minMSD)))
-                        local y =  actuals.GraphHeight - ((plotHeight / 2) + (((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))))
+                        local x =  actuals.GraphWidth * ((msd - minMSD) / (maxMSD - minMSD))
+                        local y =  actuals.GraphHeight - ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
                         placeDotVertices(vertices, x, y, colorByGrade(score:GetWifeGrade())) 
                         
                     end

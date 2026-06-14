@@ -431,10 +431,10 @@ local function MSDoverTime() --returns an actorframe of the graph
                         --this is because if the plot wants to be drawn at x=0, and the plot is central to x=0, then half the plot would go inside the y axis which looks ugly
                         --to fix this i add (plotWidth / 2) to the pos of the plot, so the plot is drawn with the data point at the top left of the plot
                         --if you really care, delete (plotWidth / 2) and (plotHeight / 2). it shouldnt matter, its literally 2 pixels difference
-                        local x = (plotWidth / 2) + (actuals.GraphWidth * ((date - minDate) / (maxDate - minDate)))
+                        local x = actuals.GraphWidth * ((date - minDate) / (maxDate - minDate))
                         --because positive y is downwards, we work out the y coord as we would normally, then subtract that from GraphHeight
                         --if we didnt do this then the graph would be drawn upside down
-                        local y = actuals.GraphHeight - ((plotHeight / 2) + (actuals.GraphHeight * ((ssr - minMSD) / (maxMSD - minMSD))))
+                        local y = actuals.GraphHeight - (actuals.GraphHeight * ((ssr - minMSD) / (maxMSD - minMSD)))
                         
                         
                         placeDotVertices(vertices, x, y, colorByMSD(ssr))
