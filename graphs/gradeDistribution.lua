@@ -1,16 +1,10 @@
 --credit to martzi for the idea for this graph
 local smallButtonTextSize = 0.5
 local gradeTextSize = 0.5
-local buttonTextSize = 0.7
 local headerTextSize = 1
-local skillsetButtonsMaxWidth = 50
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local buttonHoverAlpha = 0.6
-local minWife = 93 --if you dont put minwife and maxwife as the same value as a midgrade it will break
-local maxWife = 100
-local minMSD = 0
-local maxMSD = 40
 local plotAlpha = 1
 local plotAnimationSeconds = 1
 
@@ -20,28 +14,19 @@ local plotAnimationSeconds = 1
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    XaxisYPadding = 100 / 1080, --distance from x axis to bottom of container
-    YaxisXPadding = 50 / 1920, --distance from y axis to left of container
-    XaxisHeight = 2 / 1920,
-    YaxisWidth = 2 / 1920,
+    GraphYPadding = 100 / 1080, --distance from x axis to bottom of container
+    GraphXPadding = 50 / 1920, --distance from y axis to left of container
     BarWidth = 50 / 1920,
     GradeCountVerticalOffset = 25 / 1080,
     GradeTextVerticalOffset = 10 / 1080,
     GraphTypeButtonX = 700 / 1920,
     GraphTypeButtonY = 20 / 1080
 }
-ratios.XaxisWidth = ratios.Width + ratios.YaxisWidth - (ratios.YaxisXPadding * 2)
-ratios.YaxisHeight = ratios.Height + ratios.XaxisHeight - (ratios.XaxisYPadding * 2)
-
-
-ratios.XaxisX = ratios.YaxisXPadding + ratios.YaxisWidth
-ratios.XaxisY = ratios.Height - ratios.XaxisYPadding
-
-
-ratios.YaxisX = ratios.YaxisXPadding
-ratios.YaxisY = ratios.XaxisYPadding
-
-
+ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
+ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2)
+ratios.GraphBottom = ratios.Height - ratios.GraphYPadding
+ratios.GraphLeft = ratios.GraphXPadding
+ratios.GraphTop = ratios.GraphYPadding
 ratios.GraphTitleX = ratios.Width / 2
 ratios.GraphTitleY = 20 / 1080
 
@@ -49,16 +34,13 @@ ratios.GraphTitleY = 20 / 1080
 
 
 local actuals = {
-    XaxisYPadding = ratios.XaxisYPadding * SCREEN_HEIGHT,
-    YaxisXPadding = ratios.YaxisXPadding * SCREEN_WIDTH,
-    XaxisHeight = ratios.XaxisHeight * SCREEN_WIDTH,
-    YaxisWidth = ratios.YaxisWidth * SCREEN_WIDTH,
-    XaxisWidth = ratios.XaxisWidth * SCREEN_WIDTH,
-    YaxisHeight = ratios.YaxisHeight * SCREEN_HEIGHT,
-    XaxisX = ratios.XaxisX * SCREEN_WIDTH,
-    XaxisY = ratios.XaxisY * SCREEN_HEIGHT,
-    YaxisX = ratios.YaxisX * SCREEN_WIDTH,
-    YaxisY = ratios.YaxisY * SCREEN_HEIGHT,
+    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
+    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
+    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
+    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
+    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
+    GraphLeft = ratios.GraphLeft * SCREEN_WIDTH,
+    GraphTop = ratios.GraphTop * SCREEN_HEIGHT,
     BarWidth = ratios.BarWidth * SCREEN_WIDTH,
     GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
     GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
@@ -258,27 +240,6 @@ t = Def.ActorFrame{
     },
 
 
-    Def.Quad{
-        Name = "Xaxis",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffusealpha(0)
-            self:zoomto(actuals.XaxisWidth, actuals.XaxisHeight)
-            self:xy(actuals.XaxisX, actuals.XaxisY)
-            registerActorToColorConfigElement(self, "main", "SeparationDivider")
-        end
-    },
-    Def.Quad{
-        Name = "Yaxis",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffusealpha(0)
-            self:zoomto(actuals.YaxisWidth, actuals.YaxisHeight)
-            self:xy(actuals.YaxisX, actuals.YaxisY)
-            registerActorToColorConfigElement(self, "main", "SeparationDivider")
-        end
-    },
-
 
     Def.Quad{
         Name = "BG",
@@ -286,8 +247,8 @@ t = Def.ActorFrame{
             self:halign(0):valign(0)
             self:diffuse(bgColour)
             self:diffusealpha(bgAlpha)
-            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
-            self:zoomto(actuals.XaxisWidth, actuals.YaxisHeight - actuals.XaxisHeight)
+            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
         end
     },
 
@@ -331,14 +292,14 @@ t[#t + 1] = Def.ActorMultiVertex{
     InitCommand = function(self)
         self.usingEverySetScore = false
         self:diffusealpha(plotAlpha)
-        self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
+        self:xy(actuals.GraphLeft, actuals.GraphTop)
         self:playcommand("Plot")
     end,
 
 
     PlotCommand = function(self)
         local vertices = {}
-        local barSpacing = (actuals.XaxisWidth - (#gradeCounts * actuals.BarWidth)) / (#gradeCounts - 1)
+        local barSpacing = (actuals.GraphWidth - (#gradeCounts * actuals.BarWidth)) / (#gradeCounts - 1)
 
         local maxGrade = 0
 
@@ -353,10 +314,10 @@ t[#t + 1] = Def.ActorMultiVertex{
 
         for i = 1, #gradeCounts do
             local x = (i - 1) * (actuals.BarWidth + barSpacing)
-            local y = actuals.YaxisHeight - ((actuals.YaxisHeight * (gradeCounts[i] / maxGrade)))
+            local y = actuals.GraphHeight - ((actuals.GraphHeight * (gradeCounts[i] / maxGrade)))
             barCoords[#barCoords + 1] = {x, y}
             
-            local height = (actuals.YaxisHeight * (gradeCounts[i] / maxGrade))
+            local height = (actuals.GraphHeight * (gradeCounts[i] / maxGrade))
             placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, colorByGrade(grades[i]))
         end
 
@@ -403,7 +364,7 @@ for i = 1, #grades do --make the graph labels
         InitCommand = function(self)
             self:zoom(gradeTextSize)
             self:valign(0)
-            self:xy(self:GetParent():GetChild("Plots"):GetX() + barCoords[i][1] + (actuals.BarWidth / 2), self:GetParent():GetChild("Plots"):GetY() + actuals.YaxisHeight + actuals.GradeTextVerticalOffset)
+            self:xy(self:GetParent():GetChild("Plots"):GetX() + barCoords[i][1] + (actuals.BarWidth / 2), self:GetParent():GetChild("Plots"):GetY() + actuals.GraphHeight + actuals.GradeTextVerticalOffset)
             self:settext(getGradeStrings(grades[i])) --THEME:GetString("Grade", ToEnumShortString(grades[i]))
             self:diffuse(colorByGrade(grades[i]))
         end

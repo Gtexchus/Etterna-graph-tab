@@ -3,12 +3,8 @@
 --self:SetDrawState {Mode = "DrawMode_LineStrip", First = 1, Num = #v}
 --where self is an actorMultiVertex
 
-
-local smallButtonTextSize = 0.5
-local buttonTextSize = 0.7
 local skillsetLabelsSize = 0.7
 local headerTextSize = 1
-local skillsetButtonsMaxWidth = 50
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
@@ -20,25 +16,16 @@ local YaxisLabelsResolution = 2
 local XaxisLabelsSize = 0.5
 local YaxisLabelsSize = 0.5
 
+local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
+local plotAlpha = 1
+local plotAnimationSeconds = 1
+
+
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    X = 1 - (780 / 1920), --x and y of the box
-    Y = 1 - (612 / 1080), 
-    
-    XaxisYPadding = 100 / 1080, --distance from x axis to bottom of container
-    XaxisXPadding = 50 / 1920, --distance from x axis to left of container
-
-    YaxisYPadding = 100 / 1080,
-    YaxisXPadding = 50 / 1920,
-
-    SkillsetButtonsCol1 = 660 / 1920,
-    SkillsetButtonsCol2 = 720 / 1920,
-
-    SkillsetButtonsRow1 = 20 / 1080,
-    SkillsetButtonsRow2 = 40 / 1080,
-    SkillsetButtonsRow3 = 60 / 1080,
-    SkillsetButtonsRow4 = 80 / 1080,
+    GraphYPadding = 100 / 1080, --distance from x axis to bottom of container
+    GraphXPadding = 50 / 1920, --distance from x axis to left of container
     XaxisLabelsYpadding = 20 / 1080,
     YaxisLabelsXpadding = 8 / 1920,
     XaxisLabelLineWidth = 1 / 1920,
@@ -46,52 +33,33 @@ local ratios = {
 }
 
 --for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.YaxisWidth = 2 / 1920
-
-ratios.XaxisWidth = ratios.Width + ratios.YaxisWidth - (ratios.YaxisXPadding * 2)
-ratios.XaxisHeight = 2 / 1920
-
-
-ratios.YaxisHeight = ratios.Height + ratios.XaxisHeight - (ratios.XaxisYPadding * 2) 
-
-ratios.XaxisX = ratios.XaxisXPadding + ratios.YaxisWidth
-ratios.XaxisY = ratios.Height - ratios.XaxisYPadding
-
-ratios.YaxisX = ratios.YaxisXPadding
-ratios.YaxisY = ratios.YaxisYPadding
+ratios.GraphWidth = ratios.Width  - (ratios.GraphXPadding * 2)
+ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
+ratios.GraphLeft = ratios.GraphXPadding
+ratios.GraphTop = ratios.GraphYPadding
+ratios.GraphBottom = ratios.Height - ratios.GraphYPadding
 
 ratios.GraphTitleCenterX = ratios.Width / 2
 ratios.GraphTitleCenterY = 20 / 1080
 
-ratios.SkillsetLabelsContainerWidth = ratios.XaxisWidth / 3
-ratios.SkillsetLabelsContainerHeight = ratios.YaxisHeight / 2
+ratios.SkillsetLabelsContainerWidth = ratios.GraphWidth / 3
+ratios.SkillsetLabelsContainerHeight = ratios.GraphHeight / 2
 
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    XaxisYPadding = ratios.XaxisYPadding * SCREEN_HEIGHT,
-    XaxisXPadding = ratios.XaxisXPadding * SCREEN_WIDTH,
-    YaxisYPadding = ratios.YaxisYPadding * SCREEN_HEIGHT,
-    YaxisXPadding = ratios.YaxisXPadding * SCREEN_WIDTH,
-    XaxisWidth = ratios.XaxisWidth * SCREEN_WIDTH,
-    XaxisHeight = ratios.XaxisHeight * SCREEN_HEIGHT,
-    YaxisWidth = ratios.YaxisWidth * SCREEN_WIDTH,
-    YaxisHeight = ratios.YaxisHeight * SCREEN_HEIGHT,
-    XaxisX = ratios.XaxisX * SCREEN_WIDTH,
-    XaxisY = ratios.XaxisY * SCREEN_HEIGHT,
-    YaxisX = ratios.YaxisX * SCREEN_WIDTH,
-    YaxisY = ratios.YaxisY * SCREEN_HEIGHT,
+    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
+    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
+    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
+    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
+    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
+    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
+    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
+    GraphLeft = ratios.GraphLeft * SCREEN_WIDTH,
+    GraphTop = ratios.GraphTop * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
-    SkillsetButtonsCol1 = ratios.SkillsetButtonsCol1 * SCREEN_WIDTH,
-    SkillsetButtonsCol2 = ratios.SkillsetButtonsCol2 * SCREEN_WIDTH,
-    SkillsetButtonsRow1 = ratios.SkillsetButtonsRow1 * SCREEN_HEIGHT,
-    SkillsetButtonsRow2 = ratios.SkillsetButtonsRow2 * SCREEN_HEIGHT,
-    SkillsetButtonsRow3 = ratios.SkillsetButtonsRow3 * SCREEN_HEIGHT,
-    SkillsetButtonsRow4 = ratios.SkillsetButtonsRow4 * SCREEN_HEIGHT,
-    X = ratios.X * SCREEN_WIDTH,
-    Y = ratios.Y * SCREEN_HEIGHT,
     SkillsetLabelsContainerWidth = ratios.SkillsetLabelsContainerWidth * SCREEN_WIDTH,
     SkillsetLabelsContainerHeight  =ratios.SkillsetLabelsContainerHeight * SCREEN_HEIGHT,
     XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
@@ -100,11 +68,6 @@ local actuals = {
     YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT
 }
 
-local plotWidth = (3 / 1920) * SCREEN_WIDTH
-local plotHeight = (3 / 1080) * SCREEN_HEIGHT
-local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
-local plotAlpha = 1
-local plotAnimationSeconds = 1
 
 local genericButtonCommands = { --so i dont have to write these a billion times
     MouseOver = function(self)
@@ -117,14 +80,6 @@ local genericButtonCommands = { --so i dont have to write these a billion times
 }
 
 
-
--- 4 xyz coordinates are given to make up the 4 corners of a quad to draw
-local function placeDotVertices(vertList, x, y, color)
-    vertList[#vertList + 1] = {{x - (plotWidth/2), y + (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x + (plotWidth/2), y + (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x + (plotWidth/2), y - (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x - (plotWidth/2), y - (plotHeight/2), 0}, color}
-end
 
 
 local function placeLineVertices(vertList, x, y, color)
@@ -140,16 +95,12 @@ end
 
 
 
-
-
-
-
-
 SCOREMAN:SortRecentScoresForGame()
 
 
 --i get errors if i dont do this which is annoying
 --loop through scores from earliest until latest until we find a valid date, then break the loop
+
 local minDateText = nil
 for i = 1, SCOREMAN:GetTotalNumberOfScores() do
     local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
@@ -206,45 +157,20 @@ local t = Def.ActorFrame{
 
     InitCommand = function(self)
         self:diffusealpha(0)
-        --create all graph points here
     end,
 
     FocusCommand = function(self)
         self:diffusealpha(1)
         self.focused = true
         self:z(1)
-        --graphButtonsSetAlpha(self:GetParent():GetParent(), 0) --set graph buttons to invisible
-        --removechild
     end,
 
     UnfocusCommand = function(self)
         self:diffusealpha(0)
         self.focused = false
         self:z(-1)
-        --graphButtonsSetAlpha(self:GetParent():GetParent(), 1) --set graph buttons to invisible
     end,
 
-
-    Def.Quad{
-        Name = "Xaxis",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffusealpha(1)
-            self:zoomto(actuals.XaxisWidth, actuals.XaxisHeight)
-            self:xy(actuals.XaxisX, actuals.XaxisY)
-            registerActorToColorConfigElement(self, "main", "SeparationDivider")
-        end
-    },
-    Def.Quad{
-        Name = "Yaxis",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffusealpha(1)
-            self:zoomto(actuals.YaxisWidth, actuals.YaxisHeight)
-            self:xy(actuals.YaxisX, actuals.YaxisY)
-            registerActorToColorConfigElement(self, "main", "SeparationDivider")
-        end
-    },
 
     Def.Quad{
         Name = "BG", 
@@ -252,8 +178,8 @@ local t = Def.ActorFrame{
             self:halign(0):valign(0)
             self:diffuse(bgColour)
             self:diffusealpha(bgAlpha)
-            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
-            self:zoomto(actuals.XaxisWidth, actuals.YaxisHeight - actuals.XaxisHeight)
+            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
         end
     },
 
@@ -273,8 +199,8 @@ local t = Def.ActorFrame{
         InitCommand = function(self)
             local mouseOver = false
             self:halign(0):valign(0)
-            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
-            self:zoomto(actuals.XaxisWidth, actuals.YaxisHeight - actuals.XaxisHeight)
+            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
             self:diffusealpha(1)
             
         end,
@@ -306,7 +232,7 @@ local t = Def.ActorFrame{
 local XaxisLabelsContainer = Def.ActorFrame{
     Name = "XaxisLabelsContainer",
     InitCommand = function(self)
-        self:xy(actuals.YaxisX + (actuals.YaxisWidth/2), actuals.XaxisY + actuals.XaxisLabelsYpadding)
+        self:xy(actuals.GraphLeft, actuals.GraphBottom + actuals.XaxisLabelsYpadding)
     end
 }
 
@@ -314,13 +240,13 @@ for i=1, (XaxisLabelsCount) do
     XaxisLabelsContainer[#XaxisLabelsContainer+1] = Def.ActorFrame{
         Name = "XaxisLabel",
         InitCommand = function(self)
-            self:x((((i-1)/(XaxisLabelsCount-1)) * actuals.XaxisWidth))
+            self:x((((i-1)/(XaxisLabelsCount-1)) * actuals.GraphWidth))
         end,
 
         LoadFont("Common Normal") .. {
             Name = "XaxisLabelStr",
             InitCommand = function(self)
-                --self:x(((i-1)/(XaxisLabelsCount-1)) * actuals.XaxisWidth)
+                --self:x(((i-1)/(XaxisLabelsCount-1)) * actuals.GraphWidth)
                 self:valign(0)
                 self:zoom(XaxisLabelsSize)
                 self:playcommand("Set")
@@ -356,8 +282,8 @@ for i=1, (XaxisLabelsCount) do
             Name = "XaxisLabelLineThatsInsideTheGraph",
             InitCommand = function(self)
                 self:valign(0)
-                self:y(-(actuals.XaxisLabelsYpadding + actuals.YaxisHeight))
-                self:zoomto(actuals.XaxisLabelLineWidth, actuals.YaxisHeight)
+                self:y(-(actuals.XaxisLabelsYpadding + actuals.GraphHeight))
+                self:zoomto(actuals.XaxisLabelLineWidth, actuals.GraphHeight)
                 self:diffuse(xAxisLabelLineColor)
             end
         }
@@ -372,7 +298,7 @@ t[#t + 1] = XaxisLabelsContainer
 local YaxisLabelsContainer = Def.ActorFrame{
     Name = "YaxisLabelsContainer",
     InitCommand = function(self)
-        self:xy(actuals.YaxisX - actuals.YaxisLabelsXpadding, actuals.XaxisY + (actuals.XaxisHeight / 2))
+        self:xy(actuals.GraphLeft - actuals.YaxisLabelsXpadding, actuals.GraphBottom)
     end
 }
 
@@ -382,7 +308,7 @@ for i=1, (YaxisLabelsCount) do
     YaxisLabelsContainer[#YaxisLabelsContainer+1] = Def.ActorFrame{
         Name = "YaxisLabel",
         InitCommand = function(self)
-            self:y(-((i-1)/(YaxisLabelsCount-1)) * actuals.YaxisHeight)
+            self:y(-((i-1)/(YaxisLabelsCount-1)) * actuals.GraphHeight)
         end,
 
         LoadFont("Common Normal") .. {
@@ -415,7 +341,7 @@ for i=1, (YaxisLabelsCount) do
             InitCommand = function(self)
                 self:halign(0)
                 self:x(actuals.YaxisLabelsXpadding)
-                self:zoomto(actuals.XaxisWidth, actuals.YaxisLabelLineHeight)
+                self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineHeight)
                 self:diffuse(xAxisLabelLineColor)
             end
         }
@@ -433,7 +359,7 @@ t[#t + 1] = Def.ActorMultiVertex{
     
     InitCommand = function(self)
         self:diffusealpha(plotAlpha)
-        self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
+        self:xy(actuals.GraphLeft, actuals.GraphTop)
         self:playcommand("Plot")
     end,
 
@@ -451,9 +377,9 @@ t[#t + 1] = Def.ActorMultiVertex{
                 local ssr = playerRatingOverTime[dateString][i]
                 local date = os.time({year=dateString:sub(1, 4), month=dateString:sub(6, 7), day=dateString:sub(9, 10)}) --date in ms
 
-                x = ((date - minDate) / (maxDate - minDate)) * actuals.XaxisWidth
+                x = ((date - minDate) / (maxDate - minDate)) * actuals.GraphWidth
 
-                y = actuals.YaxisHeight - ((ssr / maxSSR) * actuals.YaxisHeight)
+                y = actuals.GraphHeight - ((ssr / maxSSR) * actuals.GraphHeight)
 
                 if j == 1 then --this is a very hacky solution to allow all skillsets to be drawn in the same amv
                     placeLineVertices(vertices, x, y, color("#00000000"))
@@ -465,7 +391,7 @@ t[#t + 1] = Def.ActorMultiVertex{
             
 
             if x ~= nil and y ~= nil then --need this nil check incase the player has no scores and the inner for loop is skipped
-                x = actuals.XaxisWidth --so we can extend the line to the end of the graph
+                x = actuals.GraphWidth --so we can extend the line to the end of the graph
                 placeLineVerticesNoDiagonal(vertices, x, y, skillsetColors[i]) --make the line extend to the end of the graph
                 placeLineVertices(vertices, x, y, color("#00000000")) --hacky solution part 2
             end
@@ -496,7 +422,7 @@ local skillsetLabelsContainer = Def.ActorFrame{
 
     InitCommand = function(self)
         self:diffusealpha(1)
-        self:xy(actuals.XaxisX + actuals.XaxisWidth - actuals.SkillsetLabelsContainerWidth, actuals.YaxisY + actuals.YaxisHeight - (actuals.SkillsetLabelsContainerHeight + actuals.XaxisHeight))
+        self:xy(actuals.GraphLeft + actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphTop + actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
     end,
 
     Def.Quad{

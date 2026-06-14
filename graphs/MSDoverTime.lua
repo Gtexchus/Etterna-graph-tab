@@ -1,5 +1,4 @@
 local smallButtonTextSize = 0.5
-local buttonTextSize = 0.7
 local headerTextSize = 1
 local skillsetButtonsMaxWidth = 50
 local bgAlpha = 0.7
@@ -11,16 +10,10 @@ local ratios = {
     Height = 612 / 1080,
     X = 1 - (780 / 1920), --x and y of the box
     Y = 1 - (612 / 1080), 
-    
-    XaxisYPadding = 100 / 1080, --distance from x axis to bottom of container
-    XaxisXPadding = 50 / 1920, --distance from x axis to left of container
-
-    YaxisYPadding = 100 / 1080,
-    YaxisXPadding = 50 / 1920,
-
+    GraphYPadding = 100 / 1080,
+    GraphXPadding = 50 / 1920,
     SkillsetButtonsCol1 = 660 / 1920,
     SkillsetButtonsCol2 = 720 / 1920,
-
     SkillsetButtonsRow1 = 20 / 1080,
     SkillsetButtonsRow2 = 40 / 1080,
     SkillsetButtonsRow3 = 60 / 1080,
@@ -29,19 +22,18 @@ local ratios = {
 }
 
 --for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.YaxisWidth = 2 / 1920
 
-ratios.XaxisWidth = ratios.Width + ratios.YaxisWidth - (ratios.YaxisXPadding * 2)
-ratios.XaxisHeight = 2 / 1920
+ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
 
 
-ratios.YaxisHeight = ratios.Height + ratios.XaxisHeight - (ratios.XaxisYPadding * 2) 
 
-ratios.XaxisX = ratios.XaxisXPadding + ratios.YaxisWidth
-ratios.XaxisY = ratios.Height - ratios.XaxisYPadding
+ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
 
-ratios.YaxisX = ratios.YaxisXPadding
-ratios.YaxisY = ratios.YaxisYPadding
+
+ratios.GraphBottom = ratios.Height - ratios.GraphYPadding
+
+ratios.GraphLeft = ratios.GraphXPadding
+ratios.GraphTop = ratios.GraphYPadding
 
 ratios.GraphTitleCenterX = ratios.Width / 2
 ratios.GraphTitleCenterY = 20 / 1080
@@ -50,18 +42,13 @@ ratios.GraphTitleCenterY = 20 / 1080
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    XaxisYPadding = ratios.XaxisYPadding * SCREEN_HEIGHT,
-    XaxisXPadding = ratios.XaxisXPadding * SCREEN_WIDTH,
-    YaxisYPadding = ratios.YaxisYPadding * SCREEN_HEIGHT,
-    YaxisXPadding = ratios.YaxisXPadding * SCREEN_WIDTH,
-    XaxisWidth = ratios.XaxisWidth * SCREEN_WIDTH,
-    XaxisHeight = ratios.XaxisHeight * SCREEN_HEIGHT,
-    YaxisWidth = ratios.YaxisWidth * SCREEN_WIDTH,
-    YaxisHeight = ratios.YaxisHeight * SCREEN_HEIGHT,
-    XaxisX = ratios.XaxisX * SCREEN_WIDTH,
-    XaxisY = ratios.XaxisY * SCREEN_HEIGHT,
-    YaxisX = ratios.YaxisX * SCREEN_WIDTH,
-    YaxisY = ratios.YaxisY * SCREEN_HEIGHT,
+    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
+    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
+    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
+    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
+    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
+    GraphLeft = ratios.GraphLeft * SCREEN_WIDTH,
+    GraphTop = ratios.GraphTop * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetButtonsCol1 = ratios.SkillsetButtonsCol1 * SCREEN_WIDTH,
@@ -103,7 +90,6 @@ end
 
 
 local function MSDoverTime() --returns an actorframe of the graph
-
 
     SCOREMAN:SortRecentScoresForGame()
 
@@ -168,34 +154,13 @@ local function MSDoverTime() --returns an actorframe of the graph
 
 
         Def.Quad{
-            Name = "Xaxis",
-            InitCommand = function(self)
-                self:halign(0):valign(0)
-                self:diffusealpha(1)
-                self:zoomto(actuals.XaxisWidth, actuals.XaxisHeight)
-                self:xy(actuals.XaxisX, actuals.XaxisY)
-                registerActorToColorConfigElement(self, "main", "SeparationDivider")
-            end
-        },
-        Def.Quad{
-            Name = "Yaxis",
-            InitCommand = function(self)
-                self:halign(0):valign(0)
-                self:diffusealpha(1)
-                self:zoomto(actuals.YaxisWidth, actuals.YaxisHeight)
-                self:xy(actuals.YaxisX, actuals.YaxisY)
-                registerActorToColorConfigElement(self, "main", "SeparationDivider")
-            end
-        },
-
-        Def.Quad{
             Name = "BG", 
             InitCommand = function(self)
                 self:halign(0):valign(0)
                 self:diffuse(bgColour)
                 self:diffusealpha(bgAlpha)
-                self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
-                self:zoomto(actuals.XaxisWidth, actuals.YaxisHeight - actuals.XaxisHeight)
+                self:xy(actuals.GraphLeft, actuals.GraphTop)
+                self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
             end
         },
 
@@ -401,8 +366,8 @@ local function MSDoverTime() --returns an actorframe of the graph
             InitCommand = function(self)
                 local mouseOver = false
                 self:halign(0):valign(0)
-                self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
-                self:zoomto(actuals.XaxisWidth, actuals.YaxisHeight - actuals.XaxisHeight)
+                self:xy(actuals.GraphLeft, actuals.GraphTop)
+                self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
                 self:diffusealpha(1)
                 
             end,
@@ -430,10 +395,10 @@ local function MSDoverTime() --returns an actorframe of the graph
                     mouseX = math.floor(mouseX+0.5) --round down
                     mouseY = math.floor(mouseY + 0.5)
 
-                    local date = ((mouseX / actuals.XaxisWidth) * (maxDate - minDate)) + minDate --date in ms
+                    local date = ((mouseX / actuals.GraphWidth) * (maxDate - minDate)) + minDate --date in ms
                     local dateString = os.date("%x", date) --%x gives the date as a string in mm/dd/yy
 
-                    local msd = maxMSD - ((mouseY / actuals.YaxisHeight) * (maxMSD - minMSD))
+                    local msd = maxMSD - ((mouseY / actuals.GraphHeight) * (maxMSD - minMSD))
                     msd = tostring(msd):sub(1, 5) --stop long ass decimals
 
                     TOOLTIP:SetText("Date: " .. dateString .. " MSD: " .. msd)
@@ -457,7 +422,7 @@ local function MSDoverTime() --returns an actorframe of the graph
         InitCommand = function(self)
             self.skillset = "Overall"
             self:diffusealpha(plotAlpha)
-            self:xy(actuals.YaxisX + actuals.YaxisWidth, actuals.YaxisY)
+            self:xy(actuals.GraphLeft, actuals.GraphTop)
             self:playcommand("Plot")
         end,
 
@@ -474,10 +439,10 @@ local function MSDoverTime() --returns an actorframe of the graph
                         --this is because if the plot wants to be drawn at x=0, and the plot is central to x=0, then half the plot would go inside the y axis which looks ugly
                         --to fix this i add (plotWidth / 2) to the pos of the plot, so the plot is drawn with the data point at the top left of the plot
                         --if you really care, delete (plotWidth / 2) and (plotHeight / 2). it shouldnt matter, its literally 2 pixels difference
-                        local x = (plotWidth / 2) + (actuals.XaxisWidth * ((date - minDate) / (maxDate - minDate)))
-                        --because positive y is downwards, we work out the y coord as we would normally, then subtract that from YaxisHeight
+                        local x = (plotWidth / 2) + (actuals.GraphWidth * ((date - minDate) / (maxDate - minDate)))
+                        --because positive y is downwards, we work out the y coord as we would normally, then subtract that from GraphHeight
                         --if we didnt do this then the graph would be drawn upside down
-                        local y = actuals.YaxisHeight - ((plotHeight / 2) + (actuals.YaxisHeight * ((ssr - minMSD) / (maxMSD - minMSD))))
+                        local y = actuals.GraphHeight - ((plotHeight / 2) + (actuals.GraphHeight * ((ssr - minMSD) / (maxMSD - minMSD))))
                         
                         
                         placeDotVertices(vertices, x, y, colorByMSD(ssr))
@@ -510,8 +475,8 @@ local function MSDoverTime() --returns an actorframe of the graph
             local dateText = score:GetDate()
             if dateText ~= nil then
                 local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
-                local x = (actuals.XaxisX + (actuals.YaxisWidth + plotWidth)) + (actuals.XaxisWidth * ((date - minDate) / (maxDate - minDate)))
-                local y = (actuals.XaxisY - (actuals.XaxisHeight + plotHeight)) - (actuals.YaxisHeight * ((score:GetSkillsetSSR("Overall") - minMSD) / (maxMSD - minMSD)))
+                local x = (actuals.GraphLeft + (plotWidth)) + (actuals.GraphWidth * ((date - minDate) / (maxDate - minDate)))
+                local y = (actuals.GraphBottom - (plotHeight)) - (actuals.GraphHeight * ((score:GetSkillsetSSR("Overall") - minMSD) / (maxMSD - minMSD)))
 
 
                 t[#t + 1] = UIElements.TextToolTip(1, 1, "Common Normal") .. {
