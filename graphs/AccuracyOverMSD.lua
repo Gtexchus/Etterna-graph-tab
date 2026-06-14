@@ -72,11 +72,11 @@ local ratios = {
 }
 
 --for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
+ratios.GraphX = ratios.GraphXPadding
+ratios.GraphY = ratios.GraphYPadding
 ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
 ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
-ratios.GraphBottom = ratios.Height - ratios.GraphYPadding
-ratios.GraphLeft = ratios.GraphXPadding
-ratios.GraphTop = ratios.GraphYPadding
+ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
 ratios.GraphTitleCenterX = ratios.Width / 2
 ratios.GraphTitleCenterY = 20 / 1080
 
@@ -89,8 +89,8 @@ local actuals = {
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
-    GraphLeft = ratios.GraphLeft * SCREEN_WIDTH,
-    GraphTop = ratios.GraphTop * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetButtonsCol1 = ratios.SkillsetButtonsCol1 * SCREEN_WIDTH,
@@ -163,7 +163,7 @@ local function AccuracyOverMSD() --returns an actorframe of the graph
                 self:halign(0):valign(0)
                 self:diffuse(bgColour)
                 self:diffusealpha(bgAlpha)
-                self:xy(actuals.GraphLeft, actuals.GraphTop)
+                self:xy(actuals.GraphX, actuals.GraphY)
                 self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
             end
         },
@@ -376,7 +376,7 @@ local function AccuracyOverMSD() --returns an actorframe of the graph
         InitCommand = function(self)
             self.skillset = "Overall"
             self:diffusealpha(plotAlpha)
-            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:xy(actuals.GraphX, actuals.GraphY)
             self:playcommand("Plot")
         end,
 

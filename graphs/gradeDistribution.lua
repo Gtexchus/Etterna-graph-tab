@@ -22,11 +22,12 @@ local ratios = {
     GraphTypeButtonX = 700 / 1920,
     GraphTypeButtonY = 20 / 1080
 }
+ratios.GraphX = ratios.GraphXPadding
+ratios.GraphY = ratios.GraphYPadding
 ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
 ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2)
-ratios.GraphBottom = ratios.Height - ratios.GraphYPadding
-ratios.GraphLeft = ratios.GraphXPadding
-ratios.GraphTop = ratios.GraphYPadding
+ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
+
 ratios.GraphTitleX = ratios.Width / 2
 ratios.GraphTitleY = 20 / 1080
 
@@ -39,8 +40,8 @@ local actuals = {
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
-    GraphLeft = ratios.GraphLeft * SCREEN_WIDTH,
-    GraphTop = ratios.GraphTop * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
     BarWidth = ratios.BarWidth * SCREEN_WIDTH,
     GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
     GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
@@ -247,7 +248,7 @@ t = Def.ActorFrame{
             self:halign(0):valign(0)
             self:diffuse(bgColour)
             self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:xy(actuals.GraphX, actuals.GraphY)
             self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
         end
     },
@@ -292,7 +293,7 @@ t[#t + 1] = Def.ActorMultiVertex{
     InitCommand = function(self)
         self.usingEverySetScore = false
         self:diffusealpha(plotAlpha)
-        self:xy(actuals.GraphLeft, actuals.GraphTop)
+        self:xy(actuals.GraphX, actuals.GraphY)
         self:playcommand("Plot")
     end,
 

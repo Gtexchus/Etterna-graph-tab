@@ -33,15 +33,14 @@ local ratios = {
 }
 
 --for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
+ratios.GraphX = ratios.GraphXPadding
+ratios.GraphY = ratios.GraphYPadding
 ratios.GraphWidth = ratios.Width  - (ratios.GraphXPadding * 2)
 ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
-ratios.GraphLeft = ratios.GraphXPadding
-ratios.GraphTop = ratios.GraphYPadding
-ratios.GraphBottom = ratios.Height - ratios.GraphYPadding
+ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
 
 ratios.GraphTitleCenterX = ratios.Width / 2
 ratios.GraphTitleCenterY = 20 / 1080
-
 ratios.SkillsetLabelsContainerWidth = ratios.GraphWidth / 3
 ratios.SkillsetLabelsContainerHeight = ratios.GraphHeight / 2
 
@@ -56,8 +55,8 @@ local actuals = {
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
-    GraphLeft = ratios.GraphLeft * SCREEN_WIDTH,
-    GraphTop = ratios.GraphTop * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetLabelsContainerWidth = ratios.SkillsetLabelsContainerWidth * SCREEN_WIDTH,
@@ -178,7 +177,7 @@ local t = Def.ActorFrame{
             self:halign(0):valign(0)
             self:diffuse(bgColour)
             self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:xy(actuals.GraphX, actuals.GraphY)
             self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
         end
     },
@@ -199,7 +198,7 @@ local t = Def.ActorFrame{
         InitCommand = function(self)
             local mouseOver = false
             self:halign(0):valign(0)
-            self:xy(actuals.GraphLeft, actuals.GraphTop)
+            self:xy(actuals.GraphX, actuals.GraphY)
             self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
             self:diffusealpha(1)
             
@@ -232,7 +231,7 @@ local t = Def.ActorFrame{
 local XaxisLabelsContainer = Def.ActorFrame{
     Name = "XaxisLabelsContainer",
     InitCommand = function(self)
-        self:xy(actuals.GraphLeft, actuals.GraphBottom + actuals.XaxisLabelsYpadding)
+        self:xy(actuals.GraphX, actuals.GraphBottom + actuals.XaxisLabelsYpadding)
     end
 }
 
@@ -298,7 +297,7 @@ t[#t + 1] = XaxisLabelsContainer
 local YaxisLabelsContainer = Def.ActorFrame{
     Name = "YaxisLabelsContainer",
     InitCommand = function(self)
-        self:xy(actuals.GraphLeft - actuals.YaxisLabelsXpadding, actuals.GraphBottom)
+        self:xy(actuals.GraphX - actuals.YaxisLabelsXpadding, actuals.GraphBottom)
     end
 }
 
@@ -359,7 +358,7 @@ t[#t + 1] = Def.ActorMultiVertex{
     
     InitCommand = function(self)
         self:diffusealpha(plotAlpha)
-        self:xy(actuals.GraphLeft, actuals.GraphTop)
+        self:xy(actuals.GraphX, actuals.GraphY)
         self:playcommand("Plot")
     end,
 
@@ -422,7 +421,7 @@ local skillsetLabelsContainer = Def.ActorFrame{
 
     InitCommand = function(self)
         self:diffusealpha(1)
-        self:xy(actuals.GraphLeft + actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphTop + actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
+        self:xy(actuals.GraphX + actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphY + actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
     end,
 
     Def.Quad{
