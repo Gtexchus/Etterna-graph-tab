@@ -12,7 +12,7 @@ local xAxisLabelLineColor = color("#52525280")
 local yAxisLabelLineColor = color("#52525280")
 local buttonHoverAlpha = 0.6
 local XaxisLabelsCount = 5
-local YaxisLabelsResolution = 2
+local YaxisLabelsScale = 2
 local XaxisLabelsSize = 0.5
 local YaxisLabelsSize = 0.5
 
@@ -144,11 +144,9 @@ if latest ~= nil then
         end
     end
 end
-maxSSR = math.floor(maxSSR + 1) --round up
-if maxSSR % 2 == 1 then --make it even
-    maxSSR = maxSSR + 1
-end
 
+--round up to nearest y axis label
+maxSSR = (math.floor(maxSSR / YaxisLabelsScale) + 1) * YaxisLabelsScale
 
 local t = Def.ActorFrame{
     Name = "playerRatingOverTimeGraph",
@@ -301,7 +299,7 @@ local YaxisLabelsContainer = Def.ActorFrame{
     end
 }
 
-local YaxisLabelsCount = ((maxSSR) / YaxisLabelsResolution) + 1
+local YaxisLabelsCount = ((maxSSR) / YaxisLabelsScale) + 1
 
 for i=1, (YaxisLabelsCount) do
     YaxisLabelsContainer[#YaxisLabelsContainer+1] = Def.ActorFrame{
@@ -321,7 +319,7 @@ for i=1, (YaxisLabelsCount) do
             SetCommand = function(self)
                 local minSSR = 0
                 local msd = (((i-1)/(YaxisLabelsCount-1)) * (maxSSR - minSSR)) + minSSR
-                self:settextf("%5.0f", msd)
+                self:settextf("%s", msd)
             end
         },
 
