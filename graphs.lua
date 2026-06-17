@@ -113,7 +113,7 @@ local actuals = {
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT
 }
 
-local graphButtons = {"MSDoverTimeButton", "AccuracyOverMSDButton", "playerRatingOverTimeButton", "GradeDistributionButton"} --list of all graph buttons so we can easily set them all invisible
+local graphButtons = {"MSDoverTimeButton", "AccuracyOverMSDButton", "playerRatingOverTimeButton", "GradeDistributionButton", "JudgementDistributionButton"} --list of all graph buttons so we can easily set them all invisible
 local plotWidth = (3 / 1920) * SCREEN_WIDTH
 local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 
@@ -194,14 +194,26 @@ local function createGraphContainer()
         end,
 
         GradeDistributionCommand = function(self)
-            if not self:GetChild("GradeDistributionGraph") then --if the graph doesnt exist then make it
+            if not self:GetChild("GradeDistributionGraphContainer") then --if the graph doesnt exist then make it
                 self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/gradeDistribution"))
                 BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
             end
 
-            self:GetChild("GradeDistributionGraph"):playcommand("Focus") --focus the graph
+            self:GetChild("GradeDistributionGraphContainer"):playcommand("Focus") --focus the graph
             graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
-            self.FocusedGraph = "GradeDistributionGraph" --set focused graph
+            self.FocusedGraph = "GradeDistributionGraphContainer" --set focused graph
+            self:GetChild("Back"):diffusealpha(1) --make the back button visible
+        end,
+
+        JudgementDistributionCommand = function(self)
+            if not self:GetChild("JudgementDistributionGraphContainer") then --if the graph doesnt exist then make it
+                self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/judgementDistribution"))
+                BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
+            end
+
+            self:GetChild("JudgementDistributionGraphContainer"):playcommand("Focus") --focus the graph
+            graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
+            self.FocusedGraph = "JudgementDistributionGraphContainer" --set focused graph
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
         end,
 
@@ -317,6 +329,26 @@ local function createGraphButtons()
                 if self:IsInvisible() then return end
                 local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
                 graphContainer:playcommand("GradeDistribution")
+                graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+            end, 
+        },
+
+        UIElements.TextToolTip(1, 1, "Common Normal") .. {
+            Name = "JudgementDistributionButton",
+            InitCommand = function(self)
+                self:xy(10, 90)
+                self:diffusealpha(1)
+                self:halign(0):valign(0)
+                self:zoom(buttonTextSize)
+                self:maxwidth(200)
+                registerActorToColorConfigElement(self, "main", "PrimaryText")
+                self:settext("Judgement distribution")
+            end,
+
+            MouseDownCommand = function(self, params)
+                if self:IsInvisible() then return end
+                local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
+                graphContainer:playcommand("JudgementDistribution")
                 graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
             end, 
         },

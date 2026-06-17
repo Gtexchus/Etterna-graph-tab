@@ -126,6 +126,7 @@ local xAxisLabelLineColor = color("#52525280")
 local yAxisLabelLineColor = color("#52525280")
 local yAxisLabelLineAlpha = 0.3
 
+SCOREMAN:SortRecentScoresForGame()
 
 --get highest msd score
 for i = 1, SCOREMAN:GetTotalNumberOfScores() do
@@ -164,7 +165,6 @@ end
 
 
 
-SCOREMAN:SortRecentScoresForGame()
 
 local t = Def.ActorFrame{
     Name = "AccuracyOverMSDGraph",

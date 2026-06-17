@@ -208,14 +208,11 @@ barCoords = {}
 
 
 t = Def.ActorFrame{
-    Name = "GradeDistributionGraph",
+    Name = "GradeDistributionGraphContainer",
     focused = false,
-
-
     InitCommand = function(self)
         self:diffusealpha(0)
     end,
-
 
     FocusCommand = function(self)
         self:diffusealpha(1)
@@ -240,20 +237,6 @@ t = Def.ActorFrame{
         end
     },
 
-
-
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
-
-
     UIElements.TextToolTip(1, 1, "Common Normal") .. {
         Name = "GraphTypeButton",
         InitCommand = function(self)
@@ -263,8 +246,8 @@ t = Def.ActorFrame{
         end,
 
         MouseDownCommand = function(self)
-            local plots = self:GetParent():GetChild("Plots")
-            local gradeCount = self:GetParent():GetChild("GradeCount")
+            local plots = self:GetParent():GetChild("Graph"):GetChild("Plots")
+            local gradeCount = self:GetParent():GetChild("Graph"):GetChild("LabelsContainer"):GetChild("GradeCount")
             plots:playcommand("ToggleUsingEverySetScore")
             setGradeCounts(gradeCounts, plots.usingEverySetScore)
             plots:playcommand("Plot")
@@ -284,66 +267,81 @@ t = Def.ActorFrame{
 }
 
 
+local graph = Def.ActorFrame{
+    Name = "Graph",
+    Def.Quad{
+        Name = "BG",
+        InitCommand = function(self)
+            self:halign(0):valign(0)
+            self:diffuse(bgColour)
+            self:diffusealpha(bgAlpha)
+            self:xy(actuals.GraphX, actuals.GraphY)
+            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
+        end
+    },
 
+    Def.ActorMultiVertex{
+        Name = "Plots",
+        InitCommand = function(self)
+            self.usingEverySetScore = false
+            self:diffusealpha(plotAlpha)
+            self:xy(actuals.GraphX, actuals.GraphY)
+            self:playcommand("Plot")
+        end,
 
+        PlotCommand = function(self)
+            local vertices = {}
+            local barSpacing = (actuals.GraphWidth - (#gradeCounts * actuals.BarWidth)) / (#gradeCounts - 1)
 
-t[#t + 1] = Def.ActorMultiVertex{
-    Name = "Plots",
+            local maxGrade = 0
+
+            --we cant just do barcoords = {0, 0 etc. due to how lua works
+            for i = 1, #barCoords do
+                table.remove(barCoords, 1)
+            end
+
+            for i = 1, #gradeCounts do
+                maxGrade = math.max(maxGrade, gradeCounts[i])
+            end
+
+            for i = 1, #gradeCounts do
+                local x = (i - 1) * (actuals.BarWidth + barSpacing)
+                local y = actuals.GraphHeight - ((actuals.GraphHeight * (gradeCounts[i] / maxGrade)))
+                barCoords[#barCoords + 1] = {x, y}
+                
+                local height = (actuals.GraphHeight * (gradeCounts[i] / maxGrade))
+                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, colorByGrade(grades[i]))
+            end
+
+            if self:GetNumVertices() ~= 0 then
+                self:finishtweening()
+                self:smooth(plotAnimationSeconds)
+            end
+            self:SetVertices(vertices)
+            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
+        end,
+
+        ToggleUsingEverySetScoreCommand = function(self)
+            self.usingEverySetScore = not self.usingEverySetScore
+        end
+    }
+}
     
-    InitCommand = function(self)
-        self.usingEverySetScore = false
-        self:diffusealpha(plotAlpha)
-        self:xy(actuals.GraphX, actuals.GraphY)
-        self:playcommand("Plot")
-    end,
 
-
-    PlotCommand = function(self)
-        local vertices = {}
-        local barSpacing = (actuals.GraphWidth - (#gradeCounts * actuals.BarWidth)) / (#gradeCounts - 1)
-
-        local maxGrade = 0
-
-        --we cant just do barcoords = {0, 0 etc. due to how lua works
-        for i = 1, #barCoords do
-            table.remove(barCoords, 1)
-        end
-
-        for i = 1, #gradeCounts do
-            maxGrade = math.max(maxGrade, gradeCounts[i])
-        end
-
-        for i = 1, #gradeCounts do
-            local x = (i - 1) * (actuals.BarWidth + barSpacing)
-            local y = actuals.GraphHeight - ((actuals.GraphHeight * (gradeCounts[i] / maxGrade)))
-            barCoords[#barCoords + 1] = {x, y}
-            
-            local height = (actuals.GraphHeight * (gradeCounts[i] / maxGrade))
-            placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, colorByGrade(grades[i]))
-        end
-
-        if self:GetNumVertices() ~= 0 then
-            self:finishtweening()
-            self:smooth(plotAnimationSeconds)
-        end
-        self:SetVertices(vertices)
-        self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-    end,
-
-    ToggleUsingEverySetScoreCommand = function(self)
-        self.usingEverySetScore = not self.usingEverySetScore
-    end
+local labels = Def.ActorFrame{
+    Name = "LabelsContainer"
 }
 
-
 for i = 1, #grades do --make the graph labels
-    t[#t + 1] = LoadFont("Common Normal") .. {
+
+    labels[#labels + 1] = LoadFont("Common Normal") .. {
         --scorecount for each grade and percentage that goes above each bar
         Name = "GradeCount",
         InitCommand = function(self)
             self:zoom(gradeTextSize)
+            local plots = self:GetParent():GetParent():GetChild("Plots")
             --we need to set the xy here so it doesnt tween in from (0,0) and look weird
-            self:xy(self:GetParent():GetChild("Plots"):GetX() + barCoords[i][1] + (actuals.BarWidth / 2), self:GetParent():GetChild("Plots"):GetY() + barCoords[i][2] - actuals.GradeCountVerticalOffset)
+            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.GradeCountVerticalOffset)
             self:playcommand("Set")
         end,
 
@@ -354,23 +352,28 @@ for i = 1, #grades do --make the graph labels
             for i = 1, #gradeCounts do
                 totalNumberOfScores = totalNumberOfScores + gradeCounts[i]
             end
-            self:xy(self:GetParent():GetChild("Plots"):GetX() + barCoords[i][1] + (actuals.BarWidth / 2), self:GetParent():GetChild("Plots"):GetY() + barCoords[i][2] - actuals.GradeCountVerticalOffset)
+            local plots = self:GetParent():GetParent():GetChild("Plots")
+            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.GradeCountVerticalOffset)
             self:settextf("%s \n (%4.2f%s)",gradeCounts[i], (gradeCounts[i] / totalNumberOfScores) * 100, "%")
         end
     }
 
-    t[#t + 1] = LoadFont("Common Normal") .. {
+    labels[#labels + 1] = LoadFont("Common Normal") .. {
         --grade text that goes under the bar
         Name = "GradeText",
         InitCommand = function(self)
             self:zoom(gradeTextSize)
             self:valign(0)
-            self:xy(self:GetParent():GetChild("Plots"):GetX() + barCoords[i][1] + (actuals.BarWidth / 2), self:GetParent():GetChild("Plots"):GetY() + actuals.GraphHeight + actuals.GradeTextVerticalOffset)
+            local plots = self:GetParent():GetParent():GetChild("Plots")
+            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + actuals.GraphHeight + actuals.GradeTextVerticalOffset)
             self:settext(getGradeStrings(grades[i])) --THEME:GetString("Grade", ToEnumShortString(grades[i]))
             self:diffuse(colorByGrade(grades[i]))
         end
     }
 end
+
+graph[#graph + 1] = labels
+t[#t + 1] = graph
 
 return t
 
