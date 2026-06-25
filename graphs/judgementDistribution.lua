@@ -77,6 +77,7 @@ local judgements = {
 }
 
 
+
 local judgementCounts = {0, 0, 0, 0, 0, 0}
 --local judgeSetting = (PREFSMAN:GetPreference("SortBySSRNormPercent") and 4 or GetTimingDifficulty())
 
@@ -97,11 +98,16 @@ local function getJudgementCounts(judgementCounts, f)
     end
 end
 
+
+
 if PREFSMAN:GetPreference("SortBySSRNormPercent") then
     getJudgementCounts(judgementCounts, "GetTNSNormalized")
 else
     getJudgementCounts(judgementCounts, "GetTapNoteScore")
 end
+
+
+
 
 --table of {x, y} values, storing the top left corner of each bar
 --this is so we can easily draw the text above each bar
