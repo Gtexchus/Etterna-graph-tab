@@ -18,12 +18,10 @@ local ratios = {
     Y = 1 - (612 / 1080), 
     GraphYPadding = 100 / 1080,
     GraphXPadding = 50 / 1920,
-    SkillsetButtonsCol1 = 660 / 1920,
-    SkillsetButtonsCol2 = 720 / 1920,
-    SkillsetButtonsRow1 = 20 / 1080,
-    SkillsetButtonsRow2 = 40 / 1080,
-    SkillsetButtonsRow3 = 60 / 1080,
-    SkillsetButtonsRow4 = 80 / 1080,
+    SkillsetButtonsX = 660 / 1920,
+    SkillsetButtonsY = 20 / 1080,
+    SkillsetButtonsHorizontalSpacing = 60 / 1920,
+    SkillsetButtonsVerticalSpacing = 20 / 1080,
     XaxisLabelsYpadding = 20 / 1080,
     YaxisLabelsXpadding = 8 / 1920,
     XaxisLabelLineWidth = 1 / 1920,
@@ -52,12 +50,10 @@ local actuals = {
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
-    SkillsetButtonsCol1 = ratios.SkillsetButtonsCol1 * SCREEN_WIDTH,
-    SkillsetButtonsCol2 = ratios.SkillsetButtonsCol2 * SCREEN_WIDTH,
-    SkillsetButtonsRow1 = ratios.SkillsetButtonsRow1 * SCREEN_HEIGHT,
-    SkillsetButtonsRow2 = ratios.SkillsetButtonsRow2 * SCREEN_HEIGHT,
-    SkillsetButtonsRow3 = ratios.SkillsetButtonsRow3 * SCREEN_HEIGHT,
-    SkillsetButtonsRow4 = ratios.SkillsetButtonsRow4 * SCREEN_HEIGHT,
+    SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
+    SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
+    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
+    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
     X = ratios.X * SCREEN_WIDTH,
     Y = ratios.Y * SCREEN_HEIGHT,
     XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
@@ -70,6 +66,7 @@ local plotWidth = (3 / 1920) * SCREEN_WIDTH
 local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 0.5
 local plotAnimationSeconds = 1
+local maxSkillsetButtonsPerColumn = 4
 
 local genericButtonCommands = { --so i dont have to write these a billion times
     MouseOver = function(self)
@@ -90,6 +87,35 @@ local function placeDotVertices(vertList, x, y, color)
     vertList[#vertList + 1] = {{x + (plotWidth/2), y - (plotHeight/2), 0}, color}
     vertList[#vertList + 1] = {{x - (plotWidth/2), y - (plotHeight/2), 0}, color}
 end
+
+
+local function makeSkillsetButton(skillset_, x, y)
+    return UIElements.TextToolTip(1, 1, "Common Normal") .. {
+        Name = skillset_ .. "Button",
+        InitCommand = function(self)
+            self:xy(x, y)
+            self:zoom(smallButtonTextSize)
+            self:diffusealpha(1)
+            self:settext(ms.SkillSetsTranslatedByName[skillset_])
+            self:maxwidth(skillsetButtonsMaxWidth)
+
+        end,
+
+        MouseDownCommand = function(self)
+            local graphContainer = self:GetParent():GetParent()
+            if graphContainer.focused then
+                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
+                plots:playcommand("SetSkillset", {skillset = skillset_})
+                plots:playcommand("Plot")
+                graphContainer:GetChild("Title"):settext("Accuracy over " .. skillset_ .. " MSD")
+            end
+        end,
+
+        MouseOverCommand = genericButtonCommands["MouseOver"],
+        MouseOutCommand = genericButtonCommands["MouseOut"]
+    }
+end
+
 
 
 SCOREMAN:SortRecentScoresForGame()
@@ -128,47 +154,25 @@ maxDate = os.time(os.date("!*t")) --current time
     
 
 
-
---SCOREMAN:GetRecentScoreForGame
---SCOREMAN:GetTotalNumberOfScores
---score:GetSkillsetSSR("Overall")
---score:GetDate()
-
 local t = Def.ActorFrame{
-    Name = "MSDoverTimeGraph",
+    Name = "MSDoverTimeGraphContainer",
     focused = false,
 
     InitCommand = function(self)
         self:diffusealpha(0)
-        --create all graph points here
     end,
 
     FocusCommand = function(self)
         self:diffusealpha(1)
         self.focused = true
         self:z(1)
-        --graphButtonsSetAlpha(self:GetParent():GetParent(), 0) --set graph buttons to invisible
-        --removechild
     end,
 
     UnfocusCommand = function(self)
         self:diffusealpha(0)
         self.focused = false
         self:z(-1)
-        --graphButtonsSetAlpha(self:GetParent():GetParent(), 1) --set graph buttons to invisible
     end,
-
-
-    Def.Quad{
-        Name = "BG", 
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
 
     LoadFont("Common Normal") .. {
         Name = "Title",
@@ -180,190 +184,86 @@ local t = Def.ActorFrame{
             registerActorToColorConfigElement(self, "main", "PrimaryText")
         end
     },
+}
 
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "OverallButton",
+--make skillset buttons
+
+local sbc = Def.ActorFrame{
+    Name = "SkillsetButtonsContainer",
+
+    InitCommand = function(self)
+        self:xy(actuals.SkillsetButtonsX, actuals.SkillsetButtonsY)
+    end
+}
+
+for i=1, #ms.SkillSets do
+    sbc[#sbc + 1] = makeSkillsetButton(ms.SkillSets[i], math.floor((i-1)/ maxSkillsetButtonsPerColumn) * actuals.SkillsetButtonsHorizontalSpacing, ((i-1) % maxSkillsetButtonsPerColumn) * actuals.SkillsetButtonsVerticalSpacing)
+end
+
+t[#t + 1] = sbc
+
+
+--make graph
+
+local graph = Def.ActorFrame{
+    Name = "Graph",
+
+    InitCommand = function(self)
+        self:xy(actuals.GraphX, actuals.GraphY)
+    end,
+
+    Def.Quad{
+        Name = "BG", 
         InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol1, actuals.SkillsetButtonsRow1)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Overall")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
-        end,
-
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Overall"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Overall MSD over time")
-            end
-        end,
-
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
+            self:halign(0):valign(0)
+            self:diffuse(bgColour)
+            self:diffusealpha(bgAlpha)
+            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
+        end
     },
 
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "StreamButton",
+    Def.ActorMultiVertex{
+        Name = "Plots",
+        
         InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol1, actuals.SkillsetButtonsRow2)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Stream")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
+            self.skillset = "Overall"
+            self:diffusealpha(plotAlpha)
+            self:playcommand("Plot")
         end,
 
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Stream"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Stream MSD over time")
+        PlotCommand = function(self) --plots the points on the graph
+            local vertices = {}
+            for i = 1, SCOREMAN:GetTotalNumberOfScores() do --for every saved score
+                local score = SCOREMAN:GetRecentScoreForGame(i)
+                if score ~= nil then
+                    local dateText = score:GetDate()
+                    local ssr = score:GetSkillsetSSR(self.skillset)
+                    if dateText ~= nil and ssr >= minMSD and ssr <= maxMSD then
+                        local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
+                        local x = actuals.GraphWidth * ((date - minDate) / (maxDate - minDate))
+                        --because positive y is downwards, we work out the y coord as we would normally, then subtract that from GraphHeight
+                        --if we didnt do this then the graph would be drawn upside down
+                        local y = actuals.GraphHeight - (actuals.GraphHeight * ((ssr - minMSD) / (maxMSD - minMSD)))
+                        
+                        
+                        placeDotVertices(vertices, x, y, colorByMSD(ssr))
+                        
+                    end
+                end
             end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    },
 
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "JumpstreamButton",
-        InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol1, actuals.SkillsetButtonsRow3)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Jumpstream")
-            self:maxwidth(skillsetButtonsMaxWidth)
 
-        end,
-
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Jumpstream"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Jumpstream MSD over time")
+            if self:GetNumVertices() ~= 0 then
+                self:finishtweening()
+                self:smooth(plotAnimationSeconds)
             end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    },
-
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "HandstreamButton",
-        InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol1, actuals.SkillsetButtonsRow4)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Handstream")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
+            self:SetVertices(vertices)
+            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
         end,
 
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Handstream"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Handstream MSD over time")
-            end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    },
-
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "StaminaButton",
-        InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol2, actuals.SkillsetButtonsRow1)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Stamina")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
-        end,
-
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Stamina"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Stamina MSD over time")
-            end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    },
-
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "JackspeedButton",
-        InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol2, actuals.SkillsetButtonsRow2)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Jackspeed")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
-        end,
-
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Jackspeed"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Jackspeed MSD over time")
-            end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    },
-
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "ChordjackButton",
-        InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol2, actuals.SkillsetButtonsRow3)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Chordjack")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
-        end,
-
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Chordjack"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Chordjack MSD over time")
-            end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    },
-
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "TechnicalButton",
-        InitCommand = function(self)
-            self:xy(actuals.SkillsetButtonsCol2, actuals.SkillsetButtonsRow4)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext("Technical")
-            self:maxwidth(skillsetButtonsMaxWidth)
-
-        end,
-
-        MouseDownCommand = function(self)
-            if self:GetParent().focused then
-                local plots = self:GetParent():GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = "Technical"})
-                plots:playcommand("Plot")
-                self:GetParent():GetChild("Title"):settext("Technical MSD over time")
-            end
-        end,
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
+        SetSkillsetCommand = function(self, params)
+            self.skillset = params.skillset
+        end
     },
 
 
@@ -372,14 +272,13 @@ local t = Def.ActorFrame{
         InitCommand = function(self)
             local mouseOver = false
             self:halign(0):valign(0)
-            self:xy(actuals.GraphX, actuals.GraphY)
             self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
             self:diffusealpha(1)
             
         end,
 
         MouseOverCommand = function(self)
-            if self:GetParent().focused and not self:IsInvisible() then
+            if self:GetParent():GetParent().focused and not self:IsInvisible() then
                 self.mouseOver = true
                 self:queuecommand("DisplayMouseCoords")
             end
@@ -396,8 +295,8 @@ local t = Def.ActorFrame{
                 local absoluteMouseX = INPUTFILTER:GetMouseX()
                 local absoluteMouseY = INPUTFILTER:GetMouseY()
 
-                local mouseX = absoluteMouseX - (actuals.X + self.GetX(self))
-                local mouseY = absoluteMouseY - (actuals.Y + self.GetY(self))
+                local mouseX = absoluteMouseX - self:GetTrueX()
+                local mouseY = absoluteMouseY - self:GetTrueY()
                 mouseX = math.floor(mouseX+0.5) --round down
                 mouseY = math.floor(mouseY + 0.5)
 
@@ -417,18 +316,16 @@ local t = Def.ActorFrame{
                 self:queuecommand("DisplayMouseCoords")
             end
         end
-
-
     }
 }
 
---axis labels
 
+--axis labels
 
 local XaxisLabelsContainer = Def.ActorFrame{
     Name = "XaxisLabelsContainer",
     InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphBottom + actuals.XaxisLabelsYpadding)
+        self:y(actuals.GraphHeight + actuals.XaxisLabelsYpadding)
     end
 }
 
@@ -486,7 +383,7 @@ for i=1, (XaxisLabelsCount) do
     }
 end
 
-t[#t + 1] = XaxisLabelsContainer
+
 
 
 
@@ -494,7 +391,7 @@ t[#t + 1] = XaxisLabelsContainer
 local YaxisLabelsContainer = Def.ActorFrame{
     Name = "YaxisLabelsContainer",
     InitCommand = function(self)
-        self:xy(actuals.GraphX - actuals.YaxisLabelsXpadding, actuals.GraphBottom)
+        self:xy(-actuals.YaxisLabelsXpadding, actuals.GraphHeight)
     end
 }
 
@@ -543,55 +440,9 @@ for i=1, (YaxisLabelsCount) do
     }
 end
 
-t[#t + 1] = YaxisLabelsContainer
+graph[#graph + 1] = XaxisLabelsContainer
+graph[#graph + 1] = YaxisLabelsContainer
 
-
-t[#t + 1] = Def.ActorMultiVertex{
-    Name = "Plots",
-    
-    InitCommand = function(self)
-        self.skillset = "Overall"
-        self:diffusealpha(plotAlpha)
-        self:xy(actuals.GraphX, actuals.GraphY)
-        self:playcommand("Plot")
-    end,
-
-    PlotCommand = function(self) --plots the points on the graph
-        local vertices = {}
-        for i = 1, SCOREMAN:GetTotalNumberOfScores() do --for every saved score
-            local score = SCOREMAN:GetRecentScoreForGame(i)
-            if score ~= nil then
-                local dateText = score:GetDate()
-                local ssr = score:GetSkillsetSSR(self.skillset)
-                if dateText ~= nil and ssr >= minMSD and ssr <= maxMSD then
-                    local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
-                    local x = actuals.GraphWidth * ((date - minDate) / (maxDate - minDate))
-                    --because positive y is downwards, we work out the y coord as we would normally, then subtract that from GraphHeight
-                    --if we didnt do this then the graph would be drawn upside down
-                    local y = actuals.GraphHeight - (actuals.GraphHeight * ((ssr - minMSD) / (maxMSD - minMSD)))
-                    
-                    
-                    placeDotVertices(vertices, x, y, colorByMSD(ssr))
-                    
-                end
-            end
-        end
-
-
-        if self:GetNumVertices() ~= 0 then
-            self:finishtweening()
-            self:smooth(plotAnimationSeconds)
-        end
-        self:SetVertices(vertices)
-        self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-    end,
-
-    SetSkillsetCommand = function(self, params)
-        self.skillset = params.skillset
-    end
-
-
-}
-
+t[#t + 1] = graph
 
 return t

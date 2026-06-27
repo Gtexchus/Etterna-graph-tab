@@ -78,7 +78,7 @@ local actuals = {
     GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH
 }
 
-local graphNames = {{graphActorName = "MSDoverTimeGraph", graphFileName = "MSDoverTime", graphButtonName = "MSDoverTimeButton", graphButtonText = "MSD over time"}, --table of {graphActorName, graphFileName, graphButtonName, graphButtonText}
+local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName = "MSDoverTime", graphButtonName = "MSDoverTimeButton", graphButtonText = "MSD over time"}, --table of {graphActorName, graphFileName, graphButtonName, graphButtonText}
 {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonName = "AccuracyOverMSDButton", graphButtonText = "Accuracy over MSD"}, 
 {graphActorName = "playerRatingOverTimeGraph", graphFileName = "playerRatingOverTime", graphButtonName = "playerRatingOverTimeButton", graphButtonText = "Player rating over time"}, 
 {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonName = "GradeDistributionButton", graphButtonText = "Grade distribution"}, 
@@ -166,22 +166,22 @@ local function createGraphButton(i)
     return UIElements.TextToolTip(1, 1, "Common Normal") .. {
         Name = graphNames[i].graphButtonName,
         InitCommand = function(self)
-                self:xy(10, 10 + (20*i))
-                self:diffusealpha(1)
-                self:halign(0):valign(0)
-                self:zoom(buttonTextSize)
-                self:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
-                -- divide by buttonTextSize bc maxWidth also scales with zoom
-                registerActorToColorConfigElement(self, "main", "PrimaryText")
-                self:settext(graphNames[i].graphButtonText)
-            end,
+            self:xy(10, 10 + (20*i))
+            self:diffusealpha(1)
+            self:halign(0):valign(0)
+            self:zoom(buttonTextSize)
+            self:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
+            -- divide by buttonTextSize bc maxWidth also scales with zoom
+            registerActorToColorConfigElement(self, "main", "PrimaryText")
+            self:settext(graphNames[i].graphButtonText)
+        end,
 
-            MouseDownCommand = function(self, params)
-                if self:IsInvisible() then return end
-                local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
-                graphContainer:playcommand("LoadGraph", {graphActorName = graphNames[i].graphActorName, graphFileName = graphNames[i].graphFileName})
-                graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
-            end, 
+        MouseDownCommand = function(self, params)
+            if self:IsInvisible() then return end
+            local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
+            graphContainer:playcommand("LoadGraph", {graphActorName = graphNames[i].graphActorName, graphFileName = graphNames[i].graphFileName})
+            graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+        end, 
     }
 end
 
