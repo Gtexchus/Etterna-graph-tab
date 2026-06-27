@@ -1,32 +1,11 @@
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
-local skillsetButtonsMaxWidth = 50
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local buttonHoverAlpha = 0.6
-local minWife = 93--if you dont put minwife and maxwife as the same value as a midgrade it will break
-local maxWife = 100
-local minMSD = 0
-local maxMSD = 10
+
 --the idea is to have each midgrade take up the same physical space on the graph
-local gradeTiers = { --GetGradeFromPercent
-    [100] = 0,
-    [99.9935] = 1,
-    [99.98] = 2,
-    [99.97] = 3,
-    [99.955] = 4,
-    [99.9] = 5,
-    [99.8] = 6,
-    [99.7] = 7,
-    [99] = 8,
-    [96.5] = 9,
-    [93] = 10,
-    [90] = 11,
-    [85] = 12,
-    [80] = 13,
-    [70] = 14,
-    [60] = 15
-}
+
 local gradeBoundaries = {
     [0] = 100, --not technically a grade but its here for convenience
     99.9935, --AAAAA
@@ -46,11 +25,10 @@ local gradeBoundaries = {
     60 --C
 }
 
-
-local gradeBoundariesInverted = {} --so i can easily find that 99.9 is the 5th grade, etc
-for k, v in pairs(gradeBoundaries) do
-    gradeBoundariesInverted[v] = k
-end
+local minGrade = 10 --lowest grade tier the graph can show (see gradeBoundaries)
+local maxGrade = 0 --highest grade tier the graph can show
+local minWife = gradeBoundaries[minGrade]
+local maxWife = gradeBoundaries[maxGrade]
 
 
 local ratios = {
@@ -62,10 +40,6 @@ local ratios = {
     GraphYPadding = 100 / 1080,
     GraphXPadding = 50 / 1920,
 
-    SkillsetButtonsX = 660 / 1920,
-    SkillsetButtonsY = 20 / 1080,
-    SkillsetButtonsHorizontalSpacing = 60 / 1920,
-    SkillsetButtonsVerticalSpacing = 20 / 1080,
     XaxisLabelsYpadding = 20 / 1080,
     YaxisLabelsXpadding = 8 / 1920,
     XaxisLabelLineWidth = 1 / 1920,
@@ -95,10 +69,6 @@ local actuals = {
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
-    SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
-    SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
-    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
-    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
     X = ratios.X * SCREEN_WIDTH,
     Y = ratios.Y * SCREEN_HEIGHT,
     XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
@@ -111,30 +81,40 @@ local plotWidth = (3 / 1920) * SCREEN_WIDTH
 local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 0.5
 local plotAnimationSeconds = 1
-local maxSkillsetButtonsPerColumn = 4
 
-local XaxisLabelsScale = 4
-local YaxisLabelsCount = (gradeTiers[minWife] - gradeTiers[maxWife]) + 1
+local XaxisLabelsCount = 5
+local YaxisLabelsCount = (minGrade - maxGrade) + 1
 local XaxisLabelsSize = 0.5
 local YaxisLabelsSize = 0.5
 local xAxisLabelLineColor = color("#52525280")
-local yAxisLabelLineColor = color("#52525280")
 local yAxisLabelLineAlpha = 0.3
+
+local minDate
+local maxDate
 
 SCOREMAN:SortRecentScoresForGame()
 
---get highest msd score
+--i get errors if i dont do this which is annoying
+--loop through scores from earliest until latest until we find a valid date, then break the loop
+local minDateText = nil
 for i = 1, SCOREMAN:GetTotalNumberOfScores() do
     local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
     if score ~= nil then
-        if score:GetSkillsetSSR("overall") > maxMSD then
-            maxMSD = score:GetSkillsetSSR("overall")
+        if score:GetDate() ~= nil and minDateText == nil then
+            minDateText = score:GetDate()
+            break
         end
     end
 end
 
---round maxMSD up to the nearest y axis label
-maxMSD = (math.floor(maxMSD / XaxisLabelsScale) + 1) * XaxisLabelsScale
+
+if minDateText ~= nil then
+    minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
+else
+    minDate = os.time(os.date("!*t")) --if we dont have a mindate then today is the mindate
+end
+
+maxDate = os.time(os.date("!*t")) --current time
 
 
 local genericButtonCommands = { --so i dont have to write these a billion times
@@ -158,36 +138,11 @@ local function placeDotVertices(vertList, x, y, color)
 end
 
 
-local function makeSkillsetButton(skillset_, x, y)
-    return UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = skillset_ .. "Button",
-        InitCommand = function(self)
-            self:xy(x, y)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext(ms.SkillSetsTranslatedByName[skillset_])
-            self:maxwidth(skillsetButtonsMaxWidth)
 
-        end,
-
-        MouseDownCommand = function(self)
-            local graphContainer = self:GetParent():GetParent()
-            if graphContainer.focused then
-                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = skillset_})
-                plots:playcommand("Plot")
-                graphContainer:GetChild("Title"):settext("Accuracy over " .. skillset_ .. " MSD")
-            end
-        end,
-
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
-    }
-end
 
 
 local t = Def.ActorFrame{
-    Name = "AccuracyOverMSDGraphContainer",
+    Name = "AccuracyOverTimeGraphContainer",
     focused = false,
 
     InitCommand = function(self)
@@ -212,7 +167,7 @@ local t = Def.ActorFrame{
             self:valign(0)
             self:zoom(headerTextSize)
             self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Accuracy over Overall MSD")
+            self:settext("Accuracy over time")
             registerActorToColorConfigElement(self, "main", "PrimaryText")
         end
     },
@@ -220,21 +175,6 @@ local t = Def.ActorFrame{
 
 }
 
-local sbc = Def.ActorFrame{
-    Name = "SkillsetButtonsContainer",
-
-    InitCommand = function(self)
-        self:xy(actuals.SkillsetButtonsX, actuals.SkillsetButtonsY)
-    end
-}
-
-for i=1, #ms.SkillSets do
-    sbc[#sbc + 1] = makeSkillsetButton(ms.SkillSets[i], math.floor((i-1)/ maxSkillsetButtonsPerColumn) * actuals.SkillsetButtonsHorizontalSpacing, ((i-1) % maxSkillsetButtonsPerColumn) * actuals.SkillsetButtonsVerticalSpacing)
-end
-
-t[#t + 1] = sbc
-
---graph
 
 local graph = Def.ActorFrame{
     Name = "Graph",
@@ -258,7 +198,6 @@ local graph = Def.ActorFrame{
         Name = "Plots",
         
         InitCommand = function(self)
-            self.skillset = "Overall"
             self:diffusealpha(plotAlpha)
             self:playcommand("Plot")
         end,
@@ -270,8 +209,12 @@ local graph = Def.ActorFrame{
                 if score ~= nil then
                     local wife = score:GetWifeScore() * 100
                     local grade = score:GetWifeGrade()
-                    local msd = score:GetSkillsetSSR(self.skillset)
-                    if wife >= minWife and wife <= maxWife and grade ~= "Failed" and grade ~= "Grade_Failed" and msd >= minMSD and msd <= maxMSD then
+                    local dateText = score:GetDate()
+                    if wife >= minWife and wife <= maxWife and grade ~= "Failed" and grade ~= "Grade_Failed" and dateText ~= nil then
+                        --calculate date for x
+                        local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
+
+                        --calculate y coordinate stuff
                         local gradeNumber = tonumber(grade:sub(11, 12))
                         local lowerWifeBound = gradeBoundaries[gradeNumber]
                         local upperWifeBound
@@ -280,14 +223,14 @@ local graph = Def.ActorFrame{
                         else
                             upperWifeBound = 100
                         end
-                        local numberOfSections = (gradeTiers[minWife] - gradeTiers[maxWife])  --13
+                        local numberOfSections = (minGrade - maxGrade)  --13
                         -- -1 because e.g. 3 lines make only 2 sections
-                        local sectionNumber = gradeTiers[minWife] - gradeNumber --if this is 0 then its the bottom section  3
+                        local sectionNumber = minGrade - gradeNumber --if this is 0 then its the bottom section  3
                         local sectionHeight = actuals.GraphHeight / numberOfSections --39.4
 
                         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
-                        local x =  actuals.GraphWidth * ((msd - minMSD) / (maxMSD - minMSD))
+                        local x =  actuals.GraphWidth * ((date - minDate) / (maxDate - minDate))
                         local y =  actuals.GraphHeight - ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
                         placeDotVertices(vertices, x, y, colorByGrade(score:GetWifeGrade())) 
                     end
@@ -300,9 +243,6 @@ local graph = Def.ActorFrame{
             self:SetVertices(vertices)
             self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
         end,
-        SetSkillsetCommand = function(self, params)
-            self.skillset = params.skillset
-        end
     },
 
     UIElements.TextToolTip(1, 1, "Common Normal") .. {
@@ -336,11 +276,16 @@ local graph = Def.ActorFrame{
                 mouseX = math.floor(mouseX+0.5) --round down
                 mouseY = math.floor(mouseY + 0.5)
 
-                local msd = string.format("%5.2f", ((mouseX / actuals.GraphWidth) * (maxMSD - minMSD)))
+
+                local date = ((mouseX / actuals.GraphWidth) * (maxDate - minDate)) + minDate --date in ms
+                local day = os.date("%d", date) 
+                local month = os.date("%m", date)
+                local year = os.date("%Y", date)
+                local dateString = string.format("%s-%s-%s", year, month, day)
 
                 --finding the acc at the point where the mouse cursor is at
                 --here, a "section" is one square on the graph, e.g. gap between AA. and AA:
-                local numberOfSections = (gradeTiers[minWife] - gradeTiers[maxWife]) --how many sections there are in total
+                local numberOfSections = minGrade - maxGrade --how many sections there are in total
                 local mouseYPercent = mouseY / actuals.GraphHeight
                 local sectionNumber = notShit.floor(mouseYPercent * numberOfSections) --section we are in, top section is 0
                 local upperSectionBound = ((sectionNumber) / numberOfSections) * actuals.GraphHeight 
@@ -350,8 +295,8 @@ local graph = Def.ActorFrame{
                 upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
                 local progressIntoSection = ((lowerSectionBound - mouseY ) / (lowerSectionBound - upperSectionBound)) --%
 
-                local lowerWifeBound = gradeBoundaries[(gradeTiers[minWife] - (numberOfSections - sectionNumber)) + 1]
-                local upperWifeBound = gradeBoundaries[gradeTiers[minWife] - (numberOfSections - sectionNumber)]
+                local lowerWifeBound = gradeBoundaries[(minGrade - (numberOfSections - sectionNumber)) + 1]
+                local upperWifeBound = gradeBoundaries[minGrade - (numberOfSections - sectionNumber)]
 
                 local acc = lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection)
                 local accStr = ""
@@ -361,7 +306,7 @@ local graph = Def.ActorFrame{
                     accStr = string.format("%7.2f%s", acc, "%")
                 end
                 
-                TOOLTIP:SetText("MSD: " .. msd .. "\nAccuracy: " .. accStr)
+                TOOLTIP:SetText("Date: " .. dateString .. "\nAccuracy: " .. accStr)
                 TOOLTIP:Show()
                 self:sleep(0.05)
                 self:queuecommand("DisplayMouseCoords")
@@ -384,7 +329,6 @@ local XaxisLabelsContainer = Def.ActorFrame{
     end
 }
 
-local XaxisLabelsCount = ((maxMSD - minMSD) / XaxisLabelsScale) + 1 
 
 for i=1, (XaxisLabelsCount) do
     XaxisLabelsContainer[#XaxisLabelsContainer+1] = Def.ActorFrame{
@@ -402,8 +346,18 @@ for i=1, (XaxisLabelsCount) do
             end,
 
             SetCommand = function(self)
-                local msd = (((i-1)/(XaxisLabelsCount-1)) * (maxMSD - minMSD)) + minMSD
-                self:settextf("%s", msd)
+                local date = (((i-1)/(XaxisLabelsCount-1)) * (maxDate - minDate)) + minDate
+                local dateTable = os.date("*t", date)
+                local day = tostring(dateTable["day"])
+                local month = tostring(dateTable["month"])
+                local year = tostring(dateTable["year"])
+                if string.len(day) == 1 then --e.g. if its 1 then make it 01
+                    day = 0 .. day
+                end
+                if string.len(month) == 1 then
+                    month = 0 .. month
+                end
+                self:settextf("%s-%s-%s", year, month, day)
             end
         },
 
@@ -455,7 +409,7 @@ for i=1, (YaxisLabelsCount) do
             end,
 
             SetCommand = function(self)
-                local percent = gradeBoundaries[gradeTiers[minWife] - (i-1)]
+                local percent = gradeBoundaries[minGrade - (i-1)]
                 if percent == 100 then
                     self:settext("100%")
                 else
@@ -474,7 +428,7 @@ for i=1, (YaxisLabelsCount) do
                 self:x(0)
                 self:zoomto(actuals.YaxisLabelsXpadding, actuals.YaxisLabelLineHeight)
                 --registerActorToColorConfigElement(self, "main", "SeparationDivider")
-                local percent = gradeBoundaries[gradeTiers[minWife] - (i-1)]
+                local percent = gradeBoundaries[minGrade - (i-1)]
                 local grade = GetGradeFromPercent(percent / 100)
                 self:diffuse(colorByGrade(grade))
             end
@@ -487,7 +441,7 @@ for i=1, (YaxisLabelsCount) do
                 self:x(actuals.YaxisLabelsXpadding)
                 self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineHeight)
                 --self:diffuse(xAxisLabelLineColor)
-                local percent = gradeBoundaries[gradeTiers[minWife] - (i-1)]
+                local percent = gradeBoundaries[minGrade - (i-1)]
                 local grade = GetGradeFromPercent(percent / 100)
                 self:diffuse(colorByGrade(grade))
                 self:diffusealpha(yAxisLabelLineAlpha)

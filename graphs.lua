@@ -82,7 +82,8 @@ local graphNames = {{graphActorName = "MSDoverTimeGraph", graphFileName = "MSDov
 {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonName = "AccuracyOverMSDButton", graphButtonText = "Accuracy over MSD"}, 
 {graphActorName = "playerRatingOverTimeGraph", graphFileName = "playerRatingOverTime", graphButtonName = "playerRatingOverTimeButton", graphButtonText = "Player rating over time"}, 
 {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonName = "GradeDistributionButton", graphButtonText = "Grade distribution"}, 
-{graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonName = "JudgementDistributionButton", graphButtonText = "Judgement distribution"}} 
+{graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonName = "JudgementDistributionButton", graphButtonText = "Judgement distribution"},
+{graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonName = "AccuracyOverTimeButton", graphButtonText = "Accuracy Over Time"}} 
 
 
 
