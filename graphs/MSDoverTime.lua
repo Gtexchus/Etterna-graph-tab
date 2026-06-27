@@ -107,7 +107,7 @@ local function makeSkillsetButton(skillset_, x, y)
                 local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
                 plots:playcommand("SetSkillset", {skillset = skillset_})
                 plots:playcommand("Plot")
-                graphContainer:GetChild("Title"):settext("Accuracy over " .. skillset_ .. " MSD")
+                graphContainer:GetChild("Title"):settext(skillset_ .. " MSD over time")
             end
         end,
 
