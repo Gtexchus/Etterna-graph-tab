@@ -402,12 +402,16 @@ local t = Def.ActorFrame{
                 mouseY = math.floor(mouseY + 0.5)
 
                 local date = ((mouseX / actuals.GraphWidth) * (maxDate - minDate)) + minDate --date in ms
-                local dateString = os.date("%x", date) --%x gives the date as a string in mm/dd/yy
+                local date = ((mouseX / actuals.GraphWidth) * (maxDate - minDate)) + minDate --date in ms
+                local day = os.date("%d", date) 
+                local month = os.date("%m", date)
+                local year = os.date("%Y", date)
+                local dateString = string.format("%s-%s-%s", year, month, day)
 
                 local msd = maxMSD - ((mouseY / actuals.GraphHeight) * (maxMSD - minMSD))
                 msd = tostring(msd):sub(1, 5) --stop long ass decimals
 
-                TOOLTIP:SetText("Date: " .. dateString .. " MSD: " .. msd)
+                TOOLTIP:SetText("Date: " .. dateString .. "\nMSD: " .. msd)
                 TOOLTIP:Show()
                 self:sleep(0.05)
                 self:queuecommand("DisplayMouseCoords")
@@ -456,7 +460,7 @@ for i=1, (XaxisLabelsCount) do
                 if string.len(month) == 1 then
                     month = 0 .. month
                 end
-                self:settextf("%s/%s/%s", year, month, day)
+                self:settextf("%s-%s-%s", year, month, day)
             end
         },
 

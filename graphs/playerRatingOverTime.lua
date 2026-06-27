@@ -261,7 +261,7 @@ for i=1, (XaxisLabelsCount) do
                 if string.len(month) == 1 then
                     month = 0 .. month
                 end
-                self:settextf("%s/%s/%s", year, month, day)
+                self:settextf("%s-%s-%s", year, month, day)
             end
         },
 
