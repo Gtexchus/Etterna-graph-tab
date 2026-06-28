@@ -20,7 +20,9 @@ local ratios = {
     GradeCountVerticalOffset = 25 / 1080,
     GradeTextVerticalOffset = 10 / 1080,
     GraphTypeButtonX = 700 / 1920,
-    GraphTypeButtonY = 20 / 1080
+    GraphTypeButtonY = 20 / 1080,
+    GraphButtonPaddingWidth = 20 / 1920,
+    GraphButtonPaddingHeight = 20 / 1080
 }
 ratios.GraphX = ratios.GraphXPadding
 ratios.GraphY = ratios.GraphYPadding
@@ -48,7 +50,9 @@ local actuals = {
     GradeCountVerticalOffset = ratios.GradeCountVerticalOffset * SCREEN_HEIGHT,
     GradeTextVerticalOffset = ratios.GradeTextVerticalOffset * SCREEN_HEIGHT,
     GraphTypeButtonX = ratios.GraphTypeButtonX * SCREEN_WIDTH,
-    GraphTypeButtonY = ratios.GraphTypeButtonY * SCREEN_HEIGHT
+    GraphTypeButtonY = ratios.GraphTypeButtonY * SCREEN_HEIGHT,
+    GraphButtonPaddingWidth = ratios.GraphButtonPaddingWidth * SCREEN_WIDTH,
+    GraphButtonPaddingHeight = ratios.GraphButtonPaddingHeight * SCREEN_HEIGHT
    
 }
 
@@ -204,7 +208,7 @@ GetGradeFromPercent(50 / 100),
 
 --table of {x, y} values, storing the top left corner of each bar
 --this is so we can easily draw the text above each bar
-barCoords = {}
+local barCoords = {}
 
 
 t = Def.ActorFrame{
@@ -237,32 +241,46 @@ t = Def.ActorFrame{
         end
     },
 
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
+    UIElements.TextButton(1, 1, "Common Normal") .. {
         Name = "GraphTypeButton",
         InitCommand = function(self)
+            local txt = self:GetChild("Text")
+            local bg = self:GetChild("BG")
             self:xy(actuals.GraphTypeButtonX, actuals.GraphTypeButtonY)
-            self:zoom(smallButtonTextSize)
-            self:settext("Using only top scores")
+            txt:zoom(smallButtonTextSize)
+            txt:settext("Using only top scores")
+            bg:zoomto(txt:GetZoomedWidth() + actuals.GraphButtonPaddingWidth, txt:GetZoomedHeight() + actuals.GraphButtonPaddingHeight)
         end,
 
-        MouseDownCommand = function(self)
-            local plots = self:GetParent():GetChild("Graph"):GetChild("Plots")
-            local gradeCount = self:GetParent():GetChild("Graph"):GetChild("LabelsContainer"):GetChild("GradeCount")
-            plots:playcommand("ToggleUsingEverySetScore")
-            setGradeCounts(gradeCounts, plots.usingEverySetScore)
-            plots:playcommand("Plot")
-            for i = 1, #gradeCount do
-                gradeCount[i]:playcommand("Set")
+        ClickCommand = function(self, params)
+            if self:IsInvisible() then return end
+            if params.update == "OnMouseDown" then
+                local txt = self:GetChild("Text")
+                local bg = self:GetChild("BG")
+                local plots = self:GetParent():GetChild("Graph"):GetChild("Plots")
+                local gradeCount = self:GetParent():GetChild("Graph"):GetChild("LabelsContainer"):GetChild("GradeCount")
+                plots:playcommand("ToggleUsingEverySetScore")
+                setGradeCounts(gradeCounts, plots.usingEverySetScore)
+                plots:playcommand("Plot")
+                for i = 1, #gradeCount do
+                    gradeCount[i]:playcommand("Set")
+                end
+                if plots.usingEverySetScore then
+                    txt:settext("Using every set score")
+                else
+                    txt:settext("Using only top scores")
+                end
             end
-            if plots.usingEverySetScore then
-                self:settext("Using every set score")
+        end,
+
+        RolloverUpdateCommand = function(self, params)
+            if self:IsInvisible() then return end
+            if params.update == "in" then
+                self:diffusealpha(buttonHoverAlpha)
             else
-                self:settext("Using only top scores")
+                self:diffusealpha(1)
             end
-        end,
-
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
+        end
     }
 }
 

@@ -111,7 +111,7 @@ end
 
 --table of {x, y} values, storing the top left corner of each bar
 --this is so we can easily draw the text above each bar
-barCoords = {}
+local barCoords = {}
 
 
 t = Def.ActorFrame{

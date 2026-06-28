@@ -57,26 +57,43 @@ local t = Def.ActorFrame {
     end
 }
 
-
-
-local buttonTextSize = 0.7
-local headerTextSize = 1
-
 local ratios = {
     Width = Var("widthRatio"), -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
     --X = 1 - Var("widthRatio"),
     --Y = 1 - 612 / 1080, 
-    GraphButtonMaxWidth = 780 / 1920
+    GraphButtonMaxWidth = 780 / 1920,
+    GraphButtonHorizontalSpacing = 250 / 1920,
+    GraphButtonVerticalSpacing = 30 / 1080,
+    GraphButtonHorizontalPadding = 10 / 1920,
+    GraphButtonVerticalPadding = 10 / 1080,
+    BackButtonHorizontalPadding = 10 / 1920,
+    BackButtonVerticalPadding = 10 / 1080,
 }
 
+local maxGraphButtonsPerRow = 3
+ratios.GraphButtonHorizontalSpacing = (ratios.Width - (2 * ratios.GraphButtonHorizontalPadding)) / maxGraphButtonsPerRow
+ratios.GraphButtonMaxWidth = ratios.GraphButtonHorizontalSpacing - ratios.GraphButtonHorizontalPadding
 
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH
+    GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH,
+    GraphButtonHorizontalSpacing = ratios.GraphButtonHorizontalSpacing * SCREEN_WIDTH,
+    GraphButtonVerticalSpacing = ratios.GraphButtonVerticalSpacing * SCREEN_HEIGHT,
+    GraphButtonHorizontalPadding = ratios.GraphButtonHorizontalPadding * SCREEN_WIDTH,
+    GraphButtonVerticalPadding = ratios.GraphButtonVerticalPadding * SCREEN_HEIGHT,
+    BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
+    BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT
 }
+
+
+local maxGraphButtonsPerColumn = notShit.floor((actuals.Height - (actuals.GraphButtonVerticalPadding)) / actuals.GraphButtonVerticalSpacing)
+local buttonTextSize = 0.7
+local headerTextSize = 1
+local buttonHoverAlpha = 0.6
+
 
 local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName = "MSDoverTime", graphButtonName = "MSDoverTimeButton", graphButtonText = "MSD over time"}, --table of {graphActorName, graphFileName, graphButtonName, graphButtonText}
 {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonName = "AccuracyOverMSDButton", graphButtonText = "Accuracy over MSD"}, 
@@ -106,7 +123,6 @@ local function graphButtonsSetAlpha(t, alpha)
     for i = 1, #graphNames do
         t:GetChild(graphNames[i].graphButtonName):diffusealpha(alpha)
     end
-
 end
         
 
@@ -120,85 +136,116 @@ local function createGraphContainer()
             self:z(-1)
         end,
 
-        LoadGraphCommand = function(self, params)
-            --params.graphFileName
-            --params.graphActorName
-            if not self:GetChild(params.graphActorName) then --if the graph doesnt exist then make it
-                self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/" .. params.graphFileName))
-                BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
+        FocusGraphCommand = function(self, params)
+            if not self:GetChild(params.graphActorName) then --if the graph doesnt exist then load it
+                self:playcommand("LoadGraph", {graphFileName = params.graphFileName})
             end
-
             self:GetChild(params.graphActorName):playcommand("Focus") --focus the graph
-            graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
             self.FocusedGraph = params.graphActorName --set focused graph
+            graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
         end,
 
-        UIElements.TextToolTip(1, 1, "Common Normal") .. { --back button
+        LoadGraphCommand = function(self, params)
+            if params.graphFileName ~= nil then
+                self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/" .. params.graphFileName))
+                BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
+            end
+        end,
+
+        UIElements.TextButton(1, 1, "Common Normal") .. { --back button
             Name = "Back",
             InitCommand = function(self)
-                self:xy(0,0)
+                local txt = self:GetChild("Text")
+                local bg = self:GetChild("BG")
+                self:xy(actuals.BackButtonHorizontalPadding, actuals.BackButtonVerticalPadding)
                 self:diffusealpha(0)
-                self:halign(0):valign(0)
-                self:zoom(buttonTextSize)
-                self:maxwidth(200)
-                registerActorToColorConfigElement(self, "main", "PrimaryText")
-                self:settext("Back")
+                txt:halign(0):valign(0)
+                txt:zoom(buttonTextSize)
+                txt:settext("Back")
+                bg:halign(0):valign(0)
+                bg:zoomto(txt:GetZoomedWidth() + actuals.BackButtonHorizontalPadding, txt:GetZoomedHeight() + actuals.BackButtonVerticalPadding)
+                bg:xy(-actuals.BackButtonHorizontalPadding/2, -actuals.BackButtonVerticalPadding/2)
+                registerActorToColorConfigElement(txt, "main", "PrimaryText")
             end,
 
-            MouseDownCommand = function(self, params)
+            ClickCommand = function(self, params)
                 if self:IsInvisible() then return end
+                if params.update == "OnMouseDown" then
+                    local graph = self:GetParent():GetChild(self:GetParent().FocusedGraph)
+                    graph:playcommand("Unfocus") --unfocus the graph
+                    graphButtonsSetAlpha(self:GetParent():GetParent():GetChild("GraphButtons"), 1) --set graph buttons to visible
+                    self:diffusealpha(0) --set back button to invisible
+                    self:GetParent().FocusedGraph = "" --there is no focused graph anymore
+                    self:GetParent():z(-1)
+                end
+            end,
 
-                local graph = self:GetParent():GetChild(self:GetParent().FocusedGraph)
-                graph:playcommand("Unfocus") --unfocus the graph
-                graphButtonsSetAlpha(self:GetParent():GetParent():GetChild("GraphButtons"), 1) --set graph buttons to visible
-                self:diffusealpha(0) --set back button to invisible
-                self:GetParent().FocusedGraph = "" --there is no focused graph anymore
-                self:GetParent():z(-1)
+            RolloverUpdateCommand = function(self, params)
+                if self:IsInvisible() then return end
+                if params.update == "in" then
+                    self:diffusealpha(buttonHoverAlpha)
+                else
+                    self:diffusealpha(1)
+                end
             end
             },
-
     }
     return t
 end
 
-local function createGraphButton(i)
-    return UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = graphNames[i].graphButtonName,
-        InitCommand = function(self)
-            self:xy(10, 10 + (20*i))
-            self:diffusealpha(1)
-            self:halign(0):valign(0)
-            self:zoom(buttonTextSize)
-            self:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
-            -- divide by buttonTextSize bc maxWidth also scales with zoom
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-            self:settext(graphNames[i].graphButtonText)
-        end,
+local function createGraphButtons()
+    local function createGraphButton(i)
+        return UIElements.TextButton(1, 1, "Common Normal") .. {
+            Name = graphNames[i].graphButtonName,
+            InitCommand = function(self)
+                local txt = self:GetChild("Text")
+                local bg = self:GetChild("BG")
+                self:xy(actuals.GraphButtonHorizontalPadding + (actuals.GraphButtonHorizontalSpacing * notShit.floor((i-1) / maxGraphButtonsPerColumn)), actuals.GraphButtonVerticalPadding + (actuals.GraphButtonVerticalSpacing * ((i-1) % maxGraphButtonsPerColumn)))
+                self:diffusealpha(1)
+                txt:halign(0):valign(0)
+                bg:halign(0):valign(0)
+                bg:xy(-actuals.GraphButtonHorizontalPadding/2, -actuals.GraphButtonVerticalPadding/2)
+                txt:zoom(buttonTextSize)
+                bg:zoomto(actuals.GraphButtonHorizontalSpacing, actuals.GraphButtonVerticalSpacing)
+                txt:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
+                -- divide by buttonTextSize bc maxWidth also scales with zoom
+                registerActorToColorConfigElement(txt, "main", "PrimaryText")
+                txt:settext(graphNames[i].graphButtonText)
+            end,
 
-        MouseDownCommand = function(self, params)
-            if self:IsInvisible() then return end
-            local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
-            graphContainer:playcommand("LoadGraph", {graphActorName = graphNames[i].graphActorName, graphFileName = graphNames[i].graphFileName})
-            graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
-        end, 
+            ClickCommand = function(self, params)
+                if self:IsInvisible() then return end
+                if params.update == "OnMouseDown" then
+                    local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
+                    graphContainer:playcommand("FocusGraph", {graphActorName = graphNames[i].graphActorName, graphFileName = graphNames[i].graphFileName})
+                    graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+                end
+            end, 
+
+            RolloverUpdateCommand = function(self, params)
+                if self:IsInvisible() then return end
+                if params.update == "in" then
+                    self:diffusealpha(buttonHoverAlpha)
+                else
+                    self:diffusealpha(1)
+                end
+            end
+        }
+    end
+
+    local t = Def.ActorFrame{
+        Name = "GraphButtons",
     }
+    for i=1, #graphNames do
+        t[#t + 1] = createGraphButton(i)
+    end
+    return t
 end
-
-
-
-local graphButtons = Def.ActorFrame{
-    Name = "GraphButtons",
-}
-
-for i=1, #graphNames do
-    graphButtons[#graphButtons + 1] = createGraphButton(i)
-end
-
 
 
 t[#t + 1] = createGraphContainer()
-t[#t + 1] = graphButtons
+t[#t + 1] = createGraphButtons()
 
 
 

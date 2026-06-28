@@ -1,6 +1,6 @@
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
-local skillsetButtonsMaxWidth = 50
+local skillsetButtonsMaxWidth = 100
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local buttonHoverAlpha = 0.6
@@ -62,9 +62,9 @@ local ratios = {
     GraphYPadding = 100 / 1080,
     GraphXPadding = 50 / 1920,
 
-    SkillsetButtonsX = 660 / 1920,
+    SkillsetButtonsX = 640 / 1920,
     SkillsetButtonsY = 20 / 1080,
-    SkillsetButtonsHorizontalSpacing = 60 / 1920,
+    SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
     XaxisLabelsYpadding = 20 / 1080,
     YaxisLabelsXpadding = 8 / 1920,
@@ -159,29 +159,52 @@ end
 
 
 local function makeSkillsetButton(skillset_, x, y)
-    return UIElements.TextToolTip(1, 1, "Common Normal") .. {
+    return UIElements.TextButton(1, 1, "Common Normal") .. {
         Name = skillset_ .. "Button",
         InitCommand = function(self)
+            local txt = self:GetChild("Text")
+            local bg = self:GetChild("BG")
             self:xy(x, y)
-            self:zoom(smallButtonTextSize)
-            self:diffusealpha(1)
-            self:settext(ms.SkillSetsTranslatedByName[skillset_])
-            self:maxwidth(skillsetButtonsMaxWidth)
-
+            bg:zoomto(actuals.SkillsetButtonsHorizontalSpacing, actuals.SkillsetButtonsVerticalSpacing)
+            txt:zoom(smallButtonTextSize)
+            txt:diffusealpha(1)
+            txt:settext(ms.SkillSetsTranslatedByName[skillset_])
+            txt:maxwidth(skillsetButtonsMaxWidth)
+            self:playcommand("Update", {skillset = "Overall"}) --so overall is highlighted when the graph is first loaded
         end,
 
-        MouseDownCommand = function(self)
-            local graphContainer = self:GetParent():GetParent()
-            if graphContainer.focused then
-                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
-                plots:playcommand("SetSkillset", {skillset = skillset_})
-                plots:playcommand("Plot")
-                graphContainer:GetChild("Title"):settext("Accuracy over " .. skillset_ .. " MSD")
+        UpdateCommand = function(self, params)
+            local txt = self:GetChild("Text")
+            if params.skillset == skillset_ then
+                txt:strokecolor(Brightness(COLORS:getMainColor("PrimaryText"), 0.7))
+            else
+                txt:strokecolor(color("0,0,0,0"))
             end
         end,
 
-        MouseOverCommand = genericButtonCommands["MouseOver"],
-        MouseOutCommand = genericButtonCommands["MouseOut"]
+        ClickCommand = function(self, params)
+            if self:IsInvisible() then return end
+            if params.update == "OnMouseDown" then
+                local graphContainer = self:GetParent():GetParent()
+                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
+                local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
+                local title = graphContainer:GetChild("Title")
+                local skillsetButtons = sbc:GetChildren()
+                --update everything
+                sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
+                plots:playcommand("Update", {skillset = skillset_})
+                title:playcommand("Update", {skillset = skillset_})
+            end
+        end,
+
+        RolloverUpdateCommand = function(self, params)
+            if self:IsInvisible() then return end
+            if params.update == "in" then
+                self:diffusealpha(buttonHoverAlpha)
+            else
+                self:diffusealpha(1)
+            end
+        end
     }
 end
 
@@ -214,6 +237,10 @@ local t = Def.ActorFrame{
             self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
             self:settext("Accuracy over Overall MSD")
             registerActorToColorConfigElement(self, "main", "PrimaryText")
+        end,
+
+        UpdateCommand = function(self, params)
+            self:settext("Accuracy over " .. params.skillset .. " MSD")
         end
     },
 
@@ -300,8 +327,11 @@ local graph = Def.ActorFrame{
             self:SetVertices(vertices)
             self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
         end,
-        SetSkillsetCommand = function(self, params)
-            self.skillset = params.skillset
+        UpdateCommand = function(self, params)
+            if params.skillset ~= self.skillset then
+                self.skillset = params.skillset
+                self:playcommand("Plot")
+            end
         end
     },
 
