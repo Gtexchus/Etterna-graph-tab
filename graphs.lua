@@ -100,7 +100,8 @@ local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName
 {graphActorName = "playerRatingOverTimeGraph", graphFileName = "playerRatingOverTime", graphButtonName = "playerRatingOverTimeButton", graphButtonText = "Player rating over time"}, 
 {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonName = "GradeDistributionButton", graphButtonText = "Grade distribution"}, 
 {graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonName = "JudgementDistributionButton", graphButtonText = "Judgement distribution"},
-{graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonName = "AccuracyOverTimeButton", graphButtonText = "Accuracy Over Time"}} 
+{graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonName = "AccuracyOverTimeButton", graphButtonText = "Accuracy Over Time"},
+{graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonName = "SkillsetPlaycountDistributionButton", graphButtonText = "Skillset playcount distribution"}} 
 
 
 
