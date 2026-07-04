@@ -76,7 +76,7 @@ local function setCleartypeCounts(cleartypeCounts)
         end
     end
 end
-
+SCOREMAN:SortRecentScoresForGame()
 
 local cleartypeCounts = {}
 for i=1, 11 do --excludes "Infvalid", "No Play" and "--" (wtf even is --)
@@ -84,7 +84,6 @@ for i=1, 11 do --excludes "Infvalid", "No Play" and "--" (wtf even is --)
 end
 setCleartypeCounts(cleartypeCounts)
 
-SCOREMAN:SortRecentScoresForGame()
 
 
 --table of {x, y} values, storing the top left corner of each bar
@@ -128,128 +127,18 @@ t = Def.ActorFrame{
 
 
 
-
-local graph = Def.ActorFrame{
-    Name = "Graph",
+t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
+    Values = cleartypeCounts,
+    Yfunc = function(params)
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+    end,
+    ColorFunc = function(i, _) return getClearTypeColor(i) end,
+    IndexFunc = function(i) return getClearTypeText(i) end,
+    BarWidth = 30
+}) .. {
     InitCommand = function(self)
         self:xy(actuals.GraphX, actuals.GraphY)
-    end,
-        
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
-
-    Def.ActorMultiVertex{
-        Name = "Plots",
-        InitCommand = function(self)
-            self.skillset = "overall"
-            self:diffusealpha(plotAlpha)
-            self:playcommand("Plot")
-        end,
-
-        PlotCommand = function(self)
-            local vertices = {}
-            local barSpacing = (actuals.GraphWidth - ((#cleartypeCounts) * actuals.BarWidth)) / (#cleartypeCounts - 1)
-            local maxY = 0
-
-            --we cant just do barcoords = {0, 0} etc. due to how lua works
-            for i = 1, #barCoords do
-                table.remove(barCoords, 1)
-            end
-
-            for i = 1, #cleartypeCounts do
-                maxY = math.max(maxY, cleartypeCounts[i])
-            end
-
-            for i = 1, #cleartypeCounts do
-                local x = (i-1) * (actuals.BarWidth + barSpacing)
-                local y = actuals.GraphHeight - ((actuals.GraphHeight * (cleartypeCounts[i] / maxY)))
-                local height = (actuals.GraphHeight * (cleartypeCounts[i] / maxY))
-                local color = getClearTypeColor(i)
-                barCoords[#barCoords + 1] = {x, y}
-                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
-            end
-
-            if self:GetNumVertices() ~= 0 then
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-            end
-            self:SetVertices(vertices)
-            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-        end,
-    }
+    end
 }
-    
-
-local function makeLabel(i)
-    return Def.ActorFrame{
-        Name = "Label",
-
-        InitCommand = function(self)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:x(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2))
-        end,
-        SetCommand = function(self, params)
-            self:PlayCommandsOnChildren("Set", params)
-        end,
-
-        LoadFont("Common Normal") .. {
-            --scorecount for each grade and percentage that goes above each bar
-            Name = "LabelAboveBar",
-            InitCommand = function(self)
-                self:zoom(labelTextSize)
-                local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
-                --we need to set the xy here so it doesnt tween in from (0,0) and look weird
-                self:y(plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-                local total = 0
-                for j = 1, #cleartypeCounts do
-                    total = total + cleartypeCounts[j]
-                end
-                local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
-                self:y(plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-
-                self:settextf("%s \n (%4.2f%s)",cleartypeCounts[i], (cleartypeCounts[i] / total) * 100, "%")
-            end
-        },
-
-        LoadFont("Common Normal") .. {
-            --grade text that goes under the bar
-            Name = "LabelBelowBar",
-            InitCommand = function(self)
-                self:zoom(labelTextSize)
-                self:valign(0)
-                local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
-                self:y(plots:GetY() + actuals.GraphHeight + actuals.LabelBelowBarVerticalOffset)
-                self:settext(getClearTypeText(i)) 
-                self:diffuse(getClearTypeColor(i))
-            end,
-        }
-    }
-    
-end
-
-local labels = Def.ActorFrame{
-    Name = "LabelsContainer"
-}
-
-for i = 1, #cleartypeCounts do --make the graph labels
-    labels[#labels + 1] = makeLabel(i)
-end
-
-graph[#graph + 1] = labels
-
-t[#t + 1] = graph
 
 return t
