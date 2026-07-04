@@ -133,7 +133,7 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
         return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
     end,
     ColorFunc = function(i, _) return getClearTypeColor(i) end,
-    IndexFunc = function(i) return getClearTypeText(i) end,
+    BarLabelStrFunc = function(i) return getClearTypeText(i) end,
     BarWidth = 30
 }) .. {
     InitCommand = function(self)

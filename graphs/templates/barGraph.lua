@@ -22,7 +22,7 @@ local values = Var("Values")
 --functions
 local yFunc = Var("Yfunc") --calculates y coord from values[i]
 local colorFunc = Var("ColorFunc") --has params (index, value) because the color could be made from either
-local indexFunc = Var("IndexFunc") --returns text from i
+local barLabelStrFunc = Var("BarLabelStrFunc") --returns text from i
 
 
 --things that may be passed in
@@ -81,10 +81,10 @@ local t = Def.ActorFrame{
         Name = "Plots",
         InitCommand = function(self)
             self:diffusealpha(plotAlpha)
-            self:playcommand("Plot")
+            self:playcommand("Set")
         end,
 
-        PlotCommand = function(self)
+        SetCommand = function(self)
             local vertices = {}
             local maxY = 0
 
@@ -130,9 +130,6 @@ local function makeLabel(i)
             local plots = self:GetParent():GetParent():GetChild("Plots")
             self:x(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2))
         end,
-        SetCommand = function(self, params)
-            self:PlayCommandsOnChildren("Set", params)
-        end,
 
         UIElements.QuadButton(1, 1) .. {
             InitCommand = function(self)
@@ -172,6 +169,7 @@ local function makeLabel(i)
                 self:playcommand("Set")
             end,
 
+
             SetCommand = function(self)
                 self:finishtweening()
                 self:smooth(plotAnimationSeconds)
@@ -202,7 +200,7 @@ local function makeLabel(i)
                 local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
                 self:y(plots:GetY() + actuals.GraphHeight + actuals.BottomLabelVerticalOffset)
                 
-                self:settext(indexFunc(i)) 
+                self:settext(barLabelStrFunc(i)) 
                 self:diffuse(colorFunc(i, values[i]))
                 self:diffusealpha(bottomLabelDefaultAlpha)
             end,

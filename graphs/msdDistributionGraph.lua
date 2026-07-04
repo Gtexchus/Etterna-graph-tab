@@ -17,7 +17,7 @@ local ratios = {
     Height = 612 / 1080,
     GraphYPadding = 100 / 1080, --distance from x axis to bottom of container
     GraphXPadding = 50 / 1920, --distance from y axis to left of container
-    BarWidth = 10 / 1920,
+    BarSpacing = 10 / 1920,
     LabelAboveBarVerticalOffset = 25 / 1080,
     LabelBelowBarVerticalOffset = 10 / 1080,
     SkillsetButtonsX = 640 / 1920,
@@ -43,7 +43,7 @@ local actuals = {
     GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    BarWidth = ratios.BarWidth * SCREEN_WIDTH,
+    BarSpacing = ratios.BarSpacing * SCREEN_WIDTH,
     GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
     GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
     LabelAboveBarVerticalOffset = ratios.LabelAboveBarVerticalOffset * SCREEN_HEIGHT,
@@ -111,6 +111,7 @@ local msdCounts = {}
 for i=1, (notShit.floor((maxMSD - minMSD) / XaxisScale) + 2) do --set everything we need to 0 (i dont really know why its +2 here, it looks like it should be +1 but that breaks)
     msdCounts[i] = 0
 end
+setMSDcounts(msdCounts, "overall")
 
 
 t = Def.ActorFrame{
@@ -184,7 +185,8 @@ local function makeSkillsetButton(skillset_, x, y)
                 local labelsContainer = self:GetParent():GetParent():GetChild("Graph"):GetChild("LabelsContainer")
                 local skillsetButtons = sbc:GetChildren()
                 --update everything
-                plots:playcommand("Update", {skillset = skillset_}) --this needs to be run first because setMSDcounts is run there
+                setMSDcounts(msdCounts, skillset_)
+                plots:playcommand("Set") --this needs to be run first because setMSDcounts is run there
                 sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
                 title:playcommand("Update", {skillset = skillset_})
                 labelsContainer:PlayCommandsOnChildren("Set")
@@ -220,172 +222,19 @@ t[#t + 1] = sbc
 
 
 
-local graph = Def.ActorFrame{
-    Name = "Graph",
+t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
+    Values = msdCounts,
+    Yfunc = function(params)
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+    end,
+    ColorFunc = function(i, _) return colorByMSD(getMSDfromi(i)) end,
+    BarLabelStrFunc = function(i) return getMSDfromi(i) end,
+    BarSpacing = actuals.BarSpacing,
+    TopLabelDefaultAlpha = 0
+}) .. {
     InitCommand = function(self)
         self:xy(actuals.GraphX, actuals.GraphY)
-    end,
-        
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
-
-    Def.ActorMultiVertex{
-        Name = "Plots",
-        InitCommand = function(self)
-            self.skillset = "overall"
-            self:diffusealpha(plotAlpha)
-            self:playcommand("Plot")
-        end,
-
-        PlotCommand = function(self)
-            setMSDcounts(msdCounts, self.skillset)
-            local vertices = {}
-            local barSpacing = (actuals.GraphWidth - ((#msdCounts) * actuals.BarWidth)) / (#msdCounts - 1)
-            local maxY = 0
-
-            --we cant just do barcoords = {0, 0} etc. due to how lua works
-            for i = 1, #barCoords do
-                table.remove(barCoords, 1)
-            end
-
-            for i = 1, #msdCounts do
-                maxY = math.max(maxY, msdCounts[i])
-            end
-
-            for i = 1, #msdCounts do
-                local x = (i-1) * (actuals.BarWidth + barSpacing)
-                local msd = getMSDfromi(i)
-                local msdCount = 0
-                if msdCounts[i] ~= nil then 
-                    msdCount = msdCounts[i]
-                end
-                local y = actuals.GraphHeight - ((actuals.GraphHeight * (msdCount / maxY)))
-                local height = (actuals.GraphHeight * (msdCounts[i] / maxY))
-                local color = colorByMSD(msd)
-                barCoords[#barCoords + 1] = {x, y}
-                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
-            end
-
-            if self:GetNumVertices() ~= 0 then
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-            end
-            self:SetVertices(vertices)
-            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-        end,
-
-        UpdateCommand = function(self, params)
-            if params.skillset ~= self.skillset then
-                self.skillset = params.skillset
-                self:playcommand("Plot")
-            end
-        end
-
-    }
+    end
 }
-    
-
-local function makeLabel(i)
-    return Def.ActorFrame{
-        Name = "Label",
-
-        InitCommand = function(self)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:x(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2))
-        end,
-        SetCommand = function(self, params)
-            self:PlayCommandsOnChildren("Set", params)
-        end,
-
-        UIElements.QuadButton(1, 1) .. {
-            InitCommand = function(self)
-                self:valign(0)
-                self:diffusealpha(0)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                self:y(barCoords[i][2])
-                self:zoomto(actuals.BarWidth, actuals.GraphHeight - barCoords[i][2])
-            end,
-            MouseOverCommand = function(self)
-                local labelAboveBar = self:GetParent():GetChild("LabelAboveBar")
-                labelAboveBar:diffusealpha(1)
-            end,
-
-            MouseOutCommand = function(self)
-                local labelAboveBar = self:GetParent():GetChild("LabelAboveBar")
-                labelAboveBar:diffusealpha(0)
-            end,
-        },
-
-        LoadFont("Common Normal") .. {
-            --scorecount for each grade and percentage that goes above each bar
-            Name = "LabelAboveBar",
-            InitCommand = function(self)
-                self:zoom(labelTextSize)
-                local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
-                --we need to set the xy here so it doesnt tween in from (0,0) and look weird
-                self:y(plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-                self:diffusealpha(0)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-                local total = 0
-                for j = 1, #msdCounts do
-                    local msdCount = 0
-                    if msdCounts[j] ~= nil then 
-                        msdCount = msdCounts[j]
-                    end
-                    total = total + msdCount
-                end
-                local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
-                self:y(plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-                local msdCount = 0
-                if msdCounts[i] ~= nil then 
-                    msdCount = msdCounts[i]
-                end
-                self:settextf("%s \n (%4.2f%s)",msdCount, (msdCount / total) * 100, "%")
-            end
-        },
-
-        LoadFont("Common Normal") .. {
-            --grade text that goes under the bar
-            Name = "LabelBelowBar",
-            InitCommand = function(self)
-                self:zoom(labelTextSize)
-                self:valign(0)
-                local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
-                self:y(plots:GetY() + actuals.GraphHeight + actuals.LabelBelowBarVerticalOffset)
-                local msd = getMSDfromi(i)
-                self:settext(msd) 
-                self:diffuse(colorByMSD(msd))
-            end,
-        }
-    }
-    
-end
-
-local labels = Def.ActorFrame{
-    Name = "LabelsContainer"
-}
-
-for i = 1, #msdCounts do --make the graph labels
-    labels[#labels + 1] = makeLabel(i)
-end
-
-graph[#graph + 1] = labels
-
-t[#t + 1] = graph
 
 return t

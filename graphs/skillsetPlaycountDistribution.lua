@@ -108,107 +108,19 @@ t = Def.ActorFrame{
 
 }
 
-local graph = Def.ActorFrame{
-    Name = "Graph",
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
 
-    Def.ActorMultiVertex{
-        Name = "Plots",
-        InitCommand = function(self)
-            self:diffusealpha(plotAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:playcommand("Plot")
-        end,
-
-        PlotCommand = function(self)
-            local vertices = {}
-            local barSpacing = (actuals.GraphWidth - (#playsbyskillset * actuals.BarWidth)) / (#playsbyskillset - 1)
-            local maxY = 0
-
-            --we cant just do barcoords = {0, 0} etc. due to how lua works
-            for i = 1, #barCoords do
-                table.remove(barCoords, 1)
-            end
-
-            for i = 1, #playsbyskillset do
-                maxY = math.max(maxY, playsbyskillset[i])
-            end
-
-            for i = 1, #playsbyskillset do
-                local x = (i - 1) * (actuals.BarWidth + barSpacing)
-                local y = actuals.GraphHeight - ((actuals.GraphHeight * (playsbyskillset[i] / maxY)))
-                local height = (actuals.GraphHeight * (playsbyskillset[i] / maxY))
-                local color = skillsetColors[i + 1] -- +1 because overall isnt included
-                barCoords[#barCoords + 1] = {x, y}
-                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
-            end
-
-            if self:GetNumVertices() ~= 0 then
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-            end
-            self:SetVertices(vertices)
-            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-        end,
-
-    }
+t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
+    Values = playsbyskillset,
+    Yfunc = function(params)
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+    end,
+    ColorFunc = function(i, _) return skillsetColors[i + 1] end,
+    BarLabelStrFunc = function(i) return ms.SkillSetsTranslatedByName[ms.SkillSets[i + 1]] end,
+    BarWidth = actuals.BarWidth
+}) .. {
+    InitCommand = function(self)
+        self:xy(actuals.GraphX, actuals.GraphY)
+    end
 }
-    
-
-local labels = Def.ActorFrame{
-    Name = "LabelsContainer"
-}
-
-for i = 1, #playsbyskillset do --make the graph labels
-
-    labels[#labels + 1] = LoadFont("Common Normal") .. {
-        --scorecount for each grade and percentage that goes above each bar
-        Name = "LabelAboveBar",
-        InitCommand = function(self)
-            self:zoom(labelTextSize)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            --we need to set the xy here so it doesnt tween in from (0,0) and look weird
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-            self:playcommand("Set")
-        end,
-
-        SetCommand = function(self)
-            self:finishtweening()
-            self:smooth(plotAnimationSeconds)
-            local total = 0
-            for i = 1, #playsbyskillset do
-                total = total + playsbyskillset[i]
-            end
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-            self:settextf("%s \n (%4.2f%s)",playsbyskillset[i], (playsbyskillset[i] / total) * 100, "%")
-        end
-    }
-
-    labels[#labels + 1] = LoadFont("Common Normal") .. {
-        --grade text that goes under the bar
-        Name = "LabelBelowBar",
-        InitCommand = function(self)
-            self:zoom(labelTextSize)
-            self:valign(0)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + actuals.GraphHeight + actuals.LabelBelowBarVerticalOffset)
-            self:settext(ms.SkillSetsTranslatedByName[ms.SkillSets[i + 1]]) 
-            self:diffuse(skillsetColors[i + 1])
-        end
-    }
-end
-
-graph[#graph + 1] = labels
-t[#t + 1] = graph
 
 return t

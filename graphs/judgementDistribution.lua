@@ -143,119 +143,26 @@ t = Def.ActorFrame{
             registerActorToColorConfigElement(self, "main", "PrimaryText")
         end
     },
-
 }
 
-local graph = Def.ActorFrame{
-    Name = "Graph",
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
 
-    Def.ActorMultiVertex{
-        Name = "Plots",
-        InitCommand = function(self)
-            self.usingEverySetScore = false
-            self:diffusealpha(plotAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:playcommand("Plot")
-        end,
+t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
+    Values = judgementCounts,
+    Yfunc = function(params)
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+    end,
 
-        PlotCommand = function(self)
-            local vertices = {}
-            local barSpacing = (actuals.GraphWidth - (#judgementCounts * actuals.BarWidth)) / (#judgementCounts - 1)
+    ColorFunc = function(i, _) 
+        local timingScale =  ms.JudgeScalers[4]
+        return colorByTapOffset(ms.getLowerWindowForJudgment(judgements[i], timingScale )+0.01, timingScale)
+    end,
 
-            local maxJudgement = 0
-
-            --we cant just do barcoords = {0, 0} etc. due to how lua works
-            for i = 1, #barCoords do
-                table.remove(barCoords, 1)
-            end
-
-            for i = 1, #judgementCounts do
-                maxJudgement = math.max(maxJudgement, judgementCounts[i])
-            end
-
-            for i = 1, #judgementCounts do
-                local x = (i - 1) * (actuals.BarWidth + barSpacing)
-                local y = actuals.GraphHeight - ((actuals.GraphHeight * (judgementCounts[i] / maxJudgement)))
-                barCoords[#barCoords + 1] = {x, y}
-                
-                local height = (actuals.GraphHeight * (judgementCounts[i] / maxJudgement))
-                local timingScale =  ms.JudgeScalers[4]
-                local color = colorByTapOffset(ms.getLowerWindowForJudgment(judgements[i], timingScale )+0.01, timingScale)
-                --+0.01 because the judge window isnt inclusive
-                --ms.JudgeScalers[4] to get the judge 4 window, because colorByTapOffset uses judge 4 by default
-                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
-            end
-
-            if self:GetNumVertices() ~= 0 then
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-            end
-            self:SetVertices(vertices)
-            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-        end,
-
-        ToggleUsingEverySetScoreCommand = function(self)
-            self.usingEverySetScore = not self.usingEverySetScore
-        end
-    }
+    BarLabelStrFunc = function(i) return getJudgeStrings(judgements[i]) end,
+    BarWidth = actuals.BarWidth
+}) .. {
+    InitCommand = function(self)
+        self:xy(actuals.GraphX, actuals.GraphY)
+    end
 }
-    
-
-local labels = Def.ActorFrame{
-    Name = "LabelsContainer"
-}
-
-for i = 1, #judgementCounts do --make the graph labels
-
-    labels[#labels + 1] = LoadFont("Common Normal") .. {
-        --scorecount for each grade and percentage that goes above each bar
-        Name = "LabelAboveBar",
-        InitCommand = function(self)
-            self:zoom(labelTextSize)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            --we need to set the xy here so it doesnt tween in from (0,0) and look weird
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-            self:playcommand("Set")
-        end,
-
-        SetCommand = function(self)
-            self:finishtweening()
-            self:smooth(plotAnimationSeconds)
-            local totalNumberOfHits = 0
-            for i = 1, #judgementCounts do
-                totalNumberOfHits = totalNumberOfHits + judgementCounts[i]
-            end
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.LabelAboveBarVerticalOffset)
-            self:settextf("%s \n (%4.2f%s)",judgementCounts[i], (judgementCounts[i] / totalNumberOfHits) * 100, "%")
-        end
-    }
-
-    labels[#labels + 1] = LoadFont("Common Normal") .. {
-        --grade text that goes under the bar
-        Name = "LabelBelowBar",
-        InitCommand = function(self)
-            self:zoom(labelTextSize)
-            self:valign(0)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + actuals.GraphHeight + actuals.LabelBelowBarVerticalOffset)
-            self:settext(getJudgeStrings(judgements[i])) 
-            registerActorToColorConfigElement(self, "judgment", judgements[i])
-        end
-    }
-end
-
-graph[#graph + 1] = labels
-t[#t + 1] = graph
 
 return t

@@ -77,8 +77,6 @@ local function placeBarVerticesTopLeftAnchor(vertList, x, y, w, h, color)
 end
 
 
-
-
 local function setGradeCounts(gradeCounts, usingEverySetScore)
     --this is so we can easily update the gradeCounts from anywhere
     for i = 1, #gradeCounts do
@@ -123,7 +121,8 @@ local function setGradeCounts(gradeCounts, usingEverySetScore)
         --it loops through every song installed, very inefficient i know
 
 
-        --this is differnt to the rebirth stats screen because if you have the same song installed twice rebirth counts it both times
+        --this is different to the rebirth stats screen because 
+        --if you have the same song installed twice rebirth counts it both times, this only counts it once
 
         local allSongs = SONGMAN:GetAllSongs()
         local countedSongs = {} --table of k = chartkey, v = boolean, to keep track of which charts we have counted
@@ -244,6 +243,7 @@ t = Def.ActorFrame{
     UIElements.TextButton(1, 1, "Common Normal") .. {
         Name = "GraphTypeButton",
         InitCommand = function(self)
+            self.usingEverySetScore = false
             local txt = self:GetChild("Text")
             local bg = self:GetChild("BG")
             self:xy(actuals.GraphTypeButtonX, actuals.GraphTypeButtonY)
@@ -252,20 +252,23 @@ t = Def.ActorFrame{
             bg:zoomto(txt:GetZoomedWidth() + actuals.GraphButtonPaddingWidth, txt:GetZoomedHeight() + actuals.GraphButtonPaddingHeight)
         end,
 
+        ToggleCommand = function(self)
+            self.usingEverySetScore = not self.usingEverySetScore
+        end,
+
         ClickCommand = function(self, params)
             if self:IsInvisible() then return end
             if params.update == "OnMouseDown" then
                 local txt = self:GetChild("Text")
                 local bg = self:GetChild("BG")
                 local plots = self:GetParent():GetChild("Graph"):GetChild("Plots")
-                local gradeCount = self:GetParent():GetChild("Graph"):GetChild("LabelsContainer"):GetChild("GradeCount")
-                plots:playcommand("ToggleUsingEverySetScore")
-                setGradeCounts(gradeCounts, plots.usingEverySetScore)
-                plots:playcommand("Plot")
-                for i = 1, #gradeCount do
-                    gradeCount[i]:playcommand("Set")
-                end
-                if plots.usingEverySetScore then
+                local labels = self:GetParent():GetChild("Graph"):GetChild("LabelsContainer")
+
+                self:playcommand("Toggle")
+                setGradeCounts(gradeCounts, self.usingEverySetScore)
+                plots:playcommand("Set")
+                labels:PlayCommandsOnChildren("Set")
+                if self.usingEverySetScore then
                     txt:settext("Using every set score")
                 else
                     txt:settext("Using only top scores")
@@ -285,113 +288,47 @@ t = Def.ActorFrame{
 }
 
 
-local graph = Def.ActorFrame{
-    Name = "Graph",
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
 
-    Def.ActorMultiVertex{
-        Name = "Plots",
-        InitCommand = function(self)
-            self.usingEverySetScore = false
-            self:diffusealpha(plotAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:playcommand("Plot")
-        end,
 
-        PlotCommand = function(self)
-            local vertices = {}
-            local barSpacing = (actuals.GraphWidth - (#gradeCounts * actuals.BarWidth)) / (#gradeCounts - 1)
+t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
+    Values = gradeCounts,
+    Yfunc = function(params)
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+    end,
+    ColorFunc = function(i, _) 
+        local grades = {GetGradeFromPercent(100 / 100),
+        GetGradeFromPercent(99.955 / 100),
+        GetGradeFromPercent(99.7 / 100),
+        GetGradeFromPercent(93 / 100),
+        GetGradeFromPercent(80 / 100),
+        GetGradeFromPercent(70 / 100),
+        GetGradeFromPercent(60 / 100),
+        GetGradeFromPercent(50 / 100),
+        "Grade_Failed"}
 
-            local maxGrade = 0
+        return colorByGrade(grades[i])
+    end,
 
-            --we cant just do barcoords = {0, 0 etc. due to how lua works
-            for i = 1, #barCoords do
-                table.remove(barCoords, 1)
-            end
+    BarLabelStrFunc = function(i) 
+        local grades = {GetGradeFromPercent(100 / 100),
+        GetGradeFromPercent(99.955 / 100),
+        GetGradeFromPercent(99.7 / 100),
+        GetGradeFromPercent(93 / 100),
+        GetGradeFromPercent(80 / 100),
+        GetGradeFromPercent(70 / 100),
+        GetGradeFromPercent(60 / 100),
+        GetGradeFromPercent(50 / 100),
+        "Grade_Failed"}
 
-            for i = 1, #gradeCounts do
-                maxGrade = math.max(maxGrade, gradeCounts[i])
-            end
+        return getGradeStrings(grades[i]) 
+    end,
 
-            for i = 1, #gradeCounts do
-                local x = (i - 1) * (actuals.BarWidth + barSpacing)
-                local y = actuals.GraphHeight - ((actuals.GraphHeight * (gradeCounts[i] / maxGrade)))
-                barCoords[#barCoords + 1] = {x, y}
-                
-                local height = (actuals.GraphHeight * (gradeCounts[i] / maxGrade))
-                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, colorByGrade(grades[i]))
-            end
-
-            if self:GetNumVertices() ~= 0 then
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-            end
-            self:SetVertices(vertices)
-            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-        end,
-
-        ToggleUsingEverySetScoreCommand = function(self)
-            self.usingEverySetScore = not self.usingEverySetScore
-        end
-    }
+    BarWidth = actuals.BarWidth
+}) .. {
+    InitCommand = function(self)
+        self:xy(actuals.GraphX, actuals.GraphY)
+    end
 }
-    
-
-local labels = Def.ActorFrame{
-    Name = "LabelsContainer"
-}
-
-for i = 1, #grades do --make the graph labels
-
-    labels[#labels + 1] = LoadFont("Common Normal") .. {
-        --scorecount for each grade and percentage that goes above each bar
-        Name = "GradeCount",
-        InitCommand = function(self)
-            self:zoom(gradeTextSize)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            --we need to set the xy here so it doesnt tween in from (0,0) and look weird
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.GradeCountVerticalOffset)
-            self:playcommand("Set")
-        end,
-
-        SetCommand = function(self)
-            self:finishtweening()
-            self:smooth(plotAnimationSeconds)
-            local totalNumberOfScores = 0
-            for i = 1, #gradeCounts do
-                totalNumberOfScores = totalNumberOfScores + gradeCounts[i]
-            end
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + barCoords[i][2] - actuals.GradeCountVerticalOffset)
-            self:settextf("%s \n (%4.2f%s)",gradeCounts[i], (gradeCounts[i] / totalNumberOfScores) * 100, "%")
-        end
-    }
-
-    labels[#labels + 1] = LoadFont("Common Normal") .. {
-        --grade text that goes under the bar
-        Name = "GradeText",
-        InitCommand = function(self)
-            self:zoom(gradeTextSize)
-            self:valign(0)
-            local plots = self:GetParent():GetParent():GetChild("Plots")
-            self:xy(plots:GetX() + barCoords[i][1] + (actuals.BarWidth / 2), plots:GetY() + actuals.GraphHeight + actuals.GradeTextVerticalOffset)
-            self:settext(getGradeStrings(grades[i])) --THEME:GetString("Grade", ToEnumShortString(grades[i]))
-            self:diffuse(colorByGrade(grades[i]))
-        end
-    }
-end
-
-graph[#graph + 1] = labels
-t[#t + 1] = graph
 
 return t
 
