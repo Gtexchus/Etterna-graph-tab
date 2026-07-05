@@ -130,7 +130,7 @@ t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = cleartypeCounts,
     Yfunc = function(params)
-        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
     ColorFunc = function(i, _) return getClearTypeColor(i) end,
     BarLabelStrFunc = function(i) return getClearTypeText(i) end,

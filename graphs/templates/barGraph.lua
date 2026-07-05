@@ -1,58 +1,67 @@
---params that are passed in:
---barWidth OR barSpacing
---table of values
---function to calc y from values
---function to calc color from values
---function to calc label below bar from index
---graphWidth
---graphHeight
---bgColor
---plotAlpha
---barCoords
 local ratios = {}
 
 local actuals = {}
-local plotAnimationSeconds = 1
 
+-----------------------------------------------------params-----------------------------------------------------
 
---things that must be passed in
---variables
---local barCoords = Var("BarCoords")
+--values is the only thing that MUST be passed in
 local values = Var("Values")
+
+
 --functions
-local yFunc = Var("Yfunc") --calculates y coord from values[i]
-local colorFunc = Var("ColorFunc") --has params (index, value) because the color could be made from either
-local barLabelStrFunc = Var("BarLabelStrFunc") --returns text from i
+local yFunc = Var("Yfunc") or function(params) return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue))) end  
+--[[yFunc inputs: 
+params, which contains:
+value (bar's value)
+GraphWidth (total width of graph)
+GraphHeight (total height of graph)
+maxValue (highest value out of all the bars)
+
+returns: y coordinate of bar
+]]
+
+local colorFunc = Var("ColorFunc") or function(i, v) return color("#ffffff") end 
+--[[colorFunc inputs: 
+i (bar's number) 
+v (bar's value)  
+
+returns: color for the bar and its bottom label
+]]
+
+local barLabelStrFunc = Var("BarLabelStrFunc") or function(i) return i end 
+--[[barLabelStrFunc inputs:
+ i (bar's number) 
+ 
+ returns: string for bar's bottom label
+]]
 
 
---things that may be passed in
-actuals.GraphWidth = Var("GraphWidth") or ((680 / 1920) * SCREEN_WIDTH)
-actuals.GraphHeight = Var("GraphHeight") or ((412 / 1080) * SCREEN_HEIGHT)
-actuals.TopLabelVerticalOffset = Var("TopLabelVerticalOffset") or ((25 / 1080) * SCREEN_HEIGHT)
-actuals.BottomLabelVerticalOffset = Var("BottomLabelVerticalOffset") or ((10 / 1080) * SCREEN_HEIGHT)
+actuals.GraphWidth = Var("GraphWidth") or ((680 / 1920) * SCREEN_WIDTH) --total width of graph
+actuals.GraphHeight = Var("GraphHeight") or ((412 / 1080) * SCREEN_HEIGHT) --total height of graph
+actuals.TopLabelVerticalOffset = Var("TopLabelVerticalOffset") or ((25 / 1080) * SCREEN_HEIGHT) --how far above the bar the top label is
+actuals.BottomLabelVerticalOffset = Var("BottomLabelVerticalOffset") or ((10 / 1080) * SCREEN_HEIGHT) --how far below the bar the bottom label is
 
 if Var("BarWidth") then
-    actuals.BarWidth = Var("BarWidth") or 1
+    actuals.BarWidth = Var("BarWidth") or 1 --width of bar
     actuals.BarSpacing = (actuals.GraphWidth - ((#values) * actuals.BarWidth)) / (#values - 1)
 else
-    actuals.BarSpacing = Var("BarSpacing") or 1
+    actuals.BarSpacing = Var("BarSpacing") or 1 --how far apart each bar is
     actuals.BarWidth = (actuals.GraphWidth - (actuals.BarSpacing * (#values - 1))) / #values
 end
 
 
-local bgColor = Var("BGcolor") or color("#000000A2")
-local plotAlpha = Var("PlotAlpha") or 1
-local labelTextSize = Var("LabelTextSize") or 0.5
-local topLabelDefaultAlpha = Var("TopLabelDefaultAlpha") or 1
-local topLabelHoverAlpha = Var("TopLabelHoverAlpha") or 1
-local bottomLabelDefaultAlpha = Var("BottomLabelDefaultAlpha") or 1
-local bottomLabelHoverAlpha = Var("BottomLabelHoverAlpha") or 1
+local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
+local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
+local topLabelTextSize = Var("TopLabelTextSize") or 0.5 --size of top label
+local bottomLabelTextSize = Var("BottomLabelTextSize") or 0.5 --size of bottom label
+local topLabelDefaultAlpha = Var("TopLabelDefaultAlpha") or 1 --alpha of top label when not hovered
+local topLabelHoverAlpha = Var("TopLabelHoverAlpha") or 1 --alpha of top label when hovered
+local bottomLabelDefaultAlpha = Var("BottomLabelDefaultAlpha") or 1 --alpha of bottom label when not hovered
+local bottomLabelHoverAlpha = Var("BottomLabelHoverAlpha") or 1 --alpha of bottom label when hovered
+local plotAnimationSeconds = Var("PlotAnimationSeconds") or 1 --tween time of plot
 
 
-
-
-
-
+-----------------------------------------------------end of params-----------------------------------------------------
 
 local function placeBarVerticesTopLeftAnchor(vertList, x, y, w, h, color)
     vertList[#vertList + 1] = {{x, y + h, 0}, color}
@@ -86,7 +95,7 @@ local t = Def.ActorFrame{
 
         SetCommand = function(self)
             local vertices = {}
-            local maxY = 0
+            local maxValue = 0
 
             --we cant just do barcoords = {0, 0} etc. due to how lua works
             for i = 1, #barCoords do
@@ -94,7 +103,7 @@ local t = Def.ActorFrame{
             end
 
             for i = 1, #values do
-                maxY = math.max(maxY, values[i])
+                maxValue = math.max(maxValue, values[i])
             end
 
             for i = 1, #values do
@@ -103,7 +112,7 @@ local t = Def.ActorFrame{
                     value = values[i],
                     GraphWidth = actuals.GraphWidth,
                     GraphHeight = actuals.GraphHeight,
-                    maxY = maxY,
+                    maxValue = maxValue,
                 })
                 local height = actuals.GraphHeight - y
                 local color = colorFunc(i, values[i])
@@ -161,7 +170,7 @@ local function makeLabel(i)
             --scorecount for each grade and percentage that goes above each bar
             Name = "TopLabel",
             InitCommand = function(self)
-                self:zoom(labelTextSize)
+                self:zoom(topLabelTextSize)
                 local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
                 --we need to set the xy here so it doesnt tween in from (0,0) and look weird
                 self:y(plots:GetY() + barCoords[i][2] - actuals.TopLabelVerticalOffset)
@@ -195,7 +204,7 @@ local function makeLabel(i)
             --grade text that goes under the bar
             Name = "BottomLabel",
             InitCommand = function(self)
-                self:zoom(labelTextSize)
+                self:zoom(bottomLabelTextSize)
                 self:valign(0)
                 local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
                 self:y(plots:GetY() + actuals.GraphHeight + actuals.BottomLabelVerticalOffset)

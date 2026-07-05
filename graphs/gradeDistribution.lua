@@ -293,7 +293,7 @@ t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = gradeCounts,
     Yfunc = function(params)
-        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
     ColorFunc = function(i, _) 
         local grades = {GetGradeFromPercent(100 / 100),

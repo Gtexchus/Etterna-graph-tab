@@ -225,7 +225,7 @@ t[#t + 1] = sbc
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = msdCounts,
     Yfunc = function(params)
-        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
     ColorFunc = function(i, _) return colorByMSD(getMSDfromi(i)) end,
     BarLabelStrFunc = function(i) return getMSDfromi(i) end,

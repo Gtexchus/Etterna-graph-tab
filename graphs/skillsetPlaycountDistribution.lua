@@ -112,7 +112,7 @@ t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = playsbyskillset,
     Yfunc = function(params)
-        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxY)))
+        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
     ColorFunc = function(i, _) return skillsetColors[i + 1] end,
     BarLabelStrFunc = function(i) return ms.SkillSetsTranslatedByName[ms.SkillSets[i + 1]] end,
