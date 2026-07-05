@@ -55,12 +55,7 @@ local actuals = {
 }
 
 
-local function placeBarVerticesTopLeftAnchor(vertList, x, y, w, h, color)
-    vertList[#vertList + 1] = {{x, y + h, 0}, color}
-    vertList[#vertList + 1] = {{x + w, y + h, 0}, color}
-    vertList[#vertList + 1] = {{x + w, y, 0}, color}
-    vertList[#vertList + 1] = {{x, y, 0}, color}
-end
+
 
 local function setMSDcounts(msdCounts, skillset)
     for i=1, #msdCounts do

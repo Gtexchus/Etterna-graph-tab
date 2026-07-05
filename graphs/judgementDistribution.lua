@@ -42,26 +42,6 @@ local actuals = {
     LabelBelowBarVerticalOffset = ratios.LabelBelowBarVerticalOffset * SCREEN_HEIGHT,
 }
 
-local genericButtonCommands = { --so i dont have to write these a billion times
-    MouseOver = function(self)
-        self:diffusealpha(buttonHoverAlpha)
-    end,
-
-    MouseOut = function(self)
-        self:diffusealpha(1)
-    end
-}
-
-
-local function placeBarVerticesTopLeftAnchor(vertList, x, y, w, h, color)
-    vertList[#vertList + 1] = {{x, y + h, 0}, color}
-    vertList[#vertList + 1] = {{x + w, y + h, 0}, color}
-    vertList[#vertList + 1] = {{x + w, y, 0}, color}
-    vertList[#vertList + 1] = {{x, y, 0}, color}
-   
-   
-end
-
 
 
 SCOREMAN:SortRecentScoresForGame()

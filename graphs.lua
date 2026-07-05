@@ -103,7 +103,8 @@ local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName
 {graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonName = "AccuracyOverTimeButton", graphButtonText = "Accuracy Over Time"},
 {graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonName = "SkillsetPlaycountDistributionButton", graphButtonText = "Skillset playcount distribution"}, 
 {graphActorName = "MSDdistributionContainer", graphFileName = "msdDistribution", graphButtonName = "MSDdistributionButton", graphButtonText = "MSD distribution"},
-{graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonName = "CleartypeDistributionButton", graphButtonText = "Cleartype distribution"},}
+{graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonName = "CleartypeDistributionButton", graphButtonText = "Cleartype distribution"},
+{graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonName = "ChartPlaycountDistributionButton", graphButtonText = "Chart playcount distribution"},}
 
 
 

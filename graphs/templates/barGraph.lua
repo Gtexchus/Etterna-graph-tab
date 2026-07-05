@@ -148,8 +148,7 @@ local function makeLabel(i)
             end,
 
             SetCommand = function(self)
-                self:y(barCoords[i][2])
-                self:zoomto(actuals.BarWidth, actuals.GraphHeight - barCoords[i][2])
+                self:zoomto(actuals.BarWidth, actuals.GraphHeight)
             end,
             MouseOverCommand = function(self)
                 local topLabel = self:GetParent():GetChild("TopLabel")
