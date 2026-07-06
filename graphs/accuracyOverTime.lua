@@ -199,10 +199,10 @@ local graph = Def.ActorFrame{
         
         InitCommand = function(self)
             self:diffusealpha(plotAlpha)
-            self:playcommand("Plot")
+            self:playcommand("Set")
         end,
 
-        PlotCommand = function(self) --plots the points on the graph
+        SetCommand = function(self) --plots the points on the graph
             local vertices = {}
             for i = 1, SCOREMAN:GetTotalNumberOfScores() do --for every saved score
                 local score = SCOREMAN:GetRecentScoreForGame(i)

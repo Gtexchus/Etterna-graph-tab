@@ -152,8 +152,10 @@ local function createGraphContainer()
 
         LoadGraphCommand = function(self, params)
             if params.graphFileName ~= nil then
+                --local beforeTime = os.clock()
                 self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/" .. params.graphFileName))
                 BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
+                --print(string.format("%s %s %s %.3f%s", "Loading", params.graphFileName, "took:", os.clock() - beforeTime, "ms"))
             end
         end,
 
