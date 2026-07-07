@@ -274,8 +274,8 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
             return string.format("%5.2f", params.yValue)
         end
     end,
-    XaxisLabelsCount = 5,
-    YaxisLabelsScale = YaxisLabelsScale,
+    XaxisLabelCount = 5,
+    YaxisLabelScale = YaxisLabelsScale,
     XaxisLabelInnerLineColor =xAxisLabelInnerLineColor,
     YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
     PlotAlpha = plotAlpha,

@@ -222,8 +222,8 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Yfunc = function(params)
         return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
-    ColorFunc = function(i, _) return colorByMSD(getMSDfromi(i)) end,
-    BarLabelStrFunc = function(i) return getMSDfromi(i) end,
+    ColorFunc = function(params) return colorByMSD(getMSDfromi(params.barNum)) end,
+    BarNumToStringFunc = function(params) return getMSDfromi(params.barNum) end,
     BarSpacing = actuals.BarSpacing,
     TopLabelDefaultAlpha = 0
 }) .. {

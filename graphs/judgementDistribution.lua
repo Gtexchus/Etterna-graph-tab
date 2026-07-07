@@ -132,12 +132,12 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
         return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
 
-    ColorFunc = function(i, _) 
+    ColorFunc = function(params) 
         local timingScale =  ms.JudgeScalers[4]
-        return colorByTapOffset(ms.getLowerWindowForJudgment(judgements[i], timingScale )+0.01, timingScale)
+        return colorByTapOffset(ms.getLowerWindowForJudgment(judgements[params.barNum], timingScale)+0.01, timingScale)
     end,
 
-    BarLabelStrFunc = function(i) return getJudgeStrings(judgements[i]) end,
+    BarNumToStringFunc = function(params) return getJudgeStrings(judgements[params.barNum]) end,
     BarWidth = actuals.BarWidth
 }) .. {
     InitCommand = function(self)

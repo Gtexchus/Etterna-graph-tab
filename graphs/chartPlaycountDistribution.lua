@@ -143,7 +143,7 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Yfunc = function(params)
         return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
-    ColorFunc = function(i, v) return colorByMSD((i/#playcounts)*40) end, --i dont really know a better color scheme
+    ColorFunc = function(params) return colorByMSD((params.barNum/#playcounts)*40) end, --i dont really know a better color scheme
     BarSpacing = 1,
     TopLabelDefaultAlpha = 0,
     BottomLabelTextSize = 0.3

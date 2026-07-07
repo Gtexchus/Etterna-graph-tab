@@ -4,35 +4,65 @@ local actuals = {}
 
 -----------------------------------------------------params-----------------------------------------------------
 
---values is the only thing that MUST be passed in
+--values is the only thing that MUST be passed in (how do you expect me to make a graph with no values?)
+--values is a table that appears like a 1-indexed array, where each item at index i is a number n which is used to calculate the height of the i'th bar
+--the way height is calculated is determined by yFunc
+
+--[[values must:
+    be 1-indexed
+    have all indexes as consecutive whole numbers
+    e.g. values = {[1] = 6, [3] = 7} WILL NOT WORK because the index [2] is missing
+]]
+--just treat values as an array instead of a table
+
+--e.g. values may be {[1] = 6, [2] = 7, [3] = 67}
+--in this case, the resulting plot will contain 3 bars. The height of the first bar will be calculated from the number 6, and so on
+if Var("Values") == nil then
+    return Def.ActorFrame{
+        LoadFont("Common Normal") .. {
+            InitCommand = function(self) --return an actorframe with a nice error message if there are no values passed in
+                self:settext("ERROR: VALUES IS NIL")
+            end
+        }
+    }
+end
 local values = Var("Values")
 
 
 --functions
 local yFunc = Var("Yfunc") or function(params) return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue))) end  
---[[yFunc inputs: 
-params, which contains:
-value (bar's value)
-GraphWidth (total width of graph)
-GraphHeight (total height of graph)
-maxValue (highest value out of all the bars)
+--[[yFunc
+purpose: returns a y coordinate calculated from a bar's value.
 
-returns: y coordinate of bar
+params: 
+value [number] (bar's value)
+GraphWidth [number] (total width of graph)
+GraphHeight [number] (total height of graph)
+minYvalue [number] (lowest y value a point may have)
+maxYvalue [number] (highest y value a point may have)
+
+returns: number (y coordinate of point)
 ]]
 
-local colorFunc = Var("ColorFunc") or function(i, v) return color("#ffffff") end 
---[[colorFunc inputs: 
-i (bar's number) 
-v (bar's value)  
+local colorFunc = Var("ColorFunc") or function(params) return color("#ffffff") end 
+--[[colorFunc 
+purpose: returns a color for a bar, given that bar's number and value
 
-returns: color for the bar and its bottom label
+params: 
+barNum [number] (bar's number) 
+value [number] (bar's value)  
+
+returns: color (color for the point)
 ]]
 
-local barLabelStrFunc = Var("BarLabelStrFunc") or function(i) return i end 
---[[barLabelStrFunc inputs:
- i (bar's number) 
+local barNumToStringFunc = Var("BarNumToStringFunc") or function(params) return params.barNum end 
+--[[barNumToStringFunc 
+purpose: returns a string representation of a bar's number
+
+params:
+barNum [number] (bar's number) 
  
- returns: string for bar's bottom label
+returns: string (string representation of barNum)
 ]]
 
 
@@ -41,6 +71,7 @@ actuals.GraphHeight = Var("GraphHeight") or ((412 / 1080) * SCREEN_HEIGHT) --tot
 actuals.TopLabelVerticalOffset = Var("TopLabelVerticalOffset") or ((25 / 1080) * SCREEN_HEIGHT) --how far above the bar the top label is
 actuals.BottomLabelVerticalOffset = Var("BottomLabelVerticalOffset") or ((10 / 1080) * SCREEN_HEIGHT) --how far below the bar the bottom label is
 
+--you can either pick barWidth or barSpacing, not both
 if Var("BarWidth") then
     actuals.BarWidth = Var("BarWidth") or 1 --width of bar
     actuals.BarSpacing = (actuals.GraphWidth - ((#values) * actuals.BarWidth)) / (#values - 1)
@@ -115,7 +146,8 @@ local t = Def.ActorFrame{
                     maxValue = maxValue,
                 })
                 local height = actuals.GraphHeight - y
-                local color = colorFunc(i, values[i])
+                local color = colorFunc({barNum = i, 
+                value = values[i]})
                 barCoords[#barCoords + 1] = {x, y}
                 placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
             end
@@ -208,8 +240,9 @@ local function makeLabel(i)
                 local plots = self:GetParent():GetParent():GetParent():GetChild("Plots")
                 self:y(plots:GetY() + actuals.GraphHeight + actuals.BottomLabelVerticalOffset)
                 
-                self:settext(barLabelStrFunc(i)) 
-                self:diffuse(colorFunc(i, values[i]))
+                self:settext(barNumToStringFunc({barNum = i})) 
+                self:diffuse(colorFunc({barNum = i, 
+                value = values[i]}))
                 self:diffusealpha(bottomLabelDefaultAlpha)
             end,
         }

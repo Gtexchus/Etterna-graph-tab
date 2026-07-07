@@ -297,7 +297,7 @@ local graph = Def.ActorFrame{
 
                 local lowerWifeBound = gradeBoundaries[(minGrade - (numberOfSections - sectionNumber)) + 1]
                 local upperWifeBound = gradeBoundaries[minGrade - (numberOfSections - sectionNumber)]
-
+    
                 local acc = lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection)
                 local accStr = ""
                 if acc > 99 then

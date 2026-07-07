@@ -96,8 +96,8 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Yfunc = function(params)
         return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
-    ColorFunc = function(i, _) return skillsetColors[i + 1] end,
-    BarLabelStrFunc = function(i) return ms.SkillSetsTranslatedByName[ms.SkillSets[i + 1]] end,
+    ColorFunc = function(params) return skillsetColors[params.barNum + 1] end,
+    BarNumToStringFunc = function(params) return ms.SkillSetsTranslatedByName[ms.SkillSets[params.barNum + 1]] end,
     BarWidth = actuals.BarWidth
 }) .. {
     InitCommand = function(self)

@@ -275,7 +275,7 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Yfunc = function(params)
         return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
     end,
-    ColorFunc = function(i, _) 
+    ColorFunc = function(params) 
         local grades = {GetGradeFromPercent(100 / 100),
         GetGradeFromPercent(99.955 / 100),
         GetGradeFromPercent(99.7 / 100),
@@ -286,10 +286,10 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
         GetGradeFromPercent(50 / 100),
         "Grade_Failed"}
 
-        return colorByGrade(grades[i])
+        return colorByGrade(grades[params.barNum])
     end,
 
-    BarLabelStrFunc = function(i) 
+    BarNumToStringFunc = function(params) 
         local grades = {GetGradeFromPercent(100 / 100),
         GetGradeFromPercent(99.955 / 100),
         GetGradeFromPercent(99.7 / 100),
@@ -300,7 +300,7 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
         GetGradeFromPercent(50 / 100),
         "Grade_Failed"}
 
-        return getGradeStrings(grades[i]) 
+        return getGradeStrings(grades[params.barNum]) 
     end,
 
     BarWidth = actuals.BarWidth
