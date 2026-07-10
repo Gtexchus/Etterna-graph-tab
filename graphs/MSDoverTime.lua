@@ -5,6 +5,7 @@ local bgAlpha = 0.7
 local bgColour = color("#000000")
 local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelInnerLineColor = color("#52525280")
+local yAxisLabelLineAlpha = 0.3
 local buttonHoverAlpha = 0.6
 local XaxisLabelsCount = 5
 local YaxisLabelsScale = 4
@@ -91,9 +92,10 @@ local function setValues(values, skillset)
             local ssr = score:GetSkillsetSSR(skillset)
             if dateText ~= nil then
                 local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
-                values[i] = {}
-                values[i][1] = date
-                values[i][2] = ssr
+                local index = #values + 1
+                values[index] = {}
+                values[index][1] = date
+                values[index][2] = ssr
             end
         end
     end
@@ -268,16 +270,32 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return string.format("%s-%s-%s", year, month, day)
     end,
     YvalueToStringFunc = function(params)
-        if string.format("%5.2f", params.yValue) == string.format("%5.2f", math.floor(params.yValue)) then
+        if string.format("%5.2f", params.yValue) == string.format("%5.2f", notShit.floor(params.yValue + 0.0001)) then -- if the first two decimal points are 00
+            --this is so the y axis labels are integers and arent 12.00, for example
+            -- +0.0001 because of floating point nonsense
             return params.yValue
         else
             return string.format("%5.2f", params.yValue)
         end
     end,
+
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+    end,
+
+    YaxisLabelColorFunc = function(params)
+        local color = colorByMSD(params.yValue)
+        local innerLineColor = {}
+        for k, v in pairs(color) do
+            innerLineColor[k] = v
+        end
+        innerLineColor[4] = yAxisLabelLineAlpha
+        return {text = color, outerLine = color, innerLine = innerLineColor}
+    end,
+
     XaxisLabelCount = 5,
     YaxisLabelScale = YaxisLabelsScale,
-    XaxisLabelInnerLineColor =xAxisLabelInnerLineColor,
-    YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
+    
     PlotAlpha = plotAlpha,
     Xunits = "Date",
     Yunits = "MSD"

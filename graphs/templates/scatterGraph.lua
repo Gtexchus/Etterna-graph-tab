@@ -39,17 +39,6 @@ if Var("Values") == nil then
 end
 local values = Var("Values")
 
---get the min and max x and y values
-local minXvalue = values[1][1] --smallest x value there is
-local maxXvalue = 1
-local minYvalue = values[1][2]
-local maxYvalue = 1
-for i = 1, #values do --todo: optimise this by sorting
-    minXvalue = math.min(minXvalue, values[i][1])
-    maxXvalue = math.max(maxXvalue, values[i][1])
-    minYvalue = math.min(minYvalue, values[i][2])
-    maxYvalue = math.max(maxYvalue, values[i][2])
-end
 
 
 --functions
@@ -90,6 +79,26 @@ xValue [number] (point's x value)
 yValue [number] (point's y value)  
 
 returns: color (color for the point)
+]]
+
+local xAxisLabelColorFunc = Var("XaxisLabelColorFunc") or function(params) return {text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = color("#ffffff")} end
+--[[xAxisLabelColorFunc
+purpose: colors all parts of the x axis label (text, outer line, inner line)
+
+params:
+xValue [number] (label's x value)
+
+returns: table of colors, with keys {text, outerLine, innerLine}
+]]
+
+local yAxisLabelColorFunc = Var("YaxisLabelColorFunc") or function(params) return {text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = color("#ffffff")} end
+--[[yAxisLabelColorFunc
+purpose: colors all parts of the y axis label (text, outer line, inner line)
+
+params:
+yValue [number] (label's y value)
+
+returns: table of colors, with keys {text, outerLine, innerLine}
 ]]
 
 local xValueToStringFunc = Var("XvalueToStringFunc") or function(params) return tostring(params.xValue) end
@@ -134,7 +143,6 @@ returns: number (the x value corresponding to the x coordinate)
 ]]
 
 local yValueFunc = Var("YvalueFunc") or function(params) return (((params.GraphHeight - params.y) / params.GraphHeight) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
---yValueFunc is the inverse of yFunc
 --[[yValueFunc 
 purpose: returns a y value calculated from a y coordinate. Inverse of yFunc.
 
@@ -147,6 +155,23 @@ GraphHeight [number] (total height of graph)
 returns: number (the y value corresponding to the y coordinate)
 ]]
 
+local minXvalueFunc = Var("MinXvalueFunc") or function(params) return math.min(params.minXvalue, params.xValue) end
+--[[minXvalueFunc
+purpose: returns an updated minXvalue given the current minXvalue and an xValue
+
+params:
+minXvalue [number] (the current minXvalue)
+xValue [number] (an xValue)
+
+returns: number (an updated minXvalue)
+]]
+
+local maxXvalueFunc = Var("MaxXvalueFunc") or function(params) return math.max(params.maxXvalue, params.xValue) end
+
+local minYvalueFunc = Var("MinYvalueFunc") or function(params) return math.min(params.minYvalue, params.yValue) end
+
+local maxYvalueFunc = Var("MaxYvalueFunc") or function(params) return math.max(params.maxYvalue, params.yValue) end
+
 
 actuals.GraphWidth = Var("GraphWidth") or ((680 / 1920) * SCREEN_WIDTH) --total width of graph
 actuals.GraphHeight = Var("GraphHeight") or ((412 / 1080) * SCREEN_HEIGHT) --total height of graph
@@ -154,6 +179,21 @@ actuals.XaxisLabelOffset = Var("XaxisLabelOffset") or ((20 / 1920) * SCREEN_WIDT
 actuals.YaxisLabelOffset = Var("YaxisLabelOffset") or ((20 / 1080) * SCREEN_HEIGHT) --how far down the y axis label is from the x axis
 actuals.XaxisLabelLineThickness = Var("XaxisLabelLineThickness") or ((1 / 1920) * SCREEN_WIDTH) --how thick the x axis label is
 actuals.YaxisLabelLineThickness = Var("YaxisLabelLineThickness") or ((1 / 1080) * SCREEN_HEIGHT) --how thick the y axis label is
+
+
+--get the min and max x and y values
+local minXvalue = values[1][1] --smallest x value there is
+local maxXvalue = values[1][1]
+local minYvalue = values[1][2]
+local maxYvalue = values[1][2]
+
+for i = 1, #values do 
+    minXvalue = minXvalueFunc({minXvalue = minXvalue, xValue = values[i][1]})
+    maxXvalue = maxXvalueFunc({maxXvalue = maxXvalue, xValue = values[i][1]})
+    minYvalue = minYvalueFunc({minYvalue = minYvalue, yValue = values[i][2]})
+    maxYvalue = maxYvalueFunc({maxYvalue = maxYvalue, yValue = values[i][2]})
+end
+
 
 
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
@@ -371,6 +411,7 @@ for i=1, (xAxisLabelsCount) do
                 maxXvalue = maxXvalue
                 }) 
                 self:settext(xStr)
+                self:diffuse(xAxisLabelColorFunc({xValue = xValue}).text)
             end
         },
 
@@ -380,17 +421,42 @@ for i=1, (xAxisLabelsCount) do
                 self:valign(0)
                 self:y(-actuals.XaxisLabelOffset)
                 self:zoomto(actuals.XaxisLabelLineThickness, actuals.XaxisLabelOffset)
-                self:diffuse(xAxisLabelOuterLineColor)
+                self:playcommand("Set")
+            end,
+
+            SetCommand = function(self)
+                local x = (((i-1)/(xAxisLabelsCount-1)) * actuals.GraphWidth) --for some reason using GetParent():GetX() doesnt work
+
+                local xValue = xValueFunc({x = x,
+                minXvalue = minXvalue,
+                maxXvalue = maxXvalue,
+                GraphWidth = actuals.GraphWidth
+                })
+
+                self:diffuse(xAxisLabelColorFunc({xValue = xValue}).outerLine)
             end
         },
 
         Def.Quad{
-            Name = "XaxisInnerLine",
+            Name = "XaxisLabelInnerLine",
             InitCommand = function(self)
                 self:valign(0)
                 self:y(-(actuals.XaxisLabelOffset + actuals.GraphHeight))
                 self:zoomto(actuals.XaxisLabelLineThickness, actuals.GraphHeight)
                 self:diffuse(xAxisLabelInnerLineColor)
+                self:playcommand("Set")
+            end,
+
+            SetCommand = function(self)
+                local x = (((i-1)/(xAxisLabelsCount-1)) * actuals.GraphWidth) --for some reason using GetParent():GetX() doesnt work
+
+                local xValue = xValueFunc({x = x,
+                minXvalue = minXvalue,
+                maxXvalue = maxXvalue,
+                GraphWidth = actuals.GraphWidth
+                })
+
+                self:diffuse(xAxisLabelColorFunc({xValue = xValue}).innerLine)
             end
         }
     }
@@ -440,26 +506,52 @@ for i=1, (yAxisLabelsCount) do
                 maxYvalue = maxYvalue
                 })
                 self:settext(yStr)
+                self:diffuse(yAxisLabelColorFunc({yValue = yValue}).text)
             end
         },
 
         Def.Quad{
-            Name = "YaxisLabelLineThatsOutsideOfTheGraph",
+            Name = "YaxisLabelOuterLine",
             InitCommand = function(self)
                 self:halign(0)
                 self:x(0)
                 self:zoomto(actuals.YaxisLabelOffset, actuals.YaxisLabelLineThickness)
-                self:diffuse(yAxisLabelOuterLineColor)
+                self:playcommand("Set")
+            end,
+
+            SetCommand = function(self)
+                local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight --for some reason using GetParent():GetY() doesnt work
+
+                local yValue = yValueFunc({y = y,
+                minYvalue = minYvalue,
+                maxYvalue = maxYvalue,
+                GraphHeight = actuals.GraphHeight
+                })
+
+                self:diffuse(yAxisLabelColorFunc({yValue = yValue}).outerLine)
             end
         },
 
         Def.Quad{
-            Name = "YaxisLabelLineThatsInsideTheGraph",
+            Name = "YaxisLabelInnerLine",
             InitCommand = function(self)
                 self:halign(0)
                 self:x(actuals.YaxisLabelOffset)
                 self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineThickness)
                 self:diffuse(yAxisLabelInnerLineColor)
+                self:playcommand("Set")
+            end,
+
+            SetCommand = function(self)
+                local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight --for some reason using GetParent():GetY() doesnt work
+
+                local yValue = yValueFunc({y = y,
+                minYvalue = minYvalue,
+                maxYvalue = maxYvalue,
+                GraphHeight = actuals.GraphHeight
+                })
+
+                self:diffuse(yAxisLabelColorFunc({yValue = yValue}).innerLine)
             end
         }
     }

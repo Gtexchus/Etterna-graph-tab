@@ -1,55 +1,63 @@
+--afaik there isnt a function to convert from 
+--grade tier to wife (there isnt an inverse of GetGradeFromPercent())
+--so this table will have to do
+local gradeTierToWife = { 
+        [0] = 1, --not technically a grade but its here for convenience
+        0.999935, --AAAAA
+        0.9998,
+        0.9997,
+        0.99955, --AAAA
+        0.999,
+        0.998,
+        0.997, --AAA
+        0.99,
+        0.965,
+        0.93, --AA
+        0.9,
+        0.85,
+        0.8, --A
+        0.7, --B
+        0.6 --C
+}
+
+
+local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
+    if wife == 1 then
+        return 0
+    else
+        return tonumber(GetGradeFromPercent(wife):sub(11, 12))
+    end
+end
+
+local function getLowerGradeBoundary(wife)
+    return gradeTierToWife[getGradeTierNumber(wife)]
+end
+
+local function getUpperGradeBoundary(wife)
+    if wife == 1 then
+        return 1
+    else
+        return gradeTierToWife[getGradeTierNumber(wife) - 1]
+    end
+end
+
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
 local skillsetButtonsMaxWidth = 100
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local buttonHoverAlpha = 0.6
-local minWife = 93--if you dont put minwife and maxwife as the same value as a midgrade it will break
-local maxWife = 100
 local minMSD = 0
 local maxMSD = 10
 --the idea is to have each midgrade take up the same physical space on the graph
-local gradeTiers = { --GetGradeFromPercent
-    [100] = 0,
-    [99.9935] = 1,
-    [99.98] = 2,
-    [99.97] = 3,
-    [99.955] = 4,
-    [99.9] = 5,
-    [99.8] = 6,
-    [99.7] = 7,
-    [99] = 8,
-    [96.5] = 9,
-    [93] = 10,
-    [90] = 11,
-    [85] = 12,
-    [80] = 13,
-    [70] = 14,
-    [60] = 15
-}
-local gradeBoundaries = {
-    [0] = 100, --not technically a grade but its here for convenience
-    99.9935, --AAAAA
-    99.98,
-    99.97,
-    99.955, --AAAA
-    99.9,
-    99.8,
-    99.7, --AAA
-    99,
-    96.5,
-    93, --AA
-    90,
-    85,
-    80, --A
-    70, --B
-    60 --C
-}
 
 
-local gradeBoundariesInverted = {} --so i can easily find that 99.9 is the 5th grade, etc
-for k, v in pairs(gradeBoundaries) do
-    gradeBoundariesInverted[v] = k
+minWife = 0.93
+maxWife = 1
+
+local gradeTierToWifeInverted = {} --so i can easily find that 99.9 is the 5th grade, etc
+for k, v in pairs(gradeTierToWife) do
+    gradeTierToWifeInverted[v] = k
 end
 
 
@@ -114,12 +122,15 @@ local plotAnimationSeconds = 1
 local maxSkillsetButtonsPerColumn = 4
 
 local XaxisLabelsScale = 4
-local YaxisLabelsCount = (gradeTiers[minWife] - gradeTiers[maxWife]) + 1
 local XaxisLabelsSize = 0.5
 local YaxisLabelsSize = 0.5
-local xAxisLabelLineColor = color("#52525280")
-local yAxisLabelLineColor = color("#52525280")
+local xAxisLabelInnerLineColor = color("#52525280")
+local yAxisLabelInnerLineColor = color("#52525280")
+local xAxisLabelLineAlpha = 0.3
 local yAxisLabelLineAlpha = 0.3
+
+
+local YaxisLabelsCount = (getGradeTierNumber(minWife) - getGradeTierNumber(maxWife)) + 1
 
 SCOREMAN:SortRecentScoresForGame()
 
@@ -137,76 +148,29 @@ end
 maxMSD = (math.floor(maxMSD / XaxisLabelsScale) + 1) * XaxisLabelsScale
 
 
-local genericButtonCommands = { --so i dont have to write these a billion times
-    MouseOver = function(self)
-        self:diffusealpha(buttonHoverAlpha)
-    end,
-
-    MouseOut = function(self)
-        self:diffusealpha(1)
+local function setValues(values, skillset)
+    for i = 1, #values do
+        table.remove(values, 1)
     end
-}
 
-
-
--- 4 xyz coordinates are given to make up the 4 corners of a quad to draw
-local function placeDotVertices(vertList, x, y, color)
-    vertList[#vertList + 1] = {{x - (plotWidth/2), y + (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x + (plotWidth/2), y + (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x + (plotWidth/2), y - (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x - (plotWidth/2), y - (plotHeight/2), 0}, color}
-end
-
-
-local function makeSkillsetButton(skillset_, x, y)
-    return UIElements.TextButton(1, 1, "Common Normal") .. {
-        Name = skillset_ .. "Button",
-        InitCommand = function(self)
-            local txt = self:GetChild("Text")
-            local bg = self:GetChild("BG")
-            self:xy(x, y)
-            bg:zoomto(actuals.SkillsetButtonsHorizontalSpacing, actuals.SkillsetButtonsVerticalSpacing)
-            txt:zoom(smallButtonTextSize)
-            txt:diffusealpha(1)
-            txt:settext(ms.SkillSetsTranslatedByName[skillset_])
-            txt:maxwidth(skillsetButtonsMaxWidth)
-            self:playcommand("Update", {skillset = "Overall"}) --so overall is highlighted when the graph is first loaded
-        end,
-
-        UpdateCommand = function(self, params)
-            local txt = self:GetChild("Text")
-            if params.skillset == skillset_ then
-                txt:strokecolor(Brightness(COLORS:getMainColor("PrimaryText"), 0.7))
-            else
-                txt:strokecolor(color("0,0,0,0"))
-            end
-        end,
-
-        ClickCommand = function(self, params)
-            if self:IsInvisible() then return end
-            if params.update == "OnMouseDown" then
-                local graphContainer = self:GetParent():GetParent()
-                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
-                local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
-                local title = graphContainer:GetChild("Title")
-                local skillsetButtons = sbc:GetChildren()
-                --update everything
-                sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
-                plots:playcommand("Update", {skillset = skillset_})
-                title:playcommand("Update", {skillset = skillset_})
-            end
-        end,
-
-        RolloverUpdateCommand = function(self, params)
-            if self:IsInvisible() then return end
-            if params.update == "in" then
-                self:diffusealpha(buttonHoverAlpha)
-            else
-                self:diffusealpha(1)
+    for i = 1, SCOREMAN:GetTotalNumberOfScores() do --for every saved score
+        local score = SCOREMAN:GetRecentScoreForGame(i)
+        if score ~= nil then
+            local ssr = score:GetSkillsetSSR(skillset)
+            local wife = score:GetWifeScore()
+            local grade = score:GetWifeGrade()
+            if wife >= (minWife) and wife <= (maxWife) and grade ~= "Failed" and grade ~= "Grade_Failed" then
+                local index = #values + 1
+                values[index] = {}
+                values[index][1] = ssr
+                values[index][2] = wife
             end
         end
-    }
+    end
 end
+
+local values = {}
+setValues(values, "overall")
 
 
 local t = Def.ActorFrame{
@@ -243,9 +207,63 @@ local t = Def.ActorFrame{
             self:settext("Accuracy over " .. params.skillset .. " MSD")
         end
     },
-
-
 }
+
+--make skillset buttons
+
+
+local function makeSkillsetButton(skillset_, x, y)
+    return UIElements.TextButton(1, 1, "Common Normal") .. {
+        Name = skillset_ .. "Button",
+        InitCommand = function(self)
+            local txt = self:GetChild("Text")
+            local bg = self:GetChild("BG")
+            self:xy(x, y)
+            bg:zoomto(actuals.SkillsetButtonsHorizontalSpacing, actuals.SkillsetButtonsVerticalSpacing)
+            txt:zoom(smallButtonTextSize)
+            txt:diffusealpha(1)
+            txt:settext(ms.SkillSetsTranslatedByName[skillset_])
+            txt:maxwidth(skillsetButtonsMaxWidth)
+            self:playcommand("Update", {skillset = "Overall"}) --so overall is highlighted when the graph is first loaded
+        end,
+
+        UpdateCommand = function(self, params)
+            local txt = self:GetChild("Text")
+            if params.skillset == skillset_ then
+                txt:strokecolor(Brightness(COLORS:getMainColor("PrimaryText"), 0.7))
+            else
+                txt:strokecolor(color("0,0,0,0"))
+            end
+        end,
+
+        ClickCommand = function(self, params)
+            if self:IsInvisible() then return end
+            if params.update == "OnMouseDown" then
+                local graphContainer = self:GetParent():GetParent()
+                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
+                local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
+                local title = graphContainer:GetChild("Title")
+                local labelsContainer = self:GetParent():GetParent():GetChild("Graph"):GetChild("LabelsContainer")
+                local skillsetButtons = sbc:GetChildren()
+                --update everything
+                setValues(values, skillset_)
+                plots:playcommand("Set")
+                sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
+                title:playcommand("Update", {skillset = skillset_})
+            end
+        end,
+
+        RolloverUpdateCommand = function(self, params)
+            if self:IsInvisible() then return end
+            if params.update == "in" then
+                self:diffusealpha(buttonHoverAlpha)
+            else
+                self:diffusealpha(1)
+            end
+        end
+    }
+end
+
 
 local sbc = Def.ActorFrame{
     Name = "SkillsetButtonsContainer",
@@ -261,274 +279,162 @@ end
 
 t[#t + 1] = sbc
 
---graph
 
-local graph = Def.ActorFrame{
-    Name = "Graph",
+--make graph
 
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
+--ts is a pain to make
+t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
+    Values = values,
+    Yfunc = function(params) --i fucking hate this
+        local wife = params.yValue
+        local gradeTier = getGradeTierNumber(wife)
+        local minGradeTier = getGradeTierNumber(params.minYvalue)
+        local maxGradeTier = getGradeTierNumber(params.maxYvalue)
+        if params.maxYvalue == 1 then
+            maxGradeTier = 0
+        end
+
+        local lowerWifeBound = getLowerGradeBoundary(params.yValue)
+        local upperWifeBound
+        if gradeTier > 1 then --if its not an AAAAA
+            upperWifeBound = getUpperGradeBoundary(params.yValue)
+        else
+            upperWifeBound = 1
+        end
+        local numberOfSections = (minGradeTier - maxGradeTier)
+        local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section  3
+        local sectionHeight = params.GraphHeight / numberOfSections --39.4
+
+        local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
+
+        local y =  params.GraphHeight - ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
+        return y
+    end,
+    ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.yValue)) end,
+    XvalueToStringFunc = function(params)
+        if string.format("%5.2f", params.xValue) == string.format("%5.2f", notShit.floor(params.xValue + 0.0001)) then -- if the first two decimal points are 00
+            --this is so the x axis labels are integers and arent 12.00, for example
+            -- +0.0001 because of floating point nonsense
+            return tostring(params.xValue)
+        else
+            return string.format("%5.2f", params.xValue)
+        end
     end,
 
-    Def.Quad{
-        Name = "BG", 
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
+    YvalueFunc = function(params) --i fucking hate this too
+        --here, a "section" is one square on the graph, e.g. gap between AA. and AA:
+
+        --i could use the values of minGrade and maxGrade that are defined in this file,
+        --but it feels cleaner to calculate them here using params
+        local minGrade = getGradeTierNumber(params.minYvalue)
+        local maxGrade = getGradeTierNumber(params.maxYvalue)
+
+        if params.maxYvalue == 1 then --special case for 100%, because we want a label for 100%
+            maxGrade = 0
         end
-    },
+
+        local numberOfSections = minGrade - maxGrade --how many sections there are in total
+        local yPercent = params.y / params.GraphHeight
+        local sectionNumber = notShit.floor(yPercent * numberOfSections) --section we are in, top section is 0
+        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphHeight 
+        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphHeight
+        --[[about upper and lowerSectionBound:
+        these are the y coordinates of the top and bottom acc "lines" that make up a section
+        upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
+        local progressIntoSection = ((lowerSectionBound - params.y ) / (lowerSectionBound - upperSectionBound)) --%
+
+        local lowerWifeBound = gradeTierToWife[(minGrade - (numberOfSections - sectionNumber)) + 1]
+        local upperWifeBound = gradeTierToWife[minGrade - (numberOfSections - sectionNumber)]
+
+        local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
+        return acc
+    end,
+
+    YvalueToStringFunc = function(params)
+        local gradeBoundaries = { --stores all grade boundaries for grades
+            [1] = true,
+            [0.999935] = true,
+            [0.9998] = true,
+            [0.9997] = true,
+            [0.99955] = true,
+            [0.999] = true,
+            [0.998] = true,
+            [0.997] = true,
+            [0.99] = true,
+            [0.965] = true,
+            [0.93] = true,
+            [0.9] = true,
+            [0.85] = true,
+            [0.8] = true,
+            [0.7] = true,
+            [0.6] = true
+        }
+        local acc = params.yValue
+        if acc == 1 then --special case for 100%
+            return tostring(acc * 100) .. "%"
+        elseif gradeBoundaries[acc] then --if the acc is EXACTLY a grade boundary, so the y axis labels are labeled with the grade instead of the acc
+            --this assumes that the y axis labels lie exactly on the grade boundaries, which should be the case if i've done everything right
+            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.yValue)))
+        elseif acc > 0.99 then
+            return string.format("%7.4f%s", acc * 100, "%")
+        else
+            return string.format("%7.2f%s", acc * 100, "%")
+        end
+    end,
+
     
+    MinYvalueFunc = function(params)
+        --compare minYvalue with the lower grade boundary of yValue
+        --e.g. if yValue = 0.932 (93.2%) then minYvalue is compared with 0.93
+        --this is so minYvalue ends up being a grade boundary
+        return math.min(params.minYvalue, getLowerGradeBoundary(params.yValue))
+    end,
 
-    Def.ActorMultiVertex{
-        Name = "Plots",
-        
-        InitCommand = function(self)
-            self.skillset = "Overall"
-            self:diffusealpha(plotAlpha)
-            self:playcommand("Plot")
-        end,
+    MaxYvalueFunc = function(params)
+        --same as minYvalue, except round up
+        return math.max(params.maxYvalue, getUpperGradeBoundary(params.yValue))
+    end,
 
-        PlotCommand = function(self) --plots the points on the graph
-            local vertices = {}
-            for i = 1, SCOREMAN:GetTotalNumberOfScores() do --for every saved score
-                local score = SCOREMAN:GetRecentScoreForGame(i)
-                if score ~= nil then
-                    local wife = score:GetWifeScore() * 100
-                    local grade = score:GetWifeGrade()
-                    local msd = score:GetSkillsetSSR(self.skillset)
-                    if wife >= minWife and wife <= maxWife and grade ~= "Failed" and grade ~= "Grade_Failed" and msd >= minMSD and msd <= maxMSD then
-                        local gradeNumber = tonumber(grade:sub(11, 12))
-                        local lowerWifeBound = gradeBoundaries[gradeNumber]
-                        local upperWifeBound
-                        if gradeNumber > 1 then --if its not an AAAAA
-                            upperWifeBound = gradeBoundaries[gradeNumber - 1]
-                        else
-                            upperWifeBound = 100
-                        end
-                        local numberOfSections = (gradeTiers[minWife] - gradeTiers[maxWife])  --13
-                        -- -1 because e.g. 3 lines make only 2 sections
-                        local sectionNumber = gradeTiers[minWife] - gradeNumber --if this is 0 then its the bottom section  3
-                        local sectionHeight = actuals.GraphHeight / numberOfSections --39.4
-
-                        local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
-
-                        local x =  actuals.GraphWidth * ((msd - minMSD) / (maxMSD - minMSD))
-                        local y =  actuals.GraphHeight - ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
-                        placeDotVertices(vertices, x, y, colorByGrade(score:GetWifeGrade())) 
-                    end
-                end
-            end
-            if self:GetNumVertices() ~= 0 then
-                self:finishtweening()
-                self:smooth(plotAnimationSeconds)
-            end
-            self:SetVertices(vertices)
-            self:SetDrawState {Mode = "DrawMode_Quads", First = 1, Num = #vertices}
-        end,
-        UpdateCommand = function(self, params)
-            if params.skillset ~= self.skillset then
-                self.skillset = params.skillset
-                self:playcommand("Plot")
-            end
+    
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+    end,
+    
+    --use this if you want the x axis labels to be colored by msd
+    --[[
+    XaxisLabelColorFunc = function(params)
+        local alpha = 1
+        if params.section == "innerLine" then
+            alpha = xAxisLabelLineAlpha
         end
-    },
+        local color = colorByMSD(params.xValue)
 
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "DisplayXY",
-        InitCommand = function(self)
-            local mouseOver = false
-            self:halign(0):valign(0)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end,
+        color[4] = alpha
+        return color
+    end,
+    ]]
 
-        MouseOverCommand = function(self)
-            if self:GetParent():GetParent().focused and not self:IsInvisible() then
-                self.mouseOver = true
-                self:queuecommand("DisplayMouseCoords")
-            end
-            
-        end,
-
-        MouseOutCommand = function(self)
-            self.mouseOver = false
-            TOOLTIP:Hide()
-        end,
-
-        DisplayMouseCoordsCommand = function(self, params)
-            if self.mouseOver then
-                local absoluteMouseX = INPUTFILTER:GetMouseX()
-                local absoluteMouseY = INPUTFILTER:GetMouseY()
-
-                local mouseX = absoluteMouseX - self:GetTrueX()
-                local mouseY = absoluteMouseY - self:GetTrueY()
-                mouseX = math.floor(mouseX+0.5) --round down
-                mouseY = math.floor(mouseY + 0.5)
-
-                local msd = string.format("%5.2f", ((mouseX / actuals.GraphWidth) * (maxMSD - minMSD)))
-
-                --finding the acc at the point where the mouse cursor is at
-                --here, a "section" is one square on the graph, e.g. gap between AA. and AA:
-                local numberOfSections = (gradeTiers[minWife] - gradeTiers[maxWife]) --how many sections there are in total
-                local mouseYPercent = mouseY / actuals.GraphHeight
-                local sectionNumber = notShit.floor(mouseYPercent * numberOfSections) --section we are in, top section is 0
-                local upperSectionBound = ((sectionNumber) / numberOfSections) * actuals.GraphHeight 
-                local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * actuals.GraphHeight
-                --[[about upper and lowerSectionBound:
-                these are the y coordinates of the top and bottom acc "lines" that make up a section
-                upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
-                local progressIntoSection = ((lowerSectionBound - mouseY ) / (lowerSectionBound - upperSectionBound)) --%
-
-                local lowerWifeBound = gradeBoundaries[(gradeTiers[minWife] - (numberOfSections - sectionNumber)) + 1]
-                local upperWifeBound = gradeBoundaries[gradeTiers[minWife] - (numberOfSections - sectionNumber)]
-
-                local acc = lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection)
-                local accStr = ""
-                if acc > 99 then
-                    accStr = string.format("%7.4f%s", acc, "%")
-                else
-                    accStr = string.format("%7.2f%s", acc, "%")
-                end
-                
-                TOOLTIP:SetText("MSD: " .. msd .. "\nAccuracy: " .. accStr)
-                TOOLTIP:Show()
-                self:sleep(0.05)
-                self:queuecommand("DisplayMouseCoords")
-            end
+    YaxisLabelColorFunc = function(params)
+        local color = colorByGrade(GetGradeFromPercent(params.yValue))
+        local innerLineColor = {}
+        for k, v in pairs(color) do
+            innerLineColor[k] = v
         end
+        innerLineColor[4] = yAxisLabelLineAlpha
+        return {text = color, outerLine = color, innerLine = innerLineColor}
+    end,
 
-
-    }
-}
-
-
-
---axis labels
-
-
-local XaxisLabelsContainer = Def.ActorFrame{
-    Name = "XaxisLabelsContainer",
+    XaxisLabelScale = XaxisLabelsScale,
+    YaxisLabelCount = YaxisLabelsCount,
+    XaxisLabelInnerLineColor =xAxisLabelInnerLineColor,
+    YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
+    PlotAlpha = plotAlpha,
+    Xunits = "MSD",
+    Yunits = "Accuracy"
+}) .. {
     InitCommand = function(self)
-        self:y(actuals.GraphHeight + actuals.XaxisLabelsYpadding)
+        self:xy(actuals.GraphX, actuals.GraphY)
     end
 }
-
-local XaxisLabelsCount = ((maxMSD - minMSD) / XaxisLabelsScale) + 1 
-
-for i=1, (XaxisLabelsCount) do
-    XaxisLabelsContainer[#XaxisLabelsContainer+1] = Def.ActorFrame{
-        Name = "XaxisLabel",
-        InitCommand = function(self)
-            self:x((((i-1)/(XaxisLabelsCount-1)) * actuals.GraphWidth))
-        end,
-
-        LoadFont("Common Normal") .. {
-            Name = "XaxisLabelStr",
-            InitCommand = function(self)
-                self:valign(0)
-                self:zoom(XaxisLabelsSize)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                local msd = (((i-1)/(XaxisLabelsCount-1)) * (maxMSD - minMSD)) + minMSD
-                self:settextf("%s", msd)
-            end
-        },
-
-        Def.Quad{
-            Name = "XaxisLabelLineThatsOutsideOfTheGraph",
-            InitCommand = function(self)
-                self:valign(0)
-                self:y(-actuals.XaxisLabelsYpadding)
-                self:zoomto(actuals.XaxisLabelLineWidth, actuals.XaxisLabelsYpadding)
-                registerActorToColorConfigElement(self, "main", "SeparationDivider")
-            end
-        },
-
-        Def.Quad{
-            Name = "XaxisLabelLineThatsInsideTheGraph",
-            InitCommand = function(self)
-                self:valign(0)
-                self:y(-(actuals.XaxisLabelsYpadding + actuals.GraphHeight))
-                self:zoomto(actuals.XaxisLabelLineWidth, actuals.GraphHeight)
-                self:diffuse(xAxisLabelLineColor)
-            end
-        }
-    }
-end
-
-
-local YaxisLabelsContainer = Def.ActorFrame{
-    Name = "YaxisLabelsContainer",
-    InitCommand = function(self)
-        self:xy(-actuals.YaxisLabelsXpadding, actuals.GraphHeight)
-    end
-}
-
-
-
-for i=1, (YaxisLabelsCount) do
-    YaxisLabelsContainer[#YaxisLabelsContainer+1] = Def.ActorFrame{
-        Name = "YaxisLabel",
-        InitCommand = function(self)
-            self:y(-((i-1)/(YaxisLabelsCount-1)) * actuals.GraphHeight)
-        end,
-
-        LoadFont("Common Normal") .. {
-            Name = "YaxisLabelStr",
-            InitCommand = function(self)
-                self:halign(1)
-                self:zoom(YaxisLabelsSize)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                local percent = gradeBoundaries[gradeTiers[minWife] - (i-1)]
-                if percent == 100 then
-                    self:settext("100%")
-                else
-                    local grade = GetGradeFromPercent(percent / 100)
-                    self:settext(THEME:GetString("Grade", ToEnumShortString(grade)))
-                    self:diffuse(colorByGrade(grade))
-                end
-                
-            end
-        },
-
-        Def.Quad{
-            Name = "YaxisLabelLineThatsOutsideOfTheGraph",
-            InitCommand = function(self)
-                self:halign(0)
-                self:x(0)
-                self:zoomto(actuals.YaxisLabelsXpadding, actuals.YaxisLabelLineHeight)
-                --registerActorToColorConfigElement(self, "main", "SeparationDivider")
-                local percent = gradeBoundaries[gradeTiers[minWife] - (i-1)]
-                local grade = GetGradeFromPercent(percent / 100)
-                self:diffuse(colorByGrade(grade))
-            end
-        },
-
-        Def.Quad{
-            Name = "YaxisLabelLineThatsInsideTheGraph",
-            InitCommand = function(self)
-                self:halign(0)
-                self:x(actuals.YaxisLabelsXpadding)
-                self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineHeight)
-                --self:diffuse(xAxisLabelLineColor)
-                local percent = gradeBoundaries[gradeTiers[minWife] - (i-1)]
-                local grade = GetGradeFromPercent(percent / 100)
-                self:diffuse(colorByGrade(grade))
-                self:diffusealpha(yAxisLabelLineAlpha)
-            end
-        }
-    }
-end
-
-graph[#graph + 1] = XaxisLabelsContainer
-graph[#graph + 1] = YaxisLabelsContainer
-
-t[#t + 1] = graph
 
 return t
