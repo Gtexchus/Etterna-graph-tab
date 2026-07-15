@@ -106,39 +106,6 @@ setValues(values, "overall")
 
 
 
-
-
-local minDate
-local maxDate
-local minMSD = 0
-local maxMSD = 4
-
---i get errors if i dont do this which is annoying
---loop through scores from earliest until latest until we find a valid date, then break the loop
-local minDateText = nil
-for i = 1, SCOREMAN:GetTotalNumberOfScores() do
-    local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
-    if score ~= nil then
-        if score:GetDate() ~= nil and minDateText == nil then
-            minDateText = score:GetDate()
-        end
-        if score:GetSkillsetSSR("overall") > maxMSD then
-            maxMSD = score:GetSkillsetSSR("overall")
-        end
-    end
-end
-
-
---round maxMSD up to the nearest y axis label
-maxMSD = (math.floor(maxMSD / YaxisLabelsScale) + 1) * YaxisLabelsScale
-
-if minDateText ~= nil then
-    minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
-else
-    minDate = os.time(os.date("!*t")) --if we dont have a mindate then today is the mindate
-end
-
-maxDate = os.time(os.date("!*t")) --current time
     
 
 

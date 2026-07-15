@@ -28,6 +28,10 @@ same goes for yValue and y
 
 --e.g. values may be {[1] = {6, 7}, [2] = {67, 67}, [3] = {910, 21}}
 --in this case, the resulting plot will contain 3 points. The first point will be made from the tuple in index [1], and so on
+
+
+--maybe this is a bad idea??? should i return an error message actorframe or just allow the lua errors to run normally???
+--idk what to do in this situation
 if Var("Values") == nil then
     return Def.ActorFrame{
         LoadFont("Common Normal") .. {
@@ -36,7 +40,17 @@ if Var("Values") == nil then
             end
         }
     }
+elseif #Var("Values") == 0 then
+    return Def.ActorFrame{
+        LoadFont("Common Normal") .. {
+            InitCommand = function(self)
+                self:settext("ERROR: VALUES IS EMPTY")
+            end
+        }
+    }
 end
+
+
 local values = Var("Values")
 
 
@@ -245,6 +259,15 @@ if Var("YaxisLabelScale") then
 else
     yAxisLabelsCount = Var("YaxisLabelCount") or 1 --how many y axis labels there are
     yAxisLabelScale = (maxYvalue - minYvalue) / (yAxisLabelsCount - 1) 
+end
+
+--to prevent division by 0
+if minXvalue == maxXvalue then
+    maxXvalue = minXvalue + 1
+end
+
+if minYvalue == maxYvalue then
+    maxYvalue = minYvalue + 1
 end
 
 

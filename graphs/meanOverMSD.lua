@@ -228,7 +228,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Yfunc = function(params)
         --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 100
+        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 50
         --higher scale means the graph starts squishing at a higher y value
         --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
         local shit = asinh(params.yValue / scale) - asinh(params.minYvalue / scale)
@@ -236,7 +236,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return params.GraphHeight * (1 - (shit / fatShit))
     end,
     YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 100
+        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 50
         local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
         local wetFart = 1 - (params.y / params.GraphHeight)
         return math.sinh((fatShit * wetFart) + asinh(params.minYvalue / scale)) * scale
