@@ -56,7 +56,7 @@ maxXvalue [number] (highest value a point may have)
 returns: number (x coordinate of point)
 ]]
 
-local yFunc = Var("Yfunc") or function(params) return params.GraphHeight - ((params.GraphHeight * ((params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)))) end  
+local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * (1-(params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)) end  
 --[[yFunc
 purpose: returns a y coordinate calculated from a y value. Inverse of yValueFunc.
 
@@ -142,7 +142,7 @@ GraphWidth [number] (total width of graph)
 returns: number (the x value corresponding to the x coordinate)
 ]]
 
-local yValueFunc = Var("YvalueFunc") or function(params) return (((params.GraphHeight - params.y) / params.GraphHeight) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
+local yValueFunc = Var("YvalueFunc") or function(params) return ((1-(params.y / params.GraphHeight)) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
 --[[yValueFunc 
 purpose: returns a y value calculated from a y coordinate. Inverse of yFunc.
 
@@ -194,6 +194,17 @@ for i = 1, #values do
     maxYvalue = maxYvalueFunc({maxYvalue = maxYvalue, yValue = values[i][2]})
 end
 
+if minXvalue < 0 and maxXvalue > 0 and Var("XoriginCentered") then -- if XoriginCentered = true then x=0 is in the vertical center of the graph
+    local greatest = math.max(math.abs(minXvalue), maxXvalue)
+    maxXvalue = greatest
+    minXvalue = -greatest
+end
+if minYvalue < 0 and maxYvalue > 0 and Var("YoriginCentered") then-- if YoriginCentered = true then y=0 is in the horizontal center of the graph
+    local greatest = math.max(math.abs(minYvalue), maxYvalue)
+    maxYvalue = greatest
+    minYvalue = -greatest
+end
+
 
 
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
@@ -219,7 +230,7 @@ local yAxisLabelScale = 1
 --you can either pick labelsScale or labelsCount, not both
 if Var("XaxisLabelScale") then
     xAxisLabelScale = Var("XaxisLabelScale") or 1 --the scale of the x axis labels
-    maxXvalue = (math.floor(maxXvalue / xAxisLabelScale) + 1) * xAxisLabelScale --round maxXvalue up to the next x axis label, so the graph will have a label at the right
+    maxXvalue = (notShit.floor(maxXvalue / xAxisLabelScale) + 1) * xAxisLabelScale --round maxXvalue up to the next x axis label, so the graph will have a label at the right
     --this is only needed if a scale is entered instead of a count
     xAxisLabelsCount = ((maxXvalue - minXvalue) / xAxisLabelScale) + 1
 else
@@ -229,7 +240,7 @@ end
 
 if Var("YaxisLabelScale") then
     yAxisLabelScale = Var("YaxisLabelScale") or 1 --the scale of y axis labels
-    maxYvalue = (math.floor(maxYvalue / yAxisLabelScale) + 1) * yAxisLabelScale --round maxYvalue up to the nearest y axis label, so the graph will have a label at the top
+    maxYvalue = (notShit.floor(maxYvalue / yAxisLabelScale) + 1) * yAxisLabelScale --round maxYvalue up to the nearest y axis label, so the graph will have a label at the top
     yAxisLabelsCount = ((maxYvalue - minYvalue) / yAxisLabelScale) + 1
 else
     yAxisLabelsCount = Var("YaxisLabelCount") or 1 --how many y axis labels there are

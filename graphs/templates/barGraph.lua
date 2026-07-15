@@ -30,7 +30,7 @@ local values = Var("Values")
 
 
 --functions
-local yFunc = Var("Yfunc") or function(params) return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue))) end  
+local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * (1-(params.value/ params.maxValue)) end  
 --[[yFunc
 purpose: returns a y coordinate calculated from a bar's value.
 
