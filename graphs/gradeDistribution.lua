@@ -1,63 +1,35 @@
 --credit to martzi for the idea for this graph
-local smallButtonTextSize = 0.5
-local gradeTextSize = 0.5
-local headerTextSize = 1
-local bgAlpha = 0.7
-local bgColour = color("#000000")
-local buttonHoverAlpha = 0.6
-local plotAlpha = 1
-local plotAnimationSeconds = 1
-
-
-
-
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphYPadding = 100 / 1080, --distance from x axis to bottom of container
-    GraphXPadding = 50 / 1920, --distance from y axis to left of container
+    GraphY = 100 / 1080, --distance from x axis to bottom of container
+    GraphX = 50 / 1920, --distance from y axis to left of container
     BarWidth = 50 / 1920,
-    GradeCountVerticalOffset = 25 / 1080,
-    GradeTextVerticalOffset = 10 / 1080,
     GraphTypeButtonX = 700 / 1920,
     GraphTypeButtonY = 20 / 1080,
     GraphButtonPaddingWidth = 20 / 1920,
     GraphButtonPaddingHeight = 20 / 1080
 }
-ratios.GraphX = ratios.GraphXPadding
-ratios.GraphY = ratios.GraphYPadding
-ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
-ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2)
-ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
-
 ratios.GraphTitleX = ratios.Width / 2
 ratios.GraphTitleY = 20 / 1080
 
-
-
-
 local actuals = {
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
-    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
-    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
-    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     BarWidth = ratios.BarWidth * SCREEN_WIDTH,
     GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
     GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
-    GradeCountVerticalOffset = ratios.GradeCountVerticalOffset * SCREEN_HEIGHT,
-    GradeTextVerticalOffset = ratios.GradeTextVerticalOffset * SCREEN_HEIGHT,
     GraphTypeButtonX = ratios.GraphTypeButtonX * SCREEN_WIDTH,
     GraphTypeButtonY = ratios.GraphTypeButtonY * SCREEN_HEIGHT,
     GraphButtonPaddingWidth = ratios.GraphButtonPaddingWidth * SCREEN_WIDTH,
     GraphButtonPaddingHeight = ratios.GraphButtonPaddingHeight * SCREEN_HEIGHT
-   
 }
 
+local smallButtonTextSize = 0.5
+local headerTextSize = 1
+local buttonHoverAlpha = 0.6
 
-local function setGradeCounts(gradeCounts, usingEverySetScore)
+local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean this up
     --this is so we can easily update the gradeCounts from anywhere
     for i = 1, #gradeCounts do
         gradeCounts[i] = 0
@@ -175,21 +147,6 @@ local gradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 setGradeCounts(gradeCounts, false)
 
-local grades = {GetGradeFromPercent(100 / 100),
-GetGradeFromPercent(99.955 / 100),
-GetGradeFromPercent(99.7 / 100),
-GetGradeFromPercent(93 / 100),
-GetGradeFromPercent(80 / 100),
-GetGradeFromPercent(70 / 100),
-GetGradeFromPercent(60 / 100),
-GetGradeFromPercent(50 / 100),
-"Grade_Failed"}
-
---table of {x, y} values, storing the top left corner of each bar
---this is so we can easily draw the text above each bar
-local barCoords = {}
-
-
 t = Def.ActorFrame{
     Name = "GradeDistributionGraphContainer",
     focused = false,
@@ -272,9 +229,6 @@ t = Def.ActorFrame{
 
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = gradeCounts,
-    Yfunc = function(params)
-        return params.GraphHeight - ((params.GraphHeight * (params.value/ params.maxValue)))
-    end,
     ColorFunc = function(params) 
         local grades = {GetGradeFromPercent(100 / 100),
         GetGradeFromPercent(99.955 / 100),

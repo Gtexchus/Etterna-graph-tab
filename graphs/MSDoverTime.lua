@@ -1,52 +1,19 @@
-local smallButtonTextSize = 0.5
-local headerTextSize = 1
-local skillsetButtonsMaxWidth = 100
-local bgAlpha = 0.7
-local bgColour = color("#000000")
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelLineAlpha = 0.3
-local buttonHoverAlpha = 0.6
-local XaxisLabelsCount = 5
-local YaxisLabelsScale = 4
-local XaxisLabelsSize = 0.5
-local YaxisLabelsSize = 0.5
-
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    X = 1 - (780 / 1920), --x and y of the box
-    Y = 1 - (612 / 1080), 
-    GraphYPadding = 100 / 1080,
-    GraphXPadding = 50 / 1920,
+    GraphY = 100 / 1080,
+    GraphX = 50 / 1920,
     SkillsetButtonsX = 640 / 1920,
     SkillsetButtonsY = 20 / 1080,
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
-    XaxisLabelsYpadding = 20 / 1080,
-    YaxisLabelsXpadding = 8 / 1920,
-    XaxisLabelLineWidth = 1 / 1920,
-    YaxisLabelLineHeight = 1 / 1080
 }
-
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphX = ratios.GraphXPadding
-ratios.GraphY = ratios.GraphYPadding
-ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
-ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
-ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
 ratios.GraphTitleCenterX = ratios.Width / 2
 ratios.GraphTitleCenterY = 20 / 1080
-
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
-    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
-    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
-    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
@@ -55,30 +22,20 @@ local actuals = {
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
-    X = ratios.X * SCREEN_WIDTH,
-    Y = ratios.Y * SCREEN_HEIGHT,
-    XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
-    YaxisLabelsXpadding = ratios.YaxisLabelsXpadding * SCREEN_WIDTH,
-    XaxisLabelLineWidth = ratios.XaxisLabelLineWidth * SCREEN_WIDTH,
-    YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT
 }
 
-local plotWidth = (3 / 1920) * SCREEN_WIDTH
-local plotHeight = (3 / 1080) * SCREEN_HEIGHT
+local smallButtonTextSize = 0.5
+local headerTextSize = 1
+local skillsetButtonsMaxWidth = 100
+local xAxisLabelInnerLineColor = color("#52525280")
+local yAxisLabelLineAlpha = 0.3
+local buttonHoverAlpha = 0.6
+local XaxisLabelsCount = 5
+local YaxisLabelsScale = 4
 local plotAlpha = 0.5
-local plotAnimationSeconds = 1
 local maxSkillsetButtonsPerColumn = 4
 
 SCOREMAN:SortRecentScoresForGame()
-
--- 4 xyz coordinates are given to make up the 4 corners of a quad to draw
-local function placeDotVertices(vertList, x, y, color)
-    vertList[#vertList + 1] = {{x - (plotWidth/2), y + (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x + (plotWidth/2), y + (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x + (plotWidth/2), y - (plotHeight/2), 0}, color}
-    vertList[#vertList + 1] = {{x - (plotWidth/2), y - (plotHeight/2), 0}, color}
-end
-
 
 local function setValues(values, skillset)
     for i = 1, #values do
@@ -103,10 +60,6 @@ end
 
 local values = {}
 setValues(values, "overall")
-
-
-
-    
 
 
 local t = Def.ActorFrame{
@@ -146,7 +99,6 @@ local t = Def.ActorFrame{
 }
 
 --make skillset buttons
-
 
 local function makeSkillsetButton(skillset_, x, y)
     return UIElements.TextButton(1, 1, "Common Normal") .. {
@@ -217,8 +169,6 @@ t[#t + 1] = sbc
 
 
 --make graph
-
-
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,

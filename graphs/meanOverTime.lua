@@ -1,50 +1,23 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    X = 1 - (780 / 1920), --x and y of the box
-    Y = 1 - (612 / 1080), 
-    
-    GraphYPadding = 100 / 1080,
-    GraphXPadding = 50 / 1920,
-
-    SkillsetButtonsX = 640 / 1920,
-    SkillsetButtonsY = 20 / 1080,
-    SkillsetButtonsHorizontalSpacing = 80 / 1920,
-    SkillsetButtonsVerticalSpacing = 20 / 1080,
+    GraphY = 100 / 1080,
+    GraphX = 50 / 1920,
 }
-
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphX = ratios.GraphXPadding
-ratios.GraphY = ratios.GraphYPadding
 ratios.GraphTitleCenterX = ratios.Width / 2
 ratios.GraphTitleCenterY = 20 / 1080
-
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
     GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
-    SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
-    SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
-    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
-    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
-    X = ratios.X * SCREEN_WIDTH,
-    Y = ratios.Y * SCREEN_HEIGHT,
 }
 
-local smallButtonTextSize = 0.5
 local headerTextSize = 1
-local skillsetButtonsMaxWidth = 100
-local buttonHoverAlpha = 0.6
-local maxSkillsetButtonsPerColumn = 4
-
 local plotAlpha = 0.5
-
 local XaxisLabelCount = 5
 local YaxisLabelCount = 21
 local xAxisLabelInnerLineColor = color("#52525280")

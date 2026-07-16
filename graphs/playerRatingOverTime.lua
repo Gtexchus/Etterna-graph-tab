@@ -1,26 +1,3 @@
---SCOREMAN:GetPlayerRatingOverTime()
---find out what this does when trying to make a line graph:
---self:SetDrawState {Mode = "DrawMode_LineStrip", First = 1, Num = #v}
---where self is an actorMultiVertex
-
-local skillsetLabelsSize = 0.7
-local headerTextSize = 1
-local bgAlpha = 0.7
-local bgColour = color("#000000")
-local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
-local xAxisLabelLineColor = color("#52525280")
-local yAxisLabelLineColor = color("#52525280")
-local buttonHoverAlpha = 0.6
-local XaxisLabelsCount = 5
-local YaxisLabelsScale = 2
-local XaxisLabelsSize = 0.5
-local YaxisLabelsSize = 0.5
-
-local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
-local plotAlpha = 1
-local plotAnimationSeconds = 1
-
-
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
@@ -66,6 +43,29 @@ local actuals = {
     XaxisLabelLineWidth = ratios.XaxisLabelLineWidth * SCREEN_WIDTH,
     YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT
 }
+
+--SCOREMAN:GetPlayerRatingOverTime()
+--find out what this does when trying to make a line graph:
+--self:SetDrawState {Mode = "DrawMode_LineStrip", First = 1, Num = #v}
+--where self is an actorMultiVertex
+
+local skillsetLabelsSize = 0.7
+local headerTextSize = 1
+local bgAlpha = 0.7
+local bgColour = color("#000000")
+local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
+local xAxisLabelLineColor = color("#52525280")
+local yAxisLabelLineColor = color("#52525280")
+local buttonHoverAlpha = 0.6
+local XaxisLabelsCount = 5
+local YaxisLabelsScale = 2
+local XaxisLabelsSize = 0.5
+local YaxisLabelsSize = 0.5
+
+local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
+local plotAlpha = 1
+local plotAnimationSeconds = 1
+
 
 
 local genericButtonCommands = { --so i dont have to write these a billion times

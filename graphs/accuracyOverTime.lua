@@ -1,11 +1,22 @@
-local smallButtonTextSize = 0.5
-local headerTextSize = 1
-local bgAlpha = 0.7
-local bgColour = color("#000000")
-local xAxisLabelInnerLineColor = color("#52525280")
-local buttonHoverAlpha = 0.6
+local ratios = {
+    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
+    Height = 612 / 1080,
+    GraphY = 100 / 1080,
+    GraphX = 50 / 1920,
+}
 
---the idea is to have each midgrade take up the same physical space on the graph
+--for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
+ratios.GraphTitleCenterX = ratios.Width / 2
+ratios.GraphTitleCenterY = 20 / 1080
+
+local actuals = {
+    Width = ratios.Width * SCREEN_WIDTH,
+    Height = ratios.Height * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
+    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
+    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
+}
 
 local gradeTierToWife = { 
     [0] = 1, --not technically a grade but its here for convenience
@@ -47,108 +58,21 @@ local function getUpperGradeBoundary(wife)
 end
 
 
-minWife = 0.93
-maxWife = 1
+local minWife = 0.93
+local maxWife = 1
 
-
-local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
-    X = 1 - (780 / 1920), --x and y of the box
-    Y = 1 - (612 / 1080), 
-    
-    GraphYPadding = 100 / 1080,
-    GraphXPadding = 50 / 1920,
-
-    XaxisLabelsYpadding = 20 / 1080,
-    YaxisLabelsXpadding = 8 / 1920,
-    XaxisLabelLineWidth = 1 / 1920,
-    YaxisLabelLineHeight = 1 / 1080
-
-}
-
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphX = ratios.GraphXPadding
-ratios.GraphY = ratios.GraphYPadding
-ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
-ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
-ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
-
-
-local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
-    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
-    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
-    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
-    X = ratios.X * SCREEN_WIDTH,
-    Y = ratios.Y * SCREEN_HEIGHT,
-    XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
-    YaxisLabelsXpadding = ratios.YaxisLabelsXpadding * SCREEN_WIDTH,
-    XaxisLabelLineWidth = ratios.XaxisLabelLineWidth * SCREEN_WIDTH,
-    YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT
-}
-
-local plotWidth = (3 / 1920) * SCREEN_WIDTH
-local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 0.5
-local plotAnimationSeconds = 1
 
+local smallButtonTextSize = 0.5
+local headerTextSize = 1
+local buttonHoverAlpha = 0.6
 local XaxisLabelsCount = 5
-local XaxisLabelsSize = 0.5
-local YaxisLabelsSize = 0.5
-local xAxisLabelLineColor = color("#52525280")
 local yAxisLabelLineAlpha = 0.3
+local xAxisLabelInnerLineColor = color("#52525280")
 
 local YaxisLabelsCount = (getGradeTierNumber(minWife) - getGradeTierNumber(maxWife)) + 1
 
-local minDate
-local maxDate
-
 SCOREMAN:SortRecentScoresForGame()
-
---i get errors if i dont do this which is annoying
---loop through scores from earliest until latest until we find a valid date, then break the loop
-local minDateText = nil
-for i = 1, SCOREMAN:GetTotalNumberOfScores() do
-    local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
-    if score ~= nil then
-        if score:GetDate() ~= nil and minDateText == nil then
-            minDateText = score:GetDate()
-            break
-        end
-    end
-end
-
-
-if minDateText ~= nil then
-    minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
-else
-    minDate = os.time(os.date("!*t")) --if we dont have a mindate then today is the mindate
-end
-
-maxDate = os.time(os.date("!*t")) --current time
-
-
-local genericButtonCommands = { --so i dont have to write these a billion times
-    MouseOver = function(self)
-        self:diffusealpha(buttonHoverAlpha)
-    end,
-
-    MouseOut = function(self)
-        self:diffusealpha(1)
-    end
-}
-
-
 local function setValues(values)
     for i = 1, #values do
         table.remove(values, 1)

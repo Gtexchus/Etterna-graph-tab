@@ -1,3 +1,31 @@
+local ratios = {
+    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
+    Height = 612 / 1080,
+    GraphY = 100 / 1080,
+    GraphX = 50 / 1920,
+    SkillsetButtonsX = 640 / 1920,
+    SkillsetButtonsY = 20 / 1080,
+    SkillsetButtonsHorizontalSpacing = 80 / 1920,
+    SkillsetButtonsVerticalSpacing = 20 / 1080,
+}
+
+--for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
+ratios.GraphTitleCenterX = ratios.Width / 2
+ratios.GraphTitleCenterY = 20 / 1080
+
+local actuals = {
+    Width = ratios.Width * SCREEN_WIDTH,
+    Height = ratios.Height * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
+    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
+    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
+    SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
+    SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
+    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
+    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
+}
+
 --afaik there isnt a function to convert from 
 --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
 --so this table will have to do
@@ -44,109 +72,22 @@ end
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
 local skillsetButtonsMaxWidth = 100
-local bgAlpha = 0.7
-local bgColour = color("#000000")
 local buttonHoverAlpha = 0.6
-local minMSD = 0
-local maxMSD = 10
 --the idea is to have each midgrade take up the same physical space on the graph
 
 
-minWife = 0.93
-maxWife = 1
+local minWife = 0.93
+local maxWife = 1
 
-local gradeTierToWifeInverted = {} --so i can easily find that 99.9 is the 5th grade, etc
-for k, v in pairs(gradeTierToWife) do
-    gradeTierToWifeInverted[v] = k
-end
-
-
-local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
-    X = 1 - (780 / 1920), --x and y of the box
-    Y = 1 - (612 / 1080), 
-    
-    GraphYPadding = 100 / 1080,
-    GraphXPadding = 50 / 1920,
-
-    SkillsetButtonsX = 640 / 1920,
-    SkillsetButtonsY = 20 / 1080,
-    SkillsetButtonsHorizontalSpacing = 80 / 1920,
-    SkillsetButtonsVerticalSpacing = 20 / 1080,
-    XaxisLabelsYpadding = 20 / 1080,
-    YaxisLabelsXpadding = 8 / 1920,
-    XaxisLabelLineWidth = 1 / 1920,
-    YaxisLabelLineHeight = 1 / 1080
-
-}
-
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphX = ratios.GraphXPadding
-ratios.GraphY = ratios.GraphYPadding
-ratios.GraphWidth = ratios.Width - (ratios.GraphXPadding * 2)
-ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
-ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
-
-
-local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
-    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
-    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
-    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
-    SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
-    SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
-    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
-    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
-    X = ratios.X * SCREEN_WIDTH,
-    Y = ratios.Y * SCREEN_HEIGHT,
-    XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
-    YaxisLabelsXpadding = ratios.YaxisLabelsXpadding * SCREEN_WIDTH,
-    XaxisLabelLineWidth = ratios.XaxisLabelLineWidth * SCREEN_WIDTH,
-    YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT
-}
-
-local plotWidth = (3 / 1920) * SCREEN_WIDTH
-local plotHeight = (3 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 0.5
-local plotAnimationSeconds = 1
 local maxSkillsetButtonsPerColumn = 4
 
 local XaxisLabelsScale = 4
-local XaxisLabelsSize = 0.5
-local YaxisLabelsSize = 0.5
 local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineColor = color("#52525280")
-local xAxisLabelLineAlpha = 0.3
 local yAxisLabelLineAlpha = 0.3
-
-
 local YaxisLabelsCount = (getGradeTierNumber(minWife) - getGradeTierNumber(maxWife)) + 1
 
 SCOREMAN:SortRecentScoresForGame()
-
---get highest msd score
-for i = 1, SCOREMAN:GetTotalNumberOfScores() do
-    local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
-    if score ~= nil then
-        if score:GetSkillsetSSR("overall") > maxMSD then
-            maxMSD = score:GetSkillsetSSR("overall")
-        end
-    end
-end
-
---round maxMSD up to the nearest y axis label
-maxMSD = (math.floor(maxMSD / XaxisLabelsScale) + 1) * XaxisLabelsScale
-
 
 local function setValues(values, skillset)
     for i = 1, #values do
@@ -426,8 +367,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
     XaxisLabelScale = XaxisLabelsScale,
     YaxisLabelCount = YaxisLabelsCount,
-    XaxisLabelInnerLineColor =xAxisLabelInnerLineColor,
-    YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
     PlotAlpha = plotAlpha,
     Xunits = "MSD",
     Yunits = "Accuracy"
