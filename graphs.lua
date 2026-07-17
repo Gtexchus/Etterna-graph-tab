@@ -20,14 +20,6 @@
 --that should be it i hope
 
 
-
-
---find out what this does when trying to make a line graph:
---self:SetDrawState {Mode = "DrawMode_LineStrip", First = 1, Num = #v}
---where self is an actorMultiVertex
-
-
-
 local focused = false
 local t = Def.ActorFrame {
     Name = "GraphPageFile",
@@ -106,7 +98,8 @@ local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName
 {graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonName = "CleartypeDistributionButton", graphButtonText = "Cleartype distribution"},
 {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonName = "ChartPlaycountDistributionButton", graphButtonText = "Chart playcount distribution"},
 {graphActorName = "MeanOverMSDGraphContainer", graphFileName = "meanOverMSD", graphButtonName = "MeanOverMSDButton", graphButtonText = "Mean over MSD"},
-{graphActorName = "MeanOverTimeGraphContainer", graphFileName = "meanOverTime", graphButtonName = "MeanOverTimeButton", graphButtonText = "Mean over time"},}
+{graphActorName = "MeanOverTimeGraphContainer", graphFileName = "meanOverTime", graphButtonName = "MeanOverTimeButton", graphButtonText = "Mean over time"},
+{graphActorName = "MeanOverAccuracyGraphContainer", graphFileName = "meanOverAccuracy", graphButtonName = "MeanOverAccuracyButton", graphButtonText = "Mean over accuracy"},}
 
 
 
