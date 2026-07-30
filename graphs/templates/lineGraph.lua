@@ -486,6 +486,7 @@ local t = Def.ActorFrame{
         SetCommand = function(self) --plots the points on the graph
             local vertices = {}
             local color
+            local prevY
             for i = 1, #values do
                 local x = xFunc({xValue = values[i][1],
                 GraphWidth = actuals.GraphWidth,
@@ -499,18 +500,37 @@ local t = Def.ActorFrame{
                 minYvalue = minYvalue,
                 maxYvalue = maxYvalue
                 })
+
                 color = colorFunc({xValue = values[i][1], yValue = values[i][2]})
                 placeLineVertices(vertices, x, y, color, i)
             end
-            if x ~= nil and y ~= nil then --need this nil check incase values was empty
-                x = actuals.GraphWidth --make the line extend to the end of the graph
-                placeLineVertices(vertices, x, y, color) 
+
+            local function removeRedundantVertices(vertices)
+                --removes all vertices that lie on a straight horizontal line, except the leftmost and rightmost points on said line
+                --e.g. if a line is made of vertices *-*-*-*-*-* (where * represents a vertex)
+                --the line after this function will look like *---------*
+                --maybe I should update this to include lines of all angles, but thats really unlikely to happen so why bother
+                local toRemove = {}
+                local i = 2
+                while i < #vertices-1 do --we dont want to remove the first or last ones
+                    local current = vertices[i][1][2]
+                    local prev = vertices[i-1][1][2]
+                    local next_ = vertices[i+1][1][2]
+                    if current == prev and current == next_ then
+                        table.remove(vertices, i)
+                    else
+                        i = i + 1 --table.remove shifts all elements down to fill the empty space,
+                        --so only incrament i if no elements have been shifted
+                    end
+                end
             end
+            removeRedundantVertices(vertices)
             if self:GetNumVertices() ~= 0 then
                 self:finishtweening()
                 self:smooth(plotAnimationSeconds)
             end
             self:SetVertices(vertices)
+
             self:SetDrawState({Mode = "DrawMode_LineStrip", First = 1, Num = #vertices})
         end,
     },
