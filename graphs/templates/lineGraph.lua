@@ -394,9 +394,9 @@ local t = Def.ActorFrame{
     Name = "Graph",
     InitCommand = function(self)
         self:xy(x, y)
-        self.activeLayers = {}
+        self.focusedLayers = {}
         for i=1, #values do
-            self.activeLayers[i] = true
+            self.focusedLayers[i] = true
         end
         local mouseOver = false
         local bg = self:GetChild("BG")
@@ -452,7 +452,7 @@ local t = Def.ActorFrame{
                 local tooltipStr = string.format("%s: %s", xUnits, xStr)
 
                 for i=1, #values do
-                    if self.activeLayers[i] then
+                    if self.focusedLayers[i] then
                         local xt = {}
                         for j=1, #values[i] do
                             xt[#xt+1] = values[i][j][1]
@@ -493,6 +493,18 @@ local t = Def.ActorFrame{
         end)
     end,
 
+    SetFocusedLayersCommand = function(self, params)
+        for k, v in pairs(params) do
+            self.focusedLayers[k] = v
+            local layer = self:GetChild("Plots"):GetChild("Layer"..k)
+            if v then
+                layer:playcommand("Active")
+            else
+                layer:playcommand("Inactive")
+            end
+        end
+    end,
+
     Def.Quad{
         Name = "BG", 
         InitCommand = function(self)
@@ -521,13 +533,23 @@ local t = Def.ActorFrame{
     },
 }
 
-local function makePlot(i)
+local function makeLayer(i)
     return Def.ActorMultiVertex{
-        Name = "Plot".. i,
+        Name = "Layer".. i,
         InitCommand = function(self)
             self:diffusealpha(plotAlpha)
             self:playcommand("Set")
             self:SetLineWidth(lineThickness)
+        end,
+        ActiveCommand = function(self)
+            self:finishtweening()
+            self:smooth(plotAnimationSeconds)
+            self:diffusealpha(plotAlpha)
+        end,
+        InactiveCommand = function(self)
+            self:finishtweening()
+            self:smooth(plotAnimationSeconds)
+            self:diffusealpha(0.1)
         end,
         SetCommand = function(self) --plots the points on the graph
             local vertices = {}
@@ -582,9 +604,13 @@ local function makePlot(i)
     }
 end
 
+local plots = Def.ActorFrame{
+    Name = "Plots"
+}
 for i=1, #values do
-    t[#t+1] = makePlot(i)
+    plots[#plots+1] = makeLayer(i)
 end
+t[#t+1] = plots
 --axis labels
 
 local XaxisLabelsContainer = Def.ActorFrame{
