@@ -55,6 +55,7 @@ local actuals = {
 
 local skillsetLabelsSize = 0.7
 local headerTextSize = 1
+local tooltipTextSize = 0.3
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
@@ -66,7 +67,7 @@ local YaxisLabelScale = 2
 
 local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 1
-local plotAnimationSeconds = 1
+local plotAnimationSeconds = 0.5
 
 
 SCOREMAN:SortRecentScoresForGame()
@@ -174,7 +175,9 @@ t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
     Xunits = "Date",
     Yunits = "MSD",
     XaxisLabelCount = XaxisLabelCount,
-    YaxisLabelScale = YaxisLabelScale
+    YaxisLabelScale = YaxisLabelScale,
+    PlotAnimationSeconds = plotAnimationSeconds,
+    TooltipTextSize = tooltipTextSize
 })
 
 

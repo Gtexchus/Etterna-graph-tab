@@ -234,6 +234,7 @@ local mouseHoverIndicatorColor = Var("MouseHoverIndicatorColor") or color("#ff00
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
+local tooltipTextSize = Var("TooltipTextSize") or 0.5
 local plotAnimationSeconds = Var("PlotAnimationSeconds") or 1 --tween time of plot
 local lineThickness = Var("LineThickness") or 1
 local xUnits = Var("Xunits") or "X" --units of measurement the x axis is in, e.g. MSD, time, etc.
@@ -479,6 +480,7 @@ local t = Def.ActorFrame{
                         end
                     end
                 end
+                TOOLTIP:SetTextSize(tooltipTextSize)
                 TOOLTIP:SetText(tooltipStr)
                 TOOLTIP:Show()
                 self:GetChild("MouseHoverIndicator"):playcommand("MouseHover", {x = mouseX})
@@ -486,6 +488,7 @@ local t = Def.ActorFrame{
                 if mouseOver then
                     --do this so the tooltip isnt always being hidden
                     TOOLTIP:Hide()
+                    TOOLTIP:SetTextSize(0.5) --set the tooltip back to its default size
                     self:GetChild("MouseHoverIndicator"):playcommand("MouseUnhover")
                     mouseOver = false
                 end
