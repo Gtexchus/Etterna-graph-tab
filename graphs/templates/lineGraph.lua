@@ -53,7 +53,8 @@ end
 
 local values = Var("Values")
 
-
+local x = Var("X") or 0
+local y = Var("Y") or 0
 
 --functions
 local xFunc = Var("Xfunc") or function(params) return params.GraphWidth * ((params.xValue - params.minXvalue) / (params.maxXvalue - params.minXvalue)) end
@@ -90,7 +91,8 @@ purpose: returns a color for a point, given that point's xValue and yValue
 
 params: 
 xValue [number] (point's x value) 
-yValue [number] (point's y value)  
+yValue [number] (point's y value)
+layer [number] (point's layer)  
 
 returns: color (color for the point)
 ]]
@@ -196,16 +198,18 @@ actuals.YaxisLabelLineThickness = Var("YaxisLabelLineThickness") or ((1 / 1080) 
 
 
 --get the min and max x and y values
-local minXvalue = values[1][1] --smallest x value there is
-local maxXvalue = values[1][1]
-local minYvalue = values[1][2]
-local maxYvalue = values[1][2]
+local minXvalue = values[1][1][1] --smallest x value there is
+local maxXvalue = values[1][1][1]
+local minYvalue = values[1][1][2]
+local maxYvalue = values[1][1][2]
 
-for i = 1, #values do 
-    minXvalue = minXvalueFunc({minXvalue = minXvalue, xValue = values[i][1]})
-    maxXvalue = maxXvalueFunc({maxXvalue = maxXvalue, xValue = values[i][1]})
-    minYvalue = minYvalueFunc({minYvalue = minYvalue, yValue = values[i][2]})
-    maxYvalue = maxYvalueFunc({maxYvalue = maxYvalue, yValue = values[i][2]})
+for i = 1, #values do
+    for j = 1, #values[i] do 
+        minXvalue = minXvalueFunc({minXvalue = minXvalue, xValue = values[i][j][1]})
+        maxXvalue = maxXvalueFunc({maxXvalue = maxXvalue, xValue = values[i][j][1]})
+        minYvalue = minYvalueFunc({minYvalue = minYvalue, yValue = values[i][j][2]})
+        maxYvalue = maxYvalueFunc({maxYvalue = maxYvalue, yValue = values[i][j][2]})
+    end
 end
 
 if minXvalue < 0 and maxXvalue > 0 and Var("XoriginCentered") then -- if XoriginCentered = true then x=0 is in the vertical center of the graph
@@ -239,6 +243,14 @@ local xAxisLabelsCount = 1
 local xAxisLabelScale = 1
 local yAxisLabelsCount = 1
 local yAxisLabelScale = 1
+
+local layerNames = Var("LayerNames")
+if layerNames == nil then
+    layerNames = {}
+    for i=1, #values do
+        layerNames[i] = ""
+    end
+end
 
 
 --you can either pick labelsScale or labelsCount, not both
@@ -375,12 +387,19 @@ end
 ]]
 
 
+
 local t = Def.ActorFrame{
     Name = "Graph",
     InitCommand = function(self)
+        self:xy(x, y)
+        self.activeLayers = {}
+        for i=1, #values do
+            self.activeLayers[i] = true
+        end
         local mouseOver = false
         local bg = self:GetChild("BG")
         self:SetUpdateFunction(function()
+            --todo - make this work for layers
             --the function for setting the tooltip when hovered over the graph
             --this assumes the graph goes only from left to right, i.e. no lines go backwards
             if self:IsInvisible() then return end
@@ -422,37 +441,42 @@ local t = Def.ActorFrame{
                     return r
                 end
 
-                local xt = {}
-                for i=1, #values do
-                    xt[#xt+1] = values[i][1]
-                end
-                --get the index of the data point to the left of the cursor
-                local left = binarySearchExceptTheValueProbablyDoesntExist(xt, xValue)
-
-                --values of data points either side of the cursor
-                local leftXvalue = values[left][1]
-                local rightXvalue = values[left+1][1]
-                local leftYvalue = values[left][2]
-                local rightYvalue = values[left+1][2]
-                --linearly interpolate the y value
-                local p = (xValue - leftXvalue) / (rightXvalue - leftXvalue)
-                local yValue = leftYvalue + (p * (rightYvalue - leftYvalue))
-
                 local xStr = xValueToStringFunc({xValue = xValue,
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue
-                })
+                    GraphWidth = actuals.GraphWidth,
+                    GraphHeight = actuals.GraphHeight,
+                    minXvalue = minXvalue,
+                    maxXvalue = maxXvalue
+                    })
+                local tooltipStr = string.format("%s: %s", xUnits, xStr)
 
-                local yStr = yValueToStringFunc({yValue = yValue,
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue
-                })
+                for i=1, #values do
+                    if self.activeLayers[i] then
+                        local xt = {}
+                        for j=1, #values[i] do
+                            xt[#xt+1] = values[i][j][1]
+                        end
+                        --get the index of the data point to the left of the cursor
+                        local left = binarySearchExceptTheValueProbablyDoesntExist(xt, xValue)
+                        if left > 0 and left < #values[i] then --if the cursor is within the x bounds of the line
+                            --values of data points either side of the cursor
+                            local leftXvalue = values[i][left][1]
+                            local rightXvalue = values[i][left+1][1]
+                            local leftYvalue = values[i][left][2]
+                            local rightYvalue = values[i][left+1][2]
+                            --linearly interpolate the y value
+                            local p = (xValue - leftXvalue) / (rightXvalue - leftXvalue)
+                            local yValue = leftYvalue + (p * (rightYvalue - leftYvalue))
 
-                local tooltipStr = string.format("%s: %s\n%s: %s", xUnits, xStr, yUnits, yStr)
+                            local yStr = yValueToStringFunc({yValue = yValue,
+                            GraphWidth = actuals.GraphWidth,
+                            GraphHeight = actuals.GraphHeight,
+                            minYvalue = minYvalue,
+                            maxYvalue = maxYvalue,
+                            })
+                            tooltipStr = tooltipStr .. string.format("\n%s %s: %s", layerNames[i], yUnits, yStr)
+                        end
+                    end
+                end
                 TOOLTIP:SetText(tooltipStr)
                 TOOLTIP:Show()
                 self:GetChild("MouseHoverIndicator"):playcommand("MouseHover", {x = mouseX})
@@ -476,8 +500,28 @@ local t = Def.ActorFrame{
         end
     },
 
-    Def.ActorMultiVertex{
-        Name = "Plots",
+
+    Def.Quad{
+        Name = "MouseHoverIndicator",
+        InitCommand = function(self)
+            self:diffuse(mouseHoverIndicatorColor)
+            self:valign(0)
+            self:zoomto(1, actuals.GraphHeight)
+            self:diffusealpha(0)
+        end,
+        MouseHoverCommand = function(self, params)
+            self:diffuse(mouseHoverIndicatorColor)
+            self:x(params.x)
+        end,
+        MouseUnhoverCommand = function(self)
+            self:diffusealpha(0)
+        end,
+    },
+}
+
+local function makePlot(i)
+    return Def.ActorMultiVertex{
+        Name = "Plot".. i,
         InitCommand = function(self)
             self:diffusealpha(plotAlpha)
             self:playcommand("Set")
@@ -487,22 +531,22 @@ local t = Def.ActorFrame{
             local vertices = {}
             local color
             local prevY
-            for i = 1, #values do
-                local x = xFunc({xValue = values[i][1],
+            for j = 1, #values[i] do
+                local x = xFunc({xValue = values[i][j][1],
                 GraphWidth = actuals.GraphWidth,
                 GraphHeight = actuals.GraphHeight,
                 minXvalue = minXvalue,
                 maxXvalue = maxXvalue
                 })
-                local y = yFunc({yValue = values[i][2],
+                local y = yFunc({yValue = values[i][j][2],
                 GraphWidth = actuals.GraphWidth,
                 GraphHeight = actuals.GraphHeight,
                 minYvalue = minYvalue,
                 maxYvalue = maxYvalue
                 })
 
-                color = colorFunc({xValue = values[i][1], yValue = values[i][2]})
-                placeLineVertices(vertices, x, y, color, i)
+                color = colorFunc({xValue = values[i][j][1], yValue = values[i][j][2], layer = i})
+                placeLineVertices(vertices, x, y, color)
             end
 
             local function removeRedundantVertices(vertices)
@@ -533,27 +577,12 @@ local t = Def.ActorFrame{
 
             self:SetDrawState({Mode = "DrawMode_LineStrip", First = 1, Num = #vertices})
         end,
-    },
+    }
+end
 
-    Def.Quad{
-        Name = "MouseHoverIndicator",
-        InitCommand = function(self)
-            self:diffuse(mouseHoverIndicatorColor)
-            self:valign(0)
-            self:zoomto(1, actuals.GraphHeight)
-            self:diffusealpha(0)
-        end,
-        MouseHoverCommand = function(self, params)
-            self:diffuse(mouseHoverIndicatorColor)
-            self:x(params.x)
-        end,
-        MouseUnhoverCommand = function(self)
-            self:diffusealpha(0)
-        end,
-    },
-}
-
-
+for i=1, #values do
+    t[#t+1] = makePlot(i)
+end
 --axis labels
 
 local XaxisLabelsContainer = Def.ActorFrame{
