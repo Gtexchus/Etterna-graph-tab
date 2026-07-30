@@ -256,7 +256,8 @@ end
 --you can either pick labelsScale or labelsCount, not both
 if Var("XaxisLabelScale") then
     xAxisLabelScale = Var("XaxisLabelScale") or 1 --the scale of the x axis labels
-    maxXvalue = ((notShit.floor(maxXvalue  / xAxisLabelScale) + 1) * xAxisLabelScale) + (minXvalue%xAxisLabelScale)--round maxXvalue up to the next x axis label, so the graph will have a label at the right
+    minXvalue = notShit.floor(minXvalue / xAxisLabelScale) * xAxisLabelScale --round minXvalue down to the closest x axis label
+    maxXvalue = ((notShit.floor(maxXvalue  / xAxisLabelScale) + 1) * xAxisLabelScale)--round maxXvalue up to the next x axis label
     --this is only needed if a scale is entered instead of a count
     xAxisLabelsCount = ((maxXvalue - minXvalue) / xAxisLabelScale) + 1
 else
@@ -266,7 +267,8 @@ end
 
 if Var("YaxisLabelScale") then
     yAxisLabelScale = Var("YaxisLabelScale") or 1 --the scale of y axis labels
-    maxYvalue = ((notShit.floor(maxYvalue / yAxisLabelScale) + 1) * yAxisLabelScale)  + (minYvalue%yAxisLabelScale)--round maxYvalue up to the nearest y axis label, so the graph will have a label at the top
+    minYvalue = notShit.floor(minYvalue / yAxisLabelScale) * yAxisLabelScale--round minYvalue down to the closest y axis label
+    maxYvalue = ((notShit.floor(maxYvalue / yAxisLabelScale) + 1) * yAxisLabelScale)--round maxYvalue up to the nearest y axis label
     yAxisLabelsCount = ((maxYvalue - minYvalue) / yAxisLabelScale) + 1
 else
     yAxisLabelsCount = Var("YaxisLabelCount") or 1 --how many y axis labels there are
