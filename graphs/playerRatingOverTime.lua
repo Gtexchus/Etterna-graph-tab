@@ -56,6 +56,7 @@ local actuals = {
 local skillsetLabelsSize = 0.7
 local headerTextSize = 1
 local tooltipTextSize = 0.3
+local buttonHoverAlpha = 0.6
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
@@ -155,7 +156,7 @@ t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
         if string.format("%5.2f", params.yValue) == string.format("%5.2f", notShit.floor(params.yValue + 0.0001)) then -- if the first two decimal points are 00
             --this is so the y axis labels are integers and arent 12.00, for example
             -- +0.0001 because of floating point nonsense
-            return params.yValue
+            return notShit.floor(params.yValue + 0.0001)
         else
             return string.format("%5.2f", params.yValue)
         end
@@ -237,6 +238,15 @@ local function makeSkillsetLabelsContainer()
                         else
                             self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", clicked)
                         end
+                    end
+                end,
+
+                RolloverUpdateCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "in" then
+                        self:diffusealpha(buttonHoverAlpha)
+                    else
+                        self:diffusealpha(1)
                     end
                 end
             },
