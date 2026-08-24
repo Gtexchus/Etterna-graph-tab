@@ -221,7 +221,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
         local y =  ((sectionNumber * sectionWidth) + (sectionWidth * progressIntoSection))
-        print(y)
         return y
     end,
     Yfunc = function(params)
