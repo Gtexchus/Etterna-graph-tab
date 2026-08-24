@@ -4,7 +4,7 @@ local ratios = {
     Height = 612 / 1080,
     GraphY = 100 / 1080, --distance from x axis to bottom of container
     GraphX = 50 / 1920, --distance from y axis to left of container
-    BarWidth = 50 / 1920,
+    BarSpacing = 20 / 1920,
     GraphTypeButtonX = 700 / 1920,
     GraphTypeButtonY = 20 / 1080,
     GraphButtonPaddingWidth = 20 / 1920,
@@ -16,7 +16,7 @@ ratios.GraphTitleY = 20 / 1080
 local actuals = {
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    BarWidth = ratios.BarWidth * SCREEN_WIDTH,
+    BarSpacing = ratios.BarSpacing * SCREEN_WIDTH,
     GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
     GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
     GraphTypeButtonX = ratios.GraphTypeButtonX * SCREEN_WIDTH,
@@ -25,9 +25,46 @@ local actuals = {
     GraphButtonPaddingHeight = ratios.GraphButtonPaddingHeight * SCREEN_HEIGHT
 }
 
+local bottomLabelTextSize = 0.4
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
 local buttonHoverAlpha = 0.6
+local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+
+local midGradeNumToGradeNum = {
+    [1] = 1,
+    [2] = 2,
+    [3] = 2,
+    [4] = 2,
+    [5] = 3,
+    [6] = 3,
+    [7] = 3,
+    [8] = 4,
+    [9] = 4,
+    [10] = 4,
+    [11] = 5,
+    [12] = 5,
+    [13] = 5,
+    [14] = 6,
+    [15] = 6,
+    [16] = 8,
+    [17] = 9,
+}
+
+local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
+    local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
+    for i=1, #gradeCounts do
+        local j = midGradeNumToGradeNum[i]
+        newGradeCounts[j] = newGradeCounts[j] + gradeCounts[i]
+    end
+    --copy newGradeCounts into gradeCounts
+    for i=1, #gradeCounts do
+        table.remove(gradeCounts, 1)
+    end
+    for i=1, #newGradeCounts do
+        gradeCounts[i] = newGradeCounts[i]
+    end
+end
 
 local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean this up
     --this is so we can easily update the gradeCounts from anywhere
@@ -40,42 +77,20 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
             if score ~= nil then
                 local grade = score:GetWifeGrade()
                
-                if grade == "Grade_Tier01" then --AAAAA
-                    gradeCounts[1] = gradeCounts[1] + 1
-                elseif grade == "Grade_Tier02" or grade == "Grade_Tier03" or grade == "Grade_Tier04" then --AAAA
-                    gradeCounts[2] = gradeCounts[2] + 1
-                elseif grade == "Grade_Tier05" or grade == "Grade_Tier06" or grade == "Grade_Tier07" then --AAA
-                    gradeCounts[3] = gradeCounts[3] + 1
-                elseif grade == "Grade_Tier08" or grade == "Grade_Tier09" or grade == "Grade_Tier10" then --AA
-                    gradeCounts[4] = gradeCounts[4] + 1
-                elseif grade == "Grade_Tier11" or grade == "Grade_Tier12" or grade == "Grade_Tier13" then --A
-                    gradeCounts[5] = gradeCounts[5] + 1
-                elseif grade == "Grade_Tier14" then --B
-                    gradeCounts[6] = gradeCounts[6] + 1
-                elseif grade == "Grade_Tier15" then --C
-                    gradeCounts[7] = gradeCounts[7] + 1
-                elseif grade == "Grade_Tier16" then --D
-                    gradeCounts[8] = gradeCounts[8] + 1
-                elseif grade == "Failed" or grade == "Grade_Failed" then --F
-                    gradeCounts[9] = gradeCounts[9] + 1
+                if grade == "Failed" or grade == "Grade_Failed" then --F
+                    gradeCounts[17] = gradeCounts[17] + 1
+                else
+                    local i = tonumber(grade:sub(11, 12))
+                    gradeCounts[i] = gradeCounts[i] + 1
                 end
             end
-
-
         end
-
-
     else
-        
-
         --copied from WheelDataManager.lua
         --this is basically WHEELDATA:GetTotalClearsByGrade but including D's and F's
         --it loops through every song installed, very inefficient i know
-
-
         --this is different to the rebirth stats screen because 
         --if you have the same song installed twice rebirth counts it both times, this only counts it once
-
         local allSongs = SONGMAN:GetAllSongs()
         local countedSongs = {} --table of k = chartkey, v = boolean, to keep track of which charts we have counted
                                 --this is so if the same song is installed multiple times we only count it once
@@ -104,46 +119,30 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
                                         foundgrade = grade
                                     end
                                 end
-
                             end
                         end 
                     end
                 end
                 --this is within the chart loop instead of the song loop
                 --so one song with multiple difficulties is counted for each difficulty
-                if foundgrade == "Grade_Tier01" then
-                    gradeCounts[1] = gradeCounts[1] + 1
-                elseif foundgrade == "Grade_Tier02" or foundgrade == "Grade_Tier03" or foundgrade == "Grade_Tier04" then
-                    gradeCounts[2] = gradeCounts[2] + 1
-                elseif foundgrade == "Grade_Tier05" or foundgrade == "Grade_Tier06" or foundgrade == "Grade_Tier07" then
-                    gradeCounts[3] = gradeCounts[3] + 1
-                elseif foundgrade == "Grade_Tier08" or foundgrade == "Grade_Tier09" or foundgrade == "Grade_Tier10" then
-                    gradeCounts[4] = gradeCounts[4] + 1
-                elseif foundgrade == "Grade_Tier11" or foundgrade == "Grade_Tier12" or foundgrade == "Grade_Tier13" then
-                    gradeCounts[5] = gradeCounts[5] + 1
-                elseif foundgrade == "Grade_Tier14" then
-                    gradeCounts[6] = gradeCounts[6] + 1
-                elseif foundgrade == "Grade_Tier15" then
-                    gradeCounts[7] = gradeCounts[7] + 1
-                elseif foundgrade == "Grade_Tier16" then
-                    gradeCounts[8] = gradeCounts[8] + 1
-                elseif foundgrade == "Grade_Failed" or foundgrade == "Failed" then
-                    gradeCounts[9] = gradeCounts[9] + 1
+                if foundgrade == "Failed" or foundgrade == "Grade_Failed" then --F
+                    gradeCounts[17] = gradeCounts[17] + 1
+                elseif foundgrade ~= nil then
+                    local i = tonumber(foundgrade:sub(11, 12))
+                    gradeCounts[i] = gradeCounts[i] + 1
                 end
             end
-            
-        end
-        
+        end 
     end
-
-
+    if not useMidGrades then --if the player is weird
+        squish(gradeCounts)
+    end
 end
-
-
 
 SCOREMAN:SortRecentScoresForGame()
 
-local gradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
+--AAAAA, AAAA:, AAAA., AAAA, AAA:, AAA., AAA, AA:, AA., AA, A:, A., A, B, C, D, F
+local gradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 setGradeCounts(gradeCounts, false)
 
@@ -224,40 +223,65 @@ t = Def.ActorFrame{
     }
 }
 
-
-
-
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = gradeCounts,
     ColorFunc = function(params) 
-        local grades = {GetGradeFromPercent(100 / 100),
-        GetGradeFromPercent(99.955 / 100),
-        GetGradeFromPercent(99.7 / 100),
-        GetGradeFromPercent(93 / 100),
-        GetGradeFromPercent(80 / 100),
-        GetGradeFromPercent(70 / 100),
-        GetGradeFromPercent(60 / 100),
-        GetGradeFromPercent(50 / 100),
+        local grades = {"Grade_Tier01",
+        "Grade_Tier04",
+        "Grade_Tier07",
+        "Grade_Tier10",
+        "Grade_Tier13",
+        "Grade_Tier14",
+        "Grade_Tier15",
+        "Grade_Tier16",
         "Grade_Failed"}
-
-        return colorByGrade(grades[params.barNum])
+        local i = params.barNum
+        if useMidGrades then
+            i = midGradeNumToGradeNum[i]
+        end
+        return colorByGrade(grades[i])
     end,
 
     BarNumToStringFunc = function(params) 
-        local grades = {GetGradeFromPercent(100 / 100),
-        GetGradeFromPercent(99.955 / 100),
-        GetGradeFromPercent(99.7 / 100),
-        GetGradeFromPercent(93 / 100),
-        GetGradeFromPercent(80 / 100),
-        GetGradeFromPercent(70 / 100),
-        GetGradeFromPercent(60 / 100),
-        GetGradeFromPercent(50 / 100),
-        "Grade_Failed"}
+        local grades
+        --this is bullshit
+        if useMidGrades then
+            grades = {"Grade_Tier01",
+            "Grade_Tier02",
+            "Grade_Tier03",
+            "Grade_Tier04",
+            "Grade_Tier05",
+            "Grade_Tier06",
+            "Grade_Tier07",
+            "Grade_Tier08",
+            "Grade_Tier09",
+            "Grade_Tier10",
+            "Grade_Tier11",
+            "Grade_Tier12",
+            "Grade_Tier13",
+            "Grade_Tier14",
+            "Grade_Tier15",
+            "Grade_Tier16",
+            "Grade_Failed"}
+        else
+            grades = {"Grade_Tier01",
+            "Grade_Tier04",
+            "Grade_Tier07",
+            "Grade_Tier10",
+            "Grade_Tier13",
+            "Grade_Tier14",
+            "Grade_Tier15",
+            "Grade_Tier16",
+            "Grade_Failed"}
+        end
+
 
         return getGradeStrings(grades[params.barNum]) 
     end,
 
-    BarWidth = actuals.BarWidth
+    BarSpacing = actuals.BarSpacing,
+    BottomLabelTextSize = bottomLabelTextSize,
+    TopLabelDefaultAlpha = 0
 }) .. {
     InitCommand = function(self)
         self:xy(actuals.GraphX, actuals.GraphY)

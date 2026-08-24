@@ -24,10 +24,48 @@ local actuals = {
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
 
---afaik there isnt a function to convert from 
---grade tier to wife (there isnt an inverse of GetGradeFromPercent())
---so this table will have to do
-local gradeTierToWife = { 
+local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+
+local function getGradeNum(wife) --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
+    --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
+    local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
+        if wife == 1 then
+            return 0
+        else
+            return tonumber(GetGradeFromPercent(wife):sub(11, 12))
+        end
+    end
+    local midGradeNumToGradeNum = {
+        [0] = 0,
+        [1] = 1,
+        [2] = 2,
+        [3] = 2,
+        [4] = 2,
+        [5] = 3,
+        [6] = 3,
+        [7] = 3,
+        [8] = 4,
+        [9] = 4,
+        [10] = 4,
+        [11] = 5,
+        [12] = 5,
+        [13] = 5,
+        [14] = 6,
+        [15] = 6,
+        [16] = 8,
+        [17] = 9,
+    }
+    if useMidGrades then
+        return getGradeTierNumber(wife)
+    end
+    return midGradeNumToGradeNum[getGradeTierNumber(wife)]
+end
+
+local function gradeTierToWife(n)
+    --afaik there isnt a function to convert from 
+    --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
+    --so this table will have to do
+    local toWife = { 
         [0] = 1, --not technically a grade but its here for convenience
         0.999935, --AAAAA
         0.9998,
@@ -44,28 +82,33 @@ local gradeTierToWife = {
         0.8, --A
         0.7, --B
         0.6 --C
-}
-
-local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
-    if wife == 1 then
-        return 0
-    else
-        return tonumber(GetGradeFromPercent(wife):sub(11, 12))
+    }
+    local toWifeNoMidGrades = { 
+        [0] = 1, --not technically a grade but its here for convenience
+        0.999935, --AAAAA
+        0.99955, --AAAA
+        0.997, --AAA
+        0.93, --AA
+        0.8, --A
+        0.7, --B
+        0.6 --C
+    }
+    if useMidGrades then
+        return toWife[n]
     end
+    return toWifeNoMidGrades[n]
 end
 
 local function getLowerGradeBoundary(wife)
-    return gradeTierToWife[getGradeTierNumber(wife)]
+    return gradeTierToWife(getGradeNum(wife))
 end
 
 local function getUpperGradeBoundary(wife)
     if wife == 1 then
         return 1
-    else
-        return gradeTierToWife[getGradeTierNumber(wife) - 1]
     end
+    return gradeTierToWife(getGradeNum(wife) - 1)
 end
-
 
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
@@ -80,7 +123,7 @@ local xAxisLabelInnerLineAlpha = 0.3
 
 local minWife = 0.93
 local maxWife = 1
-local XaxisLabelCount = (getGradeTierNumber(minWife) - getGradeTierNumber(maxWife)) + 1
+local XaxisLabelCount = (getGradeNum(minWife) - getGradeNum(maxWife)) + 1
 
 SCOREMAN:SortRecentScoresForGame()
 
@@ -157,9 +200,9 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Xfunc = function(params) --i fucking hate this
         local wife = params.xValue
-        local gradeTier = getGradeTierNumber(wife)
-        local minGradeTier = getGradeTierNumber(params.minXvalue)
-        local maxGradeTier = getGradeTierNumber(params.maxXvalue)
+        local gradeTier = getGradeNum(wife)
+        local minGradeTier = getGradeNum(params.minXvalue)
+        local maxGradeTier = getGradeNum(params.maxXvalue)
         if params.maxXvalue == 1 then
             maxGradeTier = 0
         end
@@ -178,7 +221,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
         local y =  ((sectionNumber * sectionWidth) + (sectionWidth * progressIntoSection))
-        print(y)
         return y
     end,
     Yfunc = function(params)
@@ -192,8 +234,8 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     end,
     XvalueFunc = function(params) --i fucking hate this too
         local stupidX = params.GraphWidth - params.x --cant be bothered to remake this function cleanly so fuck you
-        local minGrade = getGradeTierNumber(params.minXvalue)
-        local maxGrade = getGradeTierNumber(params.maxXvalue)
+        local minGrade = getGradeNum(params.minXvalue)
+        local maxGrade = getGradeNum(params.maxXvalue)
         if params.maxXvalue == 1 then --special case for 100%, because we want a label for 100%
             maxGrade = 0
         end
@@ -203,8 +245,8 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphWidth
         local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphWidth
         local progressIntoSection = ((lowerSectionBound - stupidX ) / (lowerSectionBound - upperSectionBound))
-        local lowerWifeBound = gradeTierToWife[(minGrade - (numberOfSections - sectionNumber)) + 1]
-        local upperWifeBound = gradeTierToWife[minGrade - (numberOfSections - sectionNumber)]
+        local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1)
+        local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber))
         local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
         return acc
     end,
