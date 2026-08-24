@@ -28,14 +28,6 @@ local actuals = {
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
-local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
-    if wife == 1 then
-        return 0
-    else
-        return tonumber(GetGradeFromPercent(wife):sub(11, 12))
-    end
-end
-
 local function gradeTierToWife(n)
     --afaik there isnt a function to convert from 
     --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
@@ -78,6 +70,14 @@ end
 
 local function getGradeNum(wife) --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
     --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
+    local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
+        if wife == 1 then
+            return 0
+        else
+            return tonumber(GetGradeFromPercent(wife):sub(11, 12))
+        end
+    end
+
     local midGradeNumToGradeNum = {
         [0] = 0,
         [1] = 1,
