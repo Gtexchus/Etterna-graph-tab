@@ -6,7 +6,9 @@ local ratios = {
     XaxisLabelsYpadding = 20 / 1080,
     YaxisLabelsXpadding = 8 / 1920,
     XaxisLabelLineWidth = 1 / 1920,
-    YaxisLabelLineHeight = 1 / 1080
+    YaxisLabelLineHeight = 1 / 1080,
+    SkillsetLabelsHorizontalPadding = 5 / 1920,
+    SkillsetLabelsVerticalPadding = 10 / 1080,
 }
 
 --for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
@@ -41,7 +43,9 @@ local actuals = {
     XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
     YaxisLabelsXpadding = ratios.YaxisLabelsXpadding * SCREEN_WIDTH,
     XaxisLabelLineWidth = ratios.XaxisLabelLineWidth * SCREEN_WIDTH,
-    YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT
+    YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT,
+    SkillsetLabelsHorizontalPadding = ratios.SkillsetLabelsHorizontalPadding * SCREEN_WIDTH,
+    SkillsetLabelsVerticalPadding = ratios.SkillsetLabelsVerticalPadding * SCREEN_HEIGHT
 }
 
 --SCOREMAN:GetPlayerRatingOverTime()
@@ -51,105 +55,53 @@ local actuals = {
 
 local skillsetLabelsSize = 0.7
 local headerTextSize = 1
+local tooltipTextSize = 0.3
+local buttonHoverAlpha = 0.6
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
-local xAxisLabelLineColor = color("#52525280")
-local yAxisLabelLineColor = color("#52525280")
+local xAxisLabelInnerLineColor = color("#52525280")
+local yAxisLabelInnerLineColor = color("#52525280")
 local buttonHoverAlpha = 0.6
-local XaxisLabelsCount = 5
-local YaxisLabelsScale = 2
-local XaxisLabelsSize = 0.5
-local YaxisLabelsSize = 0.5
+local XaxisLabelCount = 5
+local YaxisLabelScale = 2
 
 local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
 local plotAlpha = 1
-local plotAnimationSeconds = 1
-
-
-
-local genericButtonCommands = { --so i dont have to write these a billion times
-    MouseOver = function(self)
-        self:diffusealpha(buttonHoverAlpha)
-    end,
-
-    MouseOut = function(self)
-        self:diffusealpha(1)
-    end
-}
-
-
-
-
-local function placeLineVertices(vertList, x, y, color)
-    vertList[#vertList + 1] = {{x - (lineThickness / 2), y - (lineThickness / 2), 0}, color}
-    vertList[#vertList + 1] = {{x + (lineThickness / 2), y + (lineThickness / 2), 0}, color}
-end
-
-local function placeLineVerticesNoDiagonal(vertList, x, y, color)
-    --this is only used to make the line extend to the edge of the graph
-    vertList[#vertList + 1] = {{x, y - (lineThickness / 2), 0}, color}
-    vertList[#vertList + 1] = {{x, y + (lineThickness / 2), 0}, color}
-end
-
+local plotAnimationSeconds = 0.5
 
 
 SCOREMAN:SortRecentScoresForGame()
 
-
---i get errors if i dont do this which is annoying
---loop through scores from earliest until latest until we find a valid date, then break the loop
-
-local minDateText = nil
-for i = 1, SCOREMAN:GetTotalNumberOfScores() do
-    local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
-    if score ~= nil then
-        if score:GetDate() ~= nil then
-            minDateText = score:GetDate()
-            break
+local function setValues(values)
+    local playerRatingOverTime = SCOREMAN:GetPlayerRatingOverTime()
+    --sort by date
+    --this is needed beacause SCOREMAN:GetPlayerRatingOverTime() is sometimes out of order
+    local dates = {}
+    for k, _ in pairs(playerRatingOverTime) do
+        dates[#dates+1] = k
+    end
+    --sort the dates
+    table.sort(dates, function(a,b) return a:gsub("-", "") < b:gsub("-", "") end)
+    for i=1, #dates do
+        local dateString = dates[i]
+        local date = os.time({year=dateString:sub(1, 4), month=dateString:sub(6, 7), day=dateString:sub(9, 10)}) --date in ms
+        for j=1, #ms.SkillSets do
+            values[j][i] = {}
+            values[j][i][1] = date
+            values[j][i][2] = playerRatingOverTime[dateString][j]
         end
     end
 end
-
-
-local minDate
-local maxDate
-
-if minDateText ~= nil then
-    minDate = os.time({year=minDateText:sub(1, 4), month=minDateText:sub(6, 7), day=minDateText:sub(9, 10)}) --mindate in ms
-else
-    minDate = os.time(os.date("!*t")) --if we dont have a mindate then today is the mindate
+local values = {}
+for i=1, #ms.SkillSets do
+    values[i] = {}
 end
-maxDate = os.time(os.date("!*t")) --current time
+setValues(values)
 
-
-
-local playerRatingOverTime = SCOREMAN:GetPlayerRatingOverTime()
-
---sort by date
---this is needed beacause SCOREMAN:GetPlayerRatingOverTime() is sometimes out of order
-local dates = {}
-for k, _ in pairs(playerRatingOverTime) do
-    dates[#dates+1] = k
-end
---sort the dates
-table.sort(dates, function(a,b) return a:gsub("-", "") < b:gsub("-", "") end)
-local maxSSR = 1
---find max ssr (this assumes current ssr is the highest its ever been)
-local latest = playerRatingOverTime[dates[#dates]]
-if latest ~= nil then
-    for i = 1, #latest do
-        if latest[i] > maxSSR then
-            maxSSR = latest[i]
-        end
-    end
-end
-
---round up to nearest y axis label
-maxSSR = (math.floor(maxSSR / YaxisLabelsScale) + 1) * YaxisLabelsScale
 
 local t = Def.ActorFrame{
-    Name = "playerRatingOverTimeGraph",
+    Name = "playerRatingOverTimeGraphContainer",
     focused = false,
 
     InitCommand = function(self)
@@ -168,18 +120,6 @@ local t = Def.ActorFrame{
         self:z(-1)
     end,
 
-
-    Def.Quad{
-        Name = "BG", 
-        InitCommand = function(self)
-            self:halign(0):valign(0)
-            self:diffuse(bgColour)
-            self:diffusealpha(bgAlpha)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
-        end
-    },
-
     LoadFont("Common Normal") .. {
         Name = "Title",
         InitCommand = function(self)
@@ -190,294 +130,166 @@ local t = Def.ActorFrame{
             registerActorToColorConfigElement(self, "main", "PrimaryText")
         end
     },
+}
 
-    UIElements.TextToolTip(1, 1, "Common Normal") .. {
-        Name = "DisplayXY",
+
+
+
+
+
+t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
+    Values = values,
+    XvalueToStringFunc = function(params)
+        local dateTable = os.date("*t", params.xValue)
+        local day = tostring(dateTable["day"])
+        local month = tostring(dateTable["month"])
+        local year = tostring(dateTable["year"])
+        if string.len(day) == 1 then --e.g. if its 1 then make it 01
+            day = 0 .. day
+        end
+        if string.len(month) == 1 then
+            month = 0 .. month
+        end
+        return string.format("%s-%s-%s", year, month, day)
+    end,
+    YvalueToStringFunc = function(params)
+        if string.format("%5.2f", params.yValue) == string.format("%5.2f", notShit.floor(params.yValue + 0.0001)) then -- if the first two decimal points are 00
+            --this is so the y axis labels are integers and arent 12.00, for example
+            -- +0.0001 because of floating point nonsense
+            return notShit.floor(params.yValue + 0.0001)
+        else
+            return string.format("%5.2f", params.yValue)
+        end
+    end,
+    ColorFunc = function(params)
+        return skillsetColors[params.layer]
+    end,
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+    end,
+    YaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
+    end,
+    X = actuals.GraphX,
+    Y = actuals.GraphY,
+    LayerNames = ms.SkillSets,
+    Xunits = "Date",
+    Yunits = "MSD",
+    XaxisLabelCount = XaxisLabelCount,
+    YaxisLabelScale = YaxisLabelScale,
+    PlotAnimationSeconds = plotAnimationSeconds,
+    TooltipTextSize = tooltipTextSize
+})
+
+
+
+
+
+local function makeSkillsetLabelsContainer()
+    local clicked = {}
+    for i=1, #ms.SkillSets do
+        clicked[i] = false
+    end
+    local function makeSkillsetLabel(i)
+        local profile = GetPlayerOrMachineProfile(PLAYER_1)
+        local p = ((i-1)/(#ms.SkillSets-1))
+        return Def.ActorFrame{
+            Name = "skillset",
+            InitCommand = function(self)
+                self:y(p * actuals.SkillsetLabelsContainerHeight + ((0.5-p) * actuals.SkillsetLabelsVerticalPadding))
+            end,
+
+            UIElements.TextButton(1, 1, "Common Normal") .. {
+                Name = "SkillsetStr",
+                InitCommand = function(self)
+                    self:x(actuals.SkillsetLabelsHorizontalPadding)
+                    local txt = self:GetChild("Text")
+                    local bg = self:GetChild("BG")
+                    bg:halign(0):valign(p)
+                    txt:halign(0):valign(p)
+                    bg:zoomto(actuals.SkillsetLabelsContainerWidth - (actuals.SkillsetLabelsHorizontalPadding * 2), actuals.SkillsetLabelsContainerHeight / #ms.SkillSets)
+                    txt:zoom(skillsetLabelsSize)
+                    txt:settext(ms.SkillSetsTranslatedByName[ms.SkillSets[i]])
+                    txt:diffuse(skillsetColors[i])
+                    txt:diffusealpha(1)
+                end,
+                ClickCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "OnMouseDown" then
+                        local txt = self:GetChild("Text")
+                        clicked[i] = not clicked[i]
+                        if clicked[i] then
+                            local c = skillsetColors[i]
+                            c[4] = 0.8
+                            txt:strokecolor(c)
+                        else
+                            txt:strokecolor(color("#00000000"))
+                        end
+                        local allNotClicked = true
+                        for j=1, #clicked do
+                            if clicked[j] then
+                                allNotClicked = false
+                                break
+                            end
+                        end
+                        if allNotClicked then
+                            local a = {} for i = 1, #ms.SkillSets do a[i] = true end
+                            self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", a)
+                        else
+                            self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", clicked)
+                        end
+                    end
+                end,
+
+                RolloverUpdateCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "in" then
+                        self:diffusealpha(buttonHoverAlpha)
+                    else
+                        self:diffusealpha(1)
+                    end
+                end
+            },
+
+            LoadFont("Common Normal") .. {
+                Name = "SsrStr",
+                InitCommand = function(self)
+                    self:halign(1):valign(p)
+                    self:zoom(skillsetLabelsSize)
+                    self:x(actuals.SkillsetLabelsContainerWidth - actuals.SkillsetLabelsHorizontalPadding)
+                    local ssr = profile:GetPlayerSkillsetRating(ms.SkillSets[i])
+                    self:settextf("%5.2f", ssr)
+                    self:diffuse(colorByMSD(ssr))
+                    self:diffusealpha(1)
+                end
+            }
+        }
+    end
+    local t = Def.ActorFrame{
+        Name = "SkillsetLabelsContainer",
         InitCommand = function(self)
-            local mouseOver = false
-            self:halign(0):valign(0)
-            self:xy(actuals.GraphX, actuals.GraphY)
-            self:zoomto(actuals.GraphWidth, actuals.GraphHeight)
             self:diffusealpha(1)
-            
+            self:xy(actuals.GraphX + actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphY + actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
         end,
-
-        MouseOverCommand = function(self)
-            if self:GetParent().focused then
-                self.mouseOver = true
-                self:queuecommand("DisplayMouseCoords")
-            end
-            
-        end,
-
-        MouseOutCommand = function(self)
-            self.mouseOver = false
-            TOOLTIP:Hide()
-        end,
-
-        DisplayMouseCoordsCommand = function(self, params)
-        end
-
-
-    }
-}
-
-
---axis labels
-
-
-local XaxisLabelsContainer = Def.ActorFrame{
-    Name = "XaxisLabelsContainer",
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphBottom + actuals.XaxisLabelsYpadding)
-    end
-}
-
-for i=1, (XaxisLabelsCount) do
-    XaxisLabelsContainer[#XaxisLabelsContainer+1] = Def.ActorFrame{
-        Name = "XaxisLabel",
-        InitCommand = function(self)
-            self:x((((i-1)/(XaxisLabelsCount-1)) * actuals.GraphWidth))
-        end,
-
-        LoadFont("Common Normal") .. {
-            Name = "XaxisLabelStr",
-            InitCommand = function(self)
-                --self:x(((i-1)/(XaxisLabelsCount-1)) * actuals.GraphWidth)
-                self:valign(0)
-                self:zoom(XaxisLabelsSize)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                local date = (((i-1)/(XaxisLabelsCount-1)) * (maxDate - minDate)) + minDate
-                local dateTable = os.date("*t", date)
-                local day = tostring(dateTable["day"])
-                local month = tostring(dateTable["month"])
-                local year = tostring(dateTable["year"])
-                if string.len(day) == 1 then --e.g. if its 1 then make it 01
-                    day = 0 .. day
-                end
-                if string.len(month) == 1 then
-                    month = 0 .. month
-                end
-                self:settextf("%s-%s-%s", year, month, day)
-            end
-        },
-
         Def.Quad{
-            Name = "XaxisLabelLineThatsOutsideOfTheGraph",
+            Name = "BG",
             InitCommand = function(self)
-                self:valign(0)
-                self:y(-actuals.XaxisLabelsYpadding)
-                self:zoomto(actuals.XaxisLabelLineWidth, actuals.XaxisLabelsYpadding)
-                registerActorToColorConfigElement(self, "main", "SeparationDivider")
-            end
-        },
-
-        Def.Quad{
-            Name = "XaxisLabelLineThatsInsideTheGraph",
-            InitCommand = function(self)
-                self:valign(0)
-                self:y(-(actuals.XaxisLabelsYpadding + actuals.GraphHeight))
-                self:zoomto(actuals.XaxisLabelLineWidth, actuals.GraphHeight)
-                self:diffuse(xAxisLabelLineColor)
-            end
-        }
-    }
-end
-
-t[#t + 1] = XaxisLabelsContainer
-
-
-
-
-local YaxisLabelsContainer = Def.ActorFrame{
-    Name = "YaxisLabelsContainer",
-    InitCommand = function(self)
-        self:xy(actuals.GraphX - actuals.YaxisLabelsXpadding, actuals.GraphBottom)
-    end
-}
-
-local YaxisLabelsCount = ((maxSSR) / YaxisLabelsScale) + 1
-
-for i=1, (YaxisLabelsCount) do
-    YaxisLabelsContainer[#YaxisLabelsContainer+1] = Def.ActorFrame{
-        Name = "YaxisLabel",
-        InitCommand = function(self)
-            self:y(-((i-1)/(YaxisLabelsCount-1)) * actuals.GraphHeight)
-        end,
-
-        LoadFont("Common Normal") .. {
-            Name = "YaxisLabelStr",
-            InitCommand = function(self)
-                self:halign(1)
-                self:zoom(YaxisLabelsSize)
-                self:playcommand("Set")
-            end,
-
-            SetCommand = function(self)
-                local minSSR = 0
-                local msd = (((i-1)/(YaxisLabelsCount-1)) * (maxSSR - minSSR)) + minSSR
-                self:settextf("%s", msd)
-            end
-        },
-
-        Def.Quad{
-            Name = "YaxisLabelLineThatsOutsideOfTheGraph",
-            InitCommand = function(self)
-                self:halign(0)
-                self:x(0)
-                self:zoomto(actuals.YaxisLabelsXpadding, actuals.YaxisLabelLineHeight)
-                registerActorToColorConfigElement(self, "main", "SeparationDivider")
-            end
-        },
-
-        Def.Quad{
-            Name = "YaxisLabelLineThatsInsideTheGraph",
-            InitCommand = function(self)
-                self:halign(0)
-                self:x(actuals.YaxisLabelsXpadding)
-                self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineHeight)
-                self:diffuse(xAxisLabelLineColor)
-            end
-        }
-    }
-end
-
-t[#t + 1] = YaxisLabelsContainer
-
-
-
---plots
-
-t[#t + 1] = Def.ActorMultiVertex{
-    Name = "Plots",
-    
-    InitCommand = function(self)
-        self:diffusealpha(plotAlpha)
-        self:xy(actuals.GraphX, actuals.GraphY)
-        self:playcommand("Plot")
-    end,
-
-    PlotCommand = function(self) --plots the points on the graph
-        local vertices = {}
-        
-
-        for i = 1, #skillsetColors do --for every skillset
-            local x
-            local y
-            --this can definitely be optimised
-            for j=1, #dates do
-                --dateString = yyyy-mm-dd
-                local dateString = dates[j]
-                local ssr = playerRatingOverTime[dateString][i]
-                local date = os.time({year=dateString:sub(1, 4), month=dateString:sub(6, 7), day=dateString:sub(9, 10)}) --date in ms
-
-                x = ((date - minDate) / (maxDate - minDate)) * actuals.GraphWidth
-
-                y = actuals.GraphHeight - ((ssr / maxSSR) * actuals.GraphHeight)
-
-                if j == 1 then --this is a very hacky solution to allow all skillsets to be drawn in the same amv
-                    placeLineVertices(vertices, x, y, color("#00000000"))
-                end
-                placeLineVertices(vertices, x, y, skillsetColors[i])
-                    
-
-            end
-            
-
-            if x ~= nil and y ~= nil then --need this nil check incase the player has no scores and the inner for loop is skipped
-                x = actuals.GraphWidth --so we can extend the line to the end of the graph
-                placeLineVerticesNoDiagonal(vertices, x, y, skillsetColors[i]) --make the line extend to the end of the graph
-                placeLineVertices(vertices, x, y, color("#00000000")) --hacky solution part 2
-            end
-            --basically this hacky solution makes the line that would normally be drawn from the end of one line to the start of another invisible
-            --if you are wondering why i needed to do this delete them and see what happens
-            --maybe it would have been better to put each skillset in a separate amv
-            
-        end
-
-        if self:GetNumVertices() ~= 0 then
-            self:finishtweening()
-            self:smooth(plotAnimationSeconds)
-        end
-        self:SetVertices(vertices)
-        self:SetDrawState {Mode = "DrawMode_QuadStrip", First = 1, Num = #vertices}
-    end
-}
-
-
-
-
---skillset box
-
-
-
-local skillsetLabelsContainer = Def.ActorFrame{
-    Name = "SkillsetLabelsContainer",
-
-    InitCommand = function(self)
-        self:diffusealpha(1)
-        self:xy(actuals.GraphX + actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphY + actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
-    end,
-
-    Def.Quad{
-        Name = "BG",
-        InitCommand = function(self)
-            self:zoomto(actuals.SkillsetLabelsContainerWidth, actuals.SkillsetLabelsContainerHeight)
-            self:diffuse(bgColour)
-            self:halign(0):valign(0)
-            self:xy(0, 0) 
-        end
-    },
-
-
-}
-
-
---make the skillset labels box
-local profile = GetPlayerOrMachineProfile(PLAYER_1)
-for i=1, #ms.SkillSets do
-    skillsetLabelsContainer[#skillsetLabelsContainer+1] = Def.ActorFrame{
-        Name = "skillset",
-        InitCommand = function(self)
-            self:y(((i-1)/#ms.SkillSets) * actuals.SkillsetLabelsContainerHeight)
-        end,
-
-        LoadFont("Common Normal") .. {
-            Name = "SkillsetStr",
-            InitCommand = function(self)
+                self:zoomto(actuals.SkillsetLabelsContainerWidth, actuals.SkillsetLabelsContainerHeight)
+                self:diffuse(bgColour)
                 self:halign(0):valign(0)
-                self:zoom(skillsetLabelsSize)
-                self:x(0)
-                self:settext(ms.SkillSetsTranslatedByName[ms.SkillSets[i]])
-                self:diffuse(skillsetColors[i])
-                self:diffusealpha(1)
+                self:xy(0, 0) 
             end
         },
-
-        LoadFont("Common Normal") .. {
-            Name = "SsrStr",
-            InitCommand = function(self)
-                self:halign(0):valign(0)
-                self:zoom(skillsetLabelsSize)
-                self:x(actuals.SkillsetLabelsContainerWidth/(3/2))
-                local ssr = profile:GetPlayerSkillsetRating(ms.SkillSets[i])
-                self:settextf("%5.2f", ssr)
-                self:diffuse(colorByMSD(ssr))
-                self:diffusealpha(1)
-            end
-        }
     }
+    --make the skillset labels box
+    for i=1, #ms.SkillSets do
+        t[#t +1 ] = makeSkillsetLabel(i)
+    end
+    return t
 end
 
 
-t[#t+1] = skillsetLabelsContainer
-
-
-
-
+t[#t+1] = makeSkillsetLabelsContainer()
 
 
 return t
