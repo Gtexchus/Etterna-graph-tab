@@ -33,24 +33,24 @@ local buttonHoverAlpha = 0.6
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
 local midGradeBarToGradeBar = {
-		[1] = 1,
-		[2] = 2,
-		[3] = 2,
-		[4] = 2,
-		[5] = 3,
-		[6] = 3,
-		[7] = 3,
-		[8] = 4,
-		[9] = 4,
-		[10] = 4,
-		[11] = 5,
-		[12] = 5,
-		[13] = 5,
-		[14] = 6,
-		[15] = 6,
-		[16] = 8,
-		[17] = 9,
-	}
+    [1] = 1,
+    [2] = 2,
+    [3] = 2,
+    [4] = 2,
+    [5] = 3,
+    [6] = 3,
+    [7] = 3,
+    [8] = 4,
+    [9] = 4,
+    [10] = 4,
+    [11] = 5,
+    [12] = 5,
+    [13] = 5,
+    [14] = 6,
+    [15] = 6,
+    [16] = 8,
+    [17] = 9,
+}
 
 local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
     local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
