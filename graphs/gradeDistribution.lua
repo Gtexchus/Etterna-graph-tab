@@ -29,10 +29,9 @@ local bottomLabelTextSize = 0.4
 local smallButtonTextSize = 0.5
 local headerTextSize = 1
 local buttonHoverAlpha = 0.6
-
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
-local midGradeBarToGradeBar = {
+local midGradeNumToGradeNum = {
     [1] = 1,
     [2] = 2,
     [3] = 2,
@@ -55,7 +54,7 @@ local midGradeBarToGradeBar = {
 local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
     local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
     for i=1, #gradeCounts do
-        local j = midGradeBarToGradeBar[i]
+        local j = midGradeNumToGradeNum[i]
         newGradeCounts[j] = newGradeCounts[j] + gradeCounts[i]
     end
     --copy newGradeCounts into gradeCounts
@@ -120,7 +119,6 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
                                         foundgrade = grade
                                     end
                                 end
-
                             end
                         end 
                     end
@@ -140,8 +138,6 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
         squish(gradeCounts)
     end
 end
-
-
 
 SCOREMAN:SortRecentScoresForGame()
 
@@ -227,9 +223,6 @@ t = Def.ActorFrame{
     }
 }
 
-
-
-
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = gradeCounts,
     ColorFunc = function(params) 
@@ -244,9 +237,8 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
         "Grade_Failed"}
         local i = params.barNum
         if useMidGrades then
-            i = midGradeBarToGradeBar[i]
+            i = midGradeNumToGradeNum[i]
         end
-
         return colorByGrade(grades[i])
     end,
 
