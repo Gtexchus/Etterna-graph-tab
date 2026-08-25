@@ -51,13 +51,23 @@ local midGradeNumToGradeNum = {
     [17] = 9,
 }
 
+local function initialise(gradeCounts)
+    for i = 1, #gradeCounts do
+        table.remove(gradeCounts, 1)
+    end
+    for i = 1, 17 do
+        --AAAAA, AAAA:, AAAA., AAAA, AAA:, AAA., AAA, AA:, AA., AA, A:, A., A, B, C, D, F
+        gradeCounts[i] = 0
+    end
+end
+
 local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
     local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
     for i=1, #gradeCounts do
         local j = midGradeNumToGradeNum[i]
         newGradeCounts[j] = newGradeCounts[j] + gradeCounts[i]
     end
-    --copy newGradeCounts into gradeCounts
+    --set gradeCounts = newGradeCounts byValue
     for i=1, #gradeCounts do
         table.remove(gradeCounts, 1)
     end
@@ -68,9 +78,7 @@ end
 
 local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean this up
     --this is so we can easily update the gradeCounts from anywhere
-    for i = 1, #gradeCounts do
-        gradeCounts[i] = 0
-    end
+    initialise(gradeCounts)
     if usingEverySetScore then
         for i = 1, SCOREMAN:GetTotalNumberOfScores() do --get grade count
             local score = SCOREMAN:GetRecentScoreForGame(i)
@@ -141,8 +149,7 @@ end
 
 SCOREMAN:SortRecentScoresForGame()
 
---AAAAA, AAAA:, AAAA., AAAA, AAA:, AAA., AAA, AA:, AA., AA, A:, A., A, B, C, D, F
-local gradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local gradeCounts = {}
 
 setGradeCounts(gradeCounts, false)
 
