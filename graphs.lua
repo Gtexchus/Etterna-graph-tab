@@ -86,21 +86,6 @@ local buttonTextSize = 0.7
 local headerTextSize = 1
 local buttonHoverAlpha = 0.6
 
--- scoping magic
-do
-    -- copying the provided ratios and actuals tables to have access to the sizing for the overall frame
-    local rt = Var("ratios")
-    for k,v in pairs(rt) do
-        ratios[k] = v
-    end
-    local at = Var("actuals")
-    for k,v in pairs(at) do
-        actuals[k] = v
-    end
-end
-
-
-
 --[[
 table of {
 {{actorName1, fileName1, buttonText1}, {actorName2, fileName2, buttonText2}},
