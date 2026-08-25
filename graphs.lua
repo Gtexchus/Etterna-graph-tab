@@ -86,20 +86,20 @@ local buttonTextSize = 0.7
 local headerTextSize = 1
 local buttonHoverAlpha = 0.6
 
+-- scoping magic
+do
+    -- copying the provided ratios and actuals tables to have access to the sizing for the overall frame
+    local rt = Var("ratios")
+    for k,v in pairs(rt) do
+        ratios[k] = v
+    end
+    local at = Var("actuals")
+    for k,v in pairs(at) do
+        actuals[k] = v
+    end
+end
 
-local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName = "MSDoverTime", graphButtonName = "MSDoverTimeButton", graphButtonText = "MSD over time"}, --table of {graphActorName, graphFileName, graphButtonName, graphButtonText}
-{graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonName = "AccuracyOverMSDButton", graphButtonText = "Accuracy over MSD"}, 
-{graphActorName = "playerRatingOverTimeGraphContainer", graphFileName = "playerRatingOverTime", graphButtonName = "playerRatingOverTimeButton", graphButtonText = "Player rating over time"}, 
-{graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonName = "GradeDistributionButton", graphButtonText = "Grade distribution"}, 
-{graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonName = "JudgementDistributionButton", graphButtonText = "Judgement distribution"},
-{graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonName = "AccuracyOverTimeButton", graphButtonText = "Accuracy Over Time"},
-{graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonName = "SkillsetPlaycountDistributionButton", graphButtonText = "Skillset playcount distribution"}, 
-{graphActorName = "MSDdistributionContainer", graphFileName = "msdDistribution", graphButtonName = "MSDdistributionButton", graphButtonText = "MSD distribution"},
-{graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonName = "CleartypeDistributionButton", graphButtonText = "Cleartype distribution"},
-{graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonName = "ChartPlaycountDistributionButton", graphButtonText = "Chart playcount distribution"},
-{graphActorName = "MeanOverMSDGraphContainer", graphFileName = "meanOverMSD", graphButtonName = "MeanOverMSDButton", graphButtonText = "Mean over MSD"},
-{graphActorName = "MeanOverTimeGraphContainer", graphFileName = "meanOverTime", graphButtonName = "MeanOverTimeButton", graphButtonText = "Mean over time"},
-{graphActorName = "MeanOverAccuracyGraphContainer", graphFileName = "meanOverAccuracy", graphButtonName = "MeanOverAccuracyButton", graphButtonText = "Mean over accuracy"},}
+
 
 --[[
 table of {
@@ -142,21 +142,6 @@ local buttons = {
 }
 
 local sectionNames = {"Bar graphs", "Scatter graphs", "Line graphs", "Intensive graphs"}
-
--- scoping magic
-do
-    -- copying the provided ratios and actuals tables to have access to the sizing for the overall frame
-    local rt = Var("ratios")
-    for k,v in pairs(rt) do
-        ratios[k] = v
-    end
-    local at = Var("actuals")
-    for k,v in pairs(at) do
-        actuals[k] = v
-    end
-end
-
-
 
 local function createGraphContainer()
     local t = Def.ActorFrame{
@@ -227,6 +212,7 @@ local function createGraphContainer()
     return t
 end
 
+--lmao good luck reading this
 local function createGraphButtonContainer()
     local function createGraphButtonSection(j)
         local function createGraphButton(i, j)
@@ -289,10 +275,7 @@ local function createGraphButtonContainer()
 
 end
 
-
 t[#t + 1] = createGraphContainer()
 t[#t + 1] = createGraphButtonContainer()
-
-
 
 return t
