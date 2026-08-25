@@ -54,7 +54,6 @@ local ratios = {
     Height = 612 / 1080,
     --X = 1 - Var("widthRatio"),
     --Y = 1 - 612 / 1080, 
-    GraphButtonMaxWidth = 780 / 1920,
     GraphButtonHorizontalSpacing = 250 / 1920,
     GraphButtonVerticalSpacing = 30 / 1080,
     GraphButtonHorizontalPadding = 10 / 1920,
@@ -65,7 +64,8 @@ local ratios = {
 
 local maxGraphButtonsPerRow = 3
 ratios.GraphButtonHorizontalSpacing = (ratios.Width - (2 * ratios.GraphButtonHorizontalPadding)) / maxGraphButtonsPerRow
-ratios.GraphButtonMaxWidth = ratios.GraphButtonHorizontalSpacing - ratios.GraphButtonHorizontalPadding
+--ratios.GraphButtonMaxWidth = ratios.GraphButtonHorizontalSpacing - ratios.GraphButtonHorizontalPadding
+ratios.GraphButtonMaxWidth = ratios.Width / 4
 
 
 local actuals = {
@@ -101,7 +101,47 @@ local graphNames = {{graphActorName = "MSDoverTimeGraphContainer", graphFileName
 {graphActorName = "MeanOverTimeGraphContainer", graphFileName = "meanOverTime", graphButtonName = "MeanOverTimeButton", graphButtonText = "Mean over time"},
 {graphActorName = "MeanOverAccuracyGraphContainer", graphFileName = "meanOverAccuracy", graphButtonName = "MeanOverAccuracyButton", graphButtonText = "Mean over accuracy"},}
 
+--[[
+table of {
+{{actorName1, fileName1, buttonText1}, {actorName2, fileName2, buttonText2}},
+{{actorName3, fileName3, buttonText3}, {actorName4, fileName4, buttonText4}},
+}
+The above table defines two sections with two buttons each.
+Each button displays text defined by buttonText, and loads actor named acctorName from fileName
+--]]
 
+local buttons = {
+    --Bar graphs
+    {
+        {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonText = "Grade distribution"},
+        {graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonText = "Judgement distribution"},
+        {graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonText = "Skillset playcount distribution"}, 
+        {graphActorName = "MSDdistributionContainer", graphFileName = "msdDistribution", graphButtonText = "MSD distribution"},
+        {graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonText = "Cleartype distribution"},
+        {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart playcount distribution"},
+    },
+
+    --scatter graphs
+    {
+        {graphActorName = "MSDoverTimeGraphContainer", graphFileName = "MSDoverTime", graphButtonText = "MSD over time"},
+        {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonText = "Accuracy over MSD"}, 
+        {graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonText = "Accuracy Over Time"},
+    },
+
+    --line graphs
+    {
+        {graphActorName = "playerRatingOverTimeGraphContainer", graphFileName = "playerRatingOverTime", graphButtonText = "Player rating over time"},
+    },
+
+    --intensive graphs
+    {
+        {graphActorName = "MeanOverMSDGraphContainer", graphFileName = "meanOverMSD", graphButtonText = "Mean over MSD"},
+        {graphActorName = "MeanOverTimeGraphContainer", graphFileName = "meanOverTime", graphButtonText = "Mean over time"},
+        {graphActorName = "MeanOverAccuracyGraphContainer", graphFileName = "meanOverAccuracy", graphButtonText = "Mean over accuracy"},
+    }
+}
+
+local sectionNames = {"Bar graphs", "Scatter graphs", "Line graphs", "Intensive graphs"}
 
 -- scoping magic
 do
@@ -116,14 +156,6 @@ do
     end
 end
 
-
-
-local function graphButtonsSetAlpha(t, alpha)
-    for i = 1, #graphNames do
-        t:GetChild(graphNames[i].graphButtonName):diffusealpha(alpha)
-    end
-end
-        
 
 
 local function createGraphContainer()
@@ -141,7 +173,7 @@ local function createGraphContainer()
             end
             self:GetChild(params.graphActorName):playcommand("Focus") --focus the graph
             self.FocusedGraph = params.graphActorName --set focused graph
-            graphButtonsSetAlpha(self:GetParent():GetChild("GraphButtons"), 0) --set graph buttons to invisible
+            self:GetParent():GetChild("ButtonContainer"):diffusealpha(0) --set graph buttons to invisible
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
         end,
 
@@ -175,7 +207,7 @@ local function createGraphContainer()
                 if params.update == "OnMouseDown" then
                     local graph = self:GetParent():GetChild(self:GetParent().FocusedGraph)
                     graph:playcommand("Unfocus") --unfocus the graph
-                    graphButtonsSetAlpha(self:GetParent():GetParent():GetChild("GraphButtons"), 1) --set graph buttons to visible
+                    self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
                     self:diffusealpha(0) --set back button to invisible
                     self:GetParent().FocusedGraph = "" --there is no focused graph anymore
                     self:GetParent():z(-1)
@@ -195,58 +227,71 @@ local function createGraphContainer()
     return t
 end
 
-local function createGraphButtons()
-    local function createGraphButton(i)
-        return UIElements.TextButton(1, 1, "Common Normal") .. {
-            Name = graphNames[i].graphButtonName,
-            InitCommand = function(self)
-                local txt = self:GetChild("Text")
-                local bg = self:GetChild("BG")
-                self:xy(actuals.GraphButtonHorizontalPadding + (actuals.GraphButtonHorizontalSpacing * notShit.floor((i-1) / maxGraphButtonsPerColumn)), actuals.GraphButtonVerticalPadding + (actuals.GraphButtonVerticalSpacing * ((i-1) % maxGraphButtonsPerColumn)))
-                self:diffusealpha(1)
-                txt:halign(0):valign(0)
-                bg:halign(0):valign(0)
-                bg:xy(-actuals.GraphButtonHorizontalPadding/2, -actuals.GraphButtonVerticalPadding/2)
-                txt:zoom(buttonTextSize)
-                bg:zoomto(actuals.GraphButtonHorizontalSpacing, actuals.GraphButtonVerticalSpacing)
-                txt:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
-                -- divide by buttonTextSize bc maxWidth also scales with zoom
-                registerActorToColorConfigElement(txt, "main", "PrimaryText")
-                txt:settext(graphNames[i].graphButtonText)
-            end,
-
-            ClickCommand = function(self, params)
-                if self:IsInvisible() then return end
-                if params.update == "OnMouseDown" then
-                    local graphContainer = self:GetParent():GetParent():GetChild("GraphContainer")
-                    graphContainer:playcommand("FocusGraph", {graphActorName = graphNames[i].graphActorName, graphFileName = graphNames[i].graphFileName})
-                    graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
-                end
-            end, 
-
-            RolloverUpdateCommand = function(self, params)
-                if self:IsInvisible() then return end
-                if params.update == "in" then
-                    self:diffusealpha(buttonHoverAlpha)
-                else
+local function createGraphButtonContainer()
+    local function createGraphButtonSection(j)
+        local function createGraphButton(i, j)
+            return UIElements.TextButton(1, 1, "Common Normal") .. {
+                InitCommand = function(self)
+                    local txt = self:GetChild("Text")
+                    local bg = self:GetChild("BG")
+                    self:y(actuals.GraphButtonVerticalPadding + (actuals.GraphButtonVerticalSpacing * ((i-1) % maxGraphButtonsPerColumn)))
                     self:diffusealpha(1)
+                    txt:halign(0):valign(0)
+                    bg:halign(0):valign(0)
+                    bg:xy(-actuals.GraphButtonHorizontalPadding/2, -actuals.GraphButtonVerticalPadding/2)
+                    txt:zoom(buttonTextSize)
+                    bg:zoomto(actuals.GraphButtonHorizontalSpacing, actuals.GraphButtonVerticalSpacing)
+                    txt:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
+                    -- divide by buttonTextSize bc maxWidth also scales with zoom
+                    registerActorToColorConfigElement(txt, "main", "PrimaryText")
+                    txt:settext(buttons[j][i].graphButtonText)
+                end,
+
+                ClickCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "OnMouseDown" then
+                        local graphContainer = self:GetParent():GetParent():GetParent():GetChild("GraphContainer")
+                        graphContainer:playcommand("FocusGraph", {graphActorName = buttons[j][i].graphActorName, graphFileName = buttons[j][i].graphFileName})
+                        graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+                    end
+                end, 
+
+                RolloverUpdateCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "in" then
+                        self:diffusealpha(buttonHoverAlpha)
+                    else
+                        self:diffusealpha(1)
+                    end
                 end
+            }
+        end
+
+        local t = Def.ActorFrame{
+            Name = "GraphButtons",
+            InitCommand = function(self)
+                self:x(actuals.Width * ((j-1) / #buttons))
             end
         }
+        for i=1, #buttons[j] do
+            t[#t + 1] = createGraphButton(i, j)
+        end
+        return t
     end
 
     local t = Def.ActorFrame{
-        Name = "GraphButtons",
+        Name = "ButtonContainer"
     }
-    for i=1, #graphNames do
-        t[#t + 1] = createGraphButton(i)
+    for i = 1, #buttons do
+        t[#t+1] = createGraphButtonSection(i)
     end
     return t
+
 end
 
 
 t[#t + 1] = createGraphContainer()
-t[#t + 1] = createGraphButtons()
+t[#t + 1] = createGraphButtonContainer()
 
 
 
