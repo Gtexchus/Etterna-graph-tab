@@ -70,7 +70,7 @@ maxXvalue [number] (highest value a point may have)
 returns: number (x coordinate of point)
 ]]
 
-local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * (1-(params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)) end  
+local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * ((params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)) end  
 --[[yFunc
 purpose: returns a y coordinate calculated from a y value. Inverse of yValueFunc.
 
@@ -156,7 +156,7 @@ GraphWidth [number] (total width of graph)
 returns: number (the x value corresponding to the x coordinate)
 ]]
 
-local yValueFunc = Var("YvalueFunc") or function(params) return ((1-(params.y / params.GraphHeight)) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
+local yValueFunc = Var("YvalueFunc") or function(params) return ((params.y / params.GraphHeight) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
 --[[yValueFunc 
 purpose: returns a y value calculated from a y coordinate. Inverse of yFunc.
 
