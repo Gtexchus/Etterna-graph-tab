@@ -200,12 +200,12 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
             upperWifeBound = 1
         end
         local numberOfSections = (minGradeTier - maxGradeTier)
-        local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section  3
+        local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section
         local sectionHeight = params.GraphHeight / numberOfSections --39.4
 
         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
-        local y =  params.GraphHeight - ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
+        local y =  ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
         return y
     end,
     ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.yValue)) end,
@@ -229,26 +229,23 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
         --i could use the values of minGrade and maxGrade that are defined in this file,
         --but it feels cleaner to calculate them here using params
+        local stupidY = params.GraphHeight - params.y --cant be bothered to remake this function cleanly so fuck you
         local minGrade = getGradeNum(params.minYvalue)
         local maxGrade = getGradeNum(params.maxYvalue)
-
         if params.maxYvalue == 1 then --special case for 100%, because we want a label for 100%
             maxGrade = 0
         end
-
         local numberOfSections = minGrade - maxGrade --how many sections there are in total
-        local yPercent = params.y / params.GraphHeight
+        local yPercent = stupidY / params.GraphHeight
         local sectionNumber = notShit.floor(yPercent * numberOfSections) --section we are in, top section is 0
-        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphHeight 
+        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphHeight
         local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphHeight
         --[[about upper and lowerSectionBound:
         these are the y coordinates of the top and bottom acc "lines" that make up a section
         upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
-        local progressIntoSection = ((lowerSectionBound - params.y ) / (lowerSectionBound - upperSectionBound)) --%
-
+        local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
         local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1)
         local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber))
-
         local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
         return acc
     end,
