@@ -230,7 +230,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
         local shit = asinh(params.yValue / scale) - asinh(params.minYvalue / scale)
         local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
-        return params.GraphHeight * (1 - (shit / fatShit))
+        return params.GraphHeight * (shit / fatShit)
     end,
     XvalueFunc = function(params) --i fucking hate this too
         local stupidX = params.GraphWidth - params.x --cant be bothered to remake this function cleanly so fuck you
@@ -253,7 +253,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YvalueFunc = function(params)
         local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 10
         local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
-        local wetFart = 1 - (params.y / params.GraphHeight)
+        local wetFart = params.y / params.GraphHeight
         return math.sinh((fatShit * wetFart) + asinh(params.minYvalue / scale)) * scale
     end,
     XvalueToStringFunc = function(params)

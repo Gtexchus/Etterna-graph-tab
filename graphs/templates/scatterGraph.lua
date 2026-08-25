@@ -70,7 +70,7 @@ maxXvalue [number] (highest value a point may have)
 returns: number (x coordinate of point)
 ]]
 
-local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * (1-(params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)) end  
+local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * ((params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)) end  
 --[[yFunc
 purpose: returns a y coordinate calculated from a y value. Inverse of yValueFunc.
 
@@ -156,7 +156,7 @@ GraphWidth [number] (total width of graph)
 returns: number (the x value corresponding to the x coordinate)
 ]]
 
-local yValueFunc = Var("YvalueFunc") or function(params) return ((1-(params.y / params.GraphHeight)) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
+local yValueFunc = Var("YvalueFunc") or function(params) return ((params.y / params.GraphHeight) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
 --[[yValueFunc 
 purpose: returns a y value calculated from a y coordinate. Inverse of yFunc.
 
@@ -313,7 +313,7 @@ local t = Def.ActorFrame{
                 maxXvalue = maxXvalue
                 })
 
-                local y = yFunc({yValue = values[i][2],
+                local y = actuals.GraphHeight - yFunc({yValue = values[i][2],
                 GraphWidth = actuals.GraphWidth,
                 GraphHeight = actuals.GraphHeight,
                 minYvalue = minYvalue,
@@ -373,7 +373,7 @@ local t = Def.ActorFrame{
                 GraphWidth = actuals.GraphWidth
                 })
 
-                local yValue = yValueFunc({y = mouseY,
+                local yValue = yValueFunc({y = actuals.GraphHeight - mouseY,
                 minYvalue = minYvalue,
                 maxYvalue = maxYvalue,
                 GraphHeight = actuals.GraphHeight
@@ -528,7 +528,7 @@ for i=1, (yAxisLabelsCount) do
                 --for some reason using GetParent():GetY() doesnt work
                 --i genuinely have no idea why +actuals.GraphHeight works, but it works
                 local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight
-                local yValue = yValueFunc({y = y,
+                local yValue = yValueFunc({y = actuals.GraphHeight - y,
                 minYvalue = minYvalue,
                 maxYvalue = maxYvalue,
                 GraphHeight = actuals.GraphHeight
@@ -556,7 +556,7 @@ for i=1, (yAxisLabelsCount) do
             SetCommand = function(self)
                 local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight --for some reason using GetParent():GetY() doesnt work
 
-                local yValue = yValueFunc({y = y,
+                local yValue = yValueFunc({y = actuals.GraphHeight - y,
                 minYvalue = minYvalue,
                 maxYvalue = maxYvalue,
                 GraphHeight = actuals.GraphHeight
@@ -579,7 +579,7 @@ for i=1, (yAxisLabelsCount) do
             SetCommand = function(self)
                 local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight --for some reason using GetParent():GetY() doesnt work
 
-                local yValue = yValueFunc({y = y,
+                local yValue = yValueFunc({y = actuals.GraphHeight - y,
                 minYvalue = minYvalue,
                 maxYvalue = maxYvalue,
                 GraphHeight = actuals.GraphHeight
