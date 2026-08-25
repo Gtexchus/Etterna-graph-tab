@@ -35,11 +35,6 @@ local t = Def.ActorFrame {
                 self:diffusealpha(1)
                 focused = true
             else
-                --simulates pressing the back button when tabbing out of the graph tab
-                --this is to fix the bug of graph tooltips being shown when not tabbed into the graph tab
-                --probably not the best fix but i cba to think of a better one
-                --self:GetChild("GraphContainer"):GetChild("Back"):playcommand("MouseDown") 
-
                 self:z(-100)
                 self:smooth(0.2)
                 self:diffusealpha(0)
@@ -48,43 +43,6 @@ local t = Def.ActorFrame {
         end
     end
 }
-
-local ratios = {
-    Width = Var("widthRatio"), -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
-    --X = 1 - Var("widthRatio"),
-    --Y = 1 - 612 / 1080, 
-    GraphButtonHorizontalSpacing = 250 / 1920,
-    GraphButtonVerticalSpacing = 30 / 1080,
-    GraphButtonHorizontalPadding = 10 / 1920,
-    GraphButtonVerticalPadding = 10 / 1080,
-    BackButtonHorizontalPadding = 10 / 1920,
-    BackButtonVerticalPadding = 10 / 1080,
-}
-
-local maxGraphButtonsPerRow = 3
-ratios.GraphButtonHorizontalSpacing = (ratios.Width - (2 * ratios.GraphButtonHorizontalPadding)) / maxGraphButtonsPerRow
---ratios.GraphButtonMaxWidth = ratios.GraphButtonHorizontalSpacing - ratios.GraphButtonHorizontalPadding
-ratios.GraphButtonMaxWidth = ratios.Width / 4
-
-
-local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
-    GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH,
-    GraphButtonHorizontalSpacing = ratios.GraphButtonHorizontalSpacing * SCREEN_WIDTH,
-    GraphButtonVerticalSpacing = ratios.GraphButtonVerticalSpacing * SCREEN_HEIGHT,
-    GraphButtonHorizontalPadding = ratios.GraphButtonHorizontalPadding * SCREEN_WIDTH,
-    GraphButtonVerticalPadding = ratios.GraphButtonVerticalPadding * SCREEN_HEIGHT,
-    BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
-    BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT
-}
-
-
-local maxGraphButtonsPerColumn = notShit.floor((actuals.Height - (actuals.GraphButtonVerticalPadding)) / actuals.GraphButtonVerticalSpacing)
-local buttonTextSize = 0.7
-local headerTextSize = 1
-local buttonHoverAlpha = 0.6
 
 --[[
 table of {
@@ -127,6 +85,35 @@ local buttons = {
 }
 
 local sectionNames = {"Bar graphs", "Scatter graphs", "Line graphs", "Intensive graphs"}
+
+local ratios = {
+    Width = Var("widthRatio"), -- width of the box taken from the loading file default.lua
+    Height = 612 / 1080,
+    GraphButtonVerticalSpacing = 30 / 1080,
+    GraphButtonHorizontalPadding = 10 / 1920,
+    GraphButtonVerticalPadding = 10 / 1080,
+    BackButtonHorizontalPadding = 10 / 1920,
+    BackButtonVerticalPadding = 10 / 1080,
+}
+
+ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
+
+
+local actuals = {
+    Width = ratios.Width * SCREEN_WIDTH,
+    Height = ratios.Height * SCREEN_HEIGHT,
+    GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH,
+    GraphButtonVerticalSpacing = ratios.GraphButtonVerticalSpacing * SCREEN_HEIGHT,
+    GraphButtonHorizontalPadding = ratios.GraphButtonHorizontalPadding * SCREEN_WIDTH,
+    GraphButtonVerticalPadding = ratios.GraphButtonVerticalPadding * SCREEN_HEIGHT,
+    BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
+    BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT
+}
+
+local maxGraphButtonsPerColumn = notShit.floor((actuals.Height - (actuals.GraphButtonVerticalPadding)) / actuals.GraphButtonVerticalSpacing)
+local buttonTextSize = 0.7
+local headerTextSize = 1
+local buttonHoverAlpha = 0.6
 
 local function createGraphContainer()
     local t = Def.ActorFrame{
@@ -205,13 +192,12 @@ local function createGraphButtonContainer()
                 InitCommand = function(self)
                     local txt = self:GetChild("Text")
                     local bg = self:GetChild("BG")
-                    self:y(actuals.GraphButtonVerticalPadding + (actuals.GraphButtonVerticalSpacing * ((i-1) % maxGraphButtonsPerColumn)))
+                    self:y(actuals.GraphButtonVerticalPadding + (actuals.GraphButtonVerticalSpacing * (i-1)))
                     self:diffusealpha(1)
-                    txt:halign(0):valign(0)
-                    bg:halign(0):valign(0)
-                    bg:xy(-actuals.GraphButtonHorizontalPadding/2, -actuals.GraphButtonVerticalPadding/2)
+                    txt:valign(0)
+                    bg:valign(0)
                     txt:zoom(buttonTextSize)
-                    bg:zoomto(actuals.GraphButtonHorizontalSpacing, actuals.GraphButtonVerticalSpacing)
+                    bg:zoomto(actuals.GraphButtonMaxWidth, actuals.GraphButtonVerticalSpacing)
                     txt:maxwidth(actuals.GraphButtonMaxWidth / buttonTextSize)
                     -- divide by buttonTextSize bc maxWidth also scales with zoom
                     registerActorToColorConfigElement(txt, "main", "PrimaryText")
@@ -241,7 +227,7 @@ local function createGraphButtonContainer()
         local t = Def.ActorFrame{
             Name = "GraphButtons",
             InitCommand = function(self)
-                self:x(actuals.Width * ((j-1) / #buttons))
+                self:x(actuals.Width * (j/(#buttons)) - (actuals.Width / (#buttons*2)))
             end
         }
         for i=1, #buttons[j] do
