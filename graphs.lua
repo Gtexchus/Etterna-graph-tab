@@ -56,12 +56,12 @@ Each button displays text defined by buttonText, and loads actor named acctorNam
 local buttons = {
     --Bar graphs
     {
-        {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonText = "Grade distribution"},
-        {graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonText = "Judgement distribution"},
-        {graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonText = "Skillset playcount distribution"}, 
+        {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonText = "Grades"},
+        {graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonText = "Judgements"},
+        {graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonText = "Skillset playcounts"}, 
         {graphActorName = "MSDdistributionContainer", graphFileName = "msdDistribution", graphButtonText = "MSD distribution"},
-        {graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonText = "Cleartype distribution"},
-        {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart playcount distribution"},
+        {graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonText = "Cleartypes"},
+        {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart playcounts"},
     },
 
     --scatter graphs
@@ -91,7 +91,7 @@ local ratios = {
     Height = 612 / 1080,
     GraphButtonVerticalSpacing = 30 / 1080,
     GraphButtonHorizontalPadding = 10 / 1920,
-    GraphButtonVerticalPadding = 75 / 1080,
+    GraphButtonVerticalPadding = 90 / 1080,
     BackButtonHorizontalPadding = 10 / 1920,
     BackButtonVerticalPadding = 10 / 1080,
     VerticalDividerHeight = 500 / 1080,
