@@ -100,7 +100,6 @@ local ratios = {
 
 ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
 
-
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
@@ -114,7 +113,6 @@ local actuals = {
     LowerLipHeight = ratios.LowerLipHeight * SCREEN_HEIGHT
 }
 
-local maxGraphButtonsPerColumn = notShit.floor((actuals.Height - (actuals.GraphButtonVerticalPadding)) / actuals.GraphButtonVerticalSpacing)
 local buttonTextSize = 0.7
 local headerTextSize = 0.9
 local buttonHoverAlpha = 0.6
