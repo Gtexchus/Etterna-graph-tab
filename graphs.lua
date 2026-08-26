@@ -91,9 +91,11 @@ local ratios = {
     Height = 612 / 1080,
     GraphButtonVerticalSpacing = 30 / 1080,
     GraphButtonHorizontalPadding = 10 / 1920,
-    GraphButtonVerticalPadding = 10 / 1080,
+    GraphButtonVerticalPadding = 75 / 1080,
     BackButtonHorizontalPadding = 10 / 1920,
     BackButtonVerticalPadding = 10 / 1080,
+    VerticalDividerHeight = 500 / 1080,
+    LowerLipHeight = 57 / 1080,
 }
 
 ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
@@ -107,12 +109,14 @@ local actuals = {
     GraphButtonHorizontalPadding = ratios.GraphButtonHorizontalPadding * SCREEN_WIDTH,
     GraphButtonVerticalPadding = ratios.GraphButtonVerticalPadding * SCREEN_HEIGHT,
     BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
-    BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT
+    BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT,
+    VerticalDividerHeight = ratios.VerticalDividerHeight * SCREEN_HEIGHT,
+    LowerLipHeight = ratios.LowerLipHeight * SCREEN_HEIGHT
 }
 
 local maxGraphButtonsPerColumn = notShit.floor((actuals.Height - (actuals.GraphButtonVerticalPadding)) / actuals.GraphButtonVerticalSpacing)
 local buttonTextSize = 0.7
-local headerTextSize = 1
+local headerTextSize = 0.9
 local buttonHoverAlpha = 0.6
 
 local function createGraphContainer()
@@ -228,7 +232,27 @@ local function createGraphButtonContainer()
             Name = "GraphButtons",
             InitCommand = function(self)
                 self:x(actuals.Width * (j/(#buttons)) - (actuals.Width / (#buttons*2)))
-            end
+            end,
+
+            Def.Quad{
+                Name = "Divider",
+                InitCommand = function(self)
+                    self:zoomto(1, actuals.VerticalDividerHeight)
+                    self:xy((actuals.GraphButtonMaxWidth/2) + actuals.GraphButtonHorizontalPadding, (actuals.Height - actuals.LowerLipHeight) / 2)
+                    if j == #buttons then
+                        self:diffusealpha(0)
+                    end
+                end
+            },
+            LoadFont("Common Normal") .. {
+                Name = "Title",
+                InitCommand = function(self)
+                    self:zoom(headerTextSize)
+                    self:settext(sectionNames[j])
+                    self:y(actuals.GraphButtonVerticalPadding/2)
+                    self:maxwidth(actuals.GraphButtonMaxWidth / headerTextSize)
+                end
+            }
         }
         for i=1, #buttons[j] do
             t[#t + 1] = createGraphButton(i, j)
@@ -243,7 +267,6 @@ local function createGraphButtonContainer()
         t[#t+1] = createGraphButtonSection(i)
     end
     return t
-
 end
 
 t[#t + 1] = createGraphContainer()
