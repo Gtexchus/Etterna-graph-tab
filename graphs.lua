@@ -237,6 +237,7 @@ local function createGraphButtonContainer()
             Def.Quad{
                 Name = "Divider",
                 InitCommand = function(self)
+                    registerActorToColorConfigElement(self, "main", "SeparationDivider")
                     self:zoomto(1, actuals.VerticalDividerHeight)
                     self:xy((actuals.GraphButtonMaxWidth/2) + actuals.GraphButtonHorizontalPadding, (actuals.Height - actuals.LowerLipHeight) / 2)
                     if j == #buttons then
@@ -247,6 +248,7 @@ local function createGraphButtonContainer()
             LoadFont("Common Normal") .. {
                 Name = "Title",
                 InitCommand = function(self)
+                    registerActorToColorConfigElement(self, "main", "PrimaryText")
                     self:zoom(headerTextSize)
                     self:settext(sectionNames[j])
                     self:y(actuals.GraphButtonVerticalPadding/2)
