@@ -117,7 +117,6 @@ local buttonHoverAlpha = 0.6
 local function createGraphContainer()
     local t = Def.ActorFrame{
         Name = "GraphContainer",
-        FocusedGraph = "",
 
         InitCommand = function(self)
             self:z(-1)
@@ -128,7 +127,6 @@ local function createGraphContainer()
                 self:playcommand("LoadGraph", {graphFileName = params.graphFileName})
             end
             self:GetChild(params.graphActorName):playcommand("Focus") --focus the graph
-            self.FocusedGraph = params.graphActorName --set focused graph
             self:GetParent():GetChild("ButtonContainer"):diffusealpha(0) --set graph buttons to invisible
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
         end,
@@ -161,11 +159,9 @@ local function createGraphContainer()
             ClickCommand = function(self, params)
                 if self:IsInvisible() then return end
                 if params.update == "OnMouseDown" then
-                    local graph = self:GetParent():GetChild(self:GetParent().FocusedGraph)
-                    graph:playcommand("Unfocus") --unfocus the graph
+                    self:GetParent():PlayCommandsOnChildren("Unfocus") --unfocus all graphs
                     self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
                     self:diffusealpha(0) --set back button to invisible
-                    self:GetParent().FocusedGraph = "" --there is no focused graph anymore
                     self:GetParent():z(-1)
                 end
             end,
