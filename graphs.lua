@@ -161,6 +161,9 @@ local function createGraphContainer()
                 if params.update == "OnMouseDown" then
                     self:GetParent():PlayCommandsOnChildren("Unfocus") --unfocus all graphs
                     self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
+                    --ensure the buttons get unmoused over correctly
+                    --probably shouldn't run this command manually but who cares
+                    self:GetParent():GetParent():GetChild("ButtonContainer"):PlayCommandsOnChildren("RolloverUpdate", {update = "out"})
                     self:diffusealpha(0) --set back button to invisible
                     self:GetParent():z(-1)
                 end
@@ -187,6 +190,7 @@ local function createGraphButtonContainer()
                 InitCommand = function(self)
                     local txt = self:GetChild("Text")
                     local bg = self:GetChild("BG")
+                    --todo: make the logic for vertical spacing less shit
                     self:y(actuals.GraphButtonVerticalPadding + (actuals.GraphButtonVerticalSpacing * (i-1)))
                     self:diffusealpha(1)
                     txt:valign(0)
@@ -204,7 +208,7 @@ local function createGraphButtonContainer()
                     if params.update == "OnMouseDown" then
                         local graphContainer = self:GetParent():GetParent():GetParent():GetChild("GraphContainer")
                         graphContainer:playcommand("FocusGraph", {graphActorName = buttons[j][i].graphActorName, graphFileName = buttons[j][i].graphFileName})
-                        graphContainer:z(1) --this is so the skillset buttons on the graph dont interfere with the graph buttons
+                        graphContainer:z(1) 
                     end
                 end, 
 
