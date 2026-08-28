@@ -161,6 +161,9 @@ local function createGraphContainer()
                 if params.update == "OnMouseDown" then
                     self:GetParent():PlayCommandsOnChildren("Unfocus") --unfocus all graphs
                     self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
+                    --ensure the buttons get unmoused over correctly
+                    --probably shouldn't run this command manually but who cares
+                    self:GetParent():GetParent():GetChild("ButtonContainer"):PlayCommandsOnChildren("RolloverUpdate", {update = "out"})
                     self:diffusealpha(0) --set back button to invisible
                     self:GetParent():z(-1)
                 end
