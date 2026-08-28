@@ -4,7 +4,7 @@
 
     --ScreenSelectMusic decorations / generalBox.lua:
         --line 41: "Graphs" (add to choiceNames)
-        --line 214: LoadActorWithParams("generalPages/graphs.lua", {ratios = ratios, actuals = actuals})
+        --line 237: actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")
 
     --ScreenSelectMusic decorations / _chartPreview.lua
         --line 514: self:z(100)
@@ -87,7 +87,6 @@ local buttons = {
 local sectionNames = {"Bar graphs", "Scatter graphs", "Line graphs", "Intensive graphs"}
 
 local ratios = {
-    Width = Var("widthRatio"), -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
     GraphButtonVerticalSpacing = 30 / 1080,
     GraphButtonHorizontalPadding = 10 / 1920,
@@ -98,12 +97,8 @@ local ratios = {
     LowerLipHeight = 57 / 1080,
 }
 
-ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
-
 local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH,
     GraphButtonVerticalSpacing = ratios.GraphButtonVerticalSpacing * SCREEN_HEIGHT,
     GraphButtonHorizontalPadding = ratios.GraphButtonHorizontalPadding * SCREEN_WIDTH,
     GraphButtonVerticalPadding = ratios.GraphButtonVerticalPadding * SCREEN_HEIGHT,
@@ -112,6 +107,22 @@ local actuals = {
     VerticalDividerHeight = ratios.VerticalDividerHeight * SCREEN_HEIGHT,
     LowerLipHeight = ratios.LowerLipHeight * SCREEN_HEIGHT
 }
+-- scoping magic
+do
+    -- copying the provided ratios and actuals tables to have access to the sizing for the overall frame
+    local rt = Var("ratios")
+    for k,v in pairs(rt) do
+        ratios[k] = v
+    end
+    local at = Var("actuals")
+    for k,v in pairs(at) do
+        actuals[k] = v
+    end
+end
+
+ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
+actuals.GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH
+
 
 local buttonTextSize = 0.7
 local headerTextSize = 0.9
