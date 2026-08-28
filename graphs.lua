@@ -6,15 +6,6 @@
         --line 41: "Graphs" (add to choiceNames)
         --line 237: actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")
 
-    --ScreenSelectMusic decorations / _chartPreview.lua
-        --line 514: self:z(100)
-        --line 515: BUTTON:RefreshCurrentButtons("ScreenSelectMusic")
-            --this sets the z value of the chord density graph to 100, and refreshes the buttons on ScreenSelectMusic
-            --if you dont do this then the chord density graph will sometimes break on song preview, after loading a graph
-            --i wish i knew what i added here that breaks the chord density graph. everything i have added here is nowhere near the graph so it SHOULD have no effect...
-            --i dont like this fix as i dont know if it messes anything else up.
-            --if you figure out what the fuck ive done to break the chord density graph lmk
-
 --uuh i hope you havent heavily modified any of these files so the line numbers are different
 --if you have modified the files im sure you can figure out what you need to do to add them
 --that should be it i hope
@@ -52,7 +43,6 @@ table of {
 The above table defines two sections with two buttons each.
 Each button displays text defined by buttonText, and loads actor named acctorName from fileName
 --]]
-
 local buttons = {
     --Bar graphs
     {
@@ -87,25 +77,21 @@ local buttons = {
 local sectionNames = {"Bar graphs", "Scatter graphs", "Line graphs", "Intensive graphs"}
 
 local ratios = {
-    Height = 612 / 1080,
     GraphButtonVerticalSpacing = 30 / 1080,
     GraphButtonHorizontalPadding = 10 / 1920,
     GraphButtonVerticalPadding = 90 / 1080,
     BackButtonHorizontalPadding = 10 / 1920,
     BackButtonVerticalPadding = 10 / 1080,
     VerticalDividerHeight = 500 / 1080,
-    LowerLipHeight = 57 / 1080,
 }
 
 local actuals = {
-    Height = ratios.Height * SCREEN_HEIGHT,
     GraphButtonVerticalSpacing = ratios.GraphButtonVerticalSpacing * SCREEN_HEIGHT,
     GraphButtonHorizontalPadding = ratios.GraphButtonHorizontalPadding * SCREEN_WIDTH,
     GraphButtonVerticalPadding = ratios.GraphButtonVerticalPadding * SCREEN_HEIGHT,
     BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
     BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT,
     VerticalDividerHeight = ratios.VerticalDividerHeight * SCREEN_HEIGHT,
-    LowerLipHeight = ratios.LowerLipHeight * SCREEN_HEIGHT
 }
 -- scoping magic
 do
