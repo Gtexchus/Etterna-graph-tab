@@ -229,6 +229,8 @@ local yAxisLabelInnerLineColor = Var("XaxisLabelInnerLineColor") or color("#ffff
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
+local xAxisLabelTextMaxWidth = Var("XaxisLabelTextMaxWidth") or 500 --max width of x axis label text
+local yAxisLabelTextMaxWidth = Var("YaxisLabelTextMaxWidth") or 500 --max width of y axis label text
 local plotAnimationSeconds = Var("PlotAnimationSeconds") or 1 --tween time of plot
 local dotWidth = Var("DotWidth") or 2 --width of a single point
 local dotHeight = Var("DotHeight") or 2 --height of a single point
@@ -446,6 +448,7 @@ for i=1, (xAxisLabelsCount) do
                 }) 
                 self:settext(xStr)
                 self:diffuse(xAxisLabelColorFunc({xValue = xValue}).text)
+                self:maxwidth(xAxisLabelTextMaxWidth)
             end
         },
 
@@ -541,6 +544,7 @@ for i=1, (yAxisLabelsCount) do
                 })
                 self:settext(yStr)
                 self:diffuse(yAxisLabelColorFunc({yValue = yValue}).text)
+                self:maxwidth(yAxisLabelTextMaxWidth)
             end
         },
 

@@ -85,6 +85,8 @@ local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
 local topLabelTextSize = Var("TopLabelTextSize") or 0.5 --size of top label
 local bottomLabelTextSize = Var("BottomLabelTextSize") or 0.5 --size of bottom label
+local topLabelTextMaxWidth = Var("TopLabelTextMaxWidth") or 500 --max width of top label
+local bottomLabelTextMaxWidth = Var("BottomLabelTextMaxWidth") or 500 --max width of bottom label
 local topLabelDefaultAlpha = Var("TopLabelDefaultAlpha") or 1 --alpha of top label when not hovered
 local topLabelHoverAlpha = Var("TopLabelHoverAlpha") or 1 --alpha of top label when hovered
 local bottomLabelDefaultAlpha = Var("BottomLabelDefaultAlpha") or 1 --alpha of bottom label when not hovered
@@ -228,6 +230,7 @@ local function makeLabel(i)
                     value = values[i]
                 end
                 self:settextf("%s \n (%4.2f%s)", value, (value / total) * 100, "%")
+                self:maxwidth(topLabelTextMaxWidth)
             end
         },
 
@@ -244,6 +247,7 @@ local function makeLabel(i)
                 self:diffuse(colorFunc({barNum = i, 
                 value = values[i]}))
                 self:diffusealpha(bottomLabelDefaultAlpha)
+                self:maxwidth(bottomLabelTextMaxWidth)
             end,
         }
     }
