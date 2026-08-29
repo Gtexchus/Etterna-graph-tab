@@ -189,8 +189,8 @@ local maxYvalueFunc = Var("MaxYvalueFunc") or function(params) return math.max(p
 
 actuals.GraphWidth = Var("GraphWidth") or ((680 / 1920) * SCREEN_WIDTH) --total width of graph
 actuals.GraphHeight = Var("GraphHeight") or ((412 / 1080) * SCREEN_HEIGHT) --total height of graph
-actuals.XaxisLabelOffset = Var("XaxisLabelOffset") or ((20 / 1920) * SCREEN_WIDTH) --how far left the x axis label is from the y axis
-actuals.YaxisLabelOffset = Var("YaxisLabelOffset") or ((20 / 1080) * SCREEN_HEIGHT) --how far down the y axis label is from the x axis
+actuals.XaxisLabelOffset = Var("XaxisLabelOffset") or ((20 / 1920) * SCREEN_HEIGHT) --how far down the x axis label is from the x axis
+actuals.YaxisLabelOffset = Var("YaxisLabelOffset") or ((20 / 1080) * SCREEN_WIDTH) --how far left the y axis label is from the y axis
 actuals.XaxisLabelLineThickness = Var("XaxisLabelLineThickness") or ((1 / 1920) * SCREEN_WIDTH) --how thick the x axis label is
 actuals.YaxisLabelLineThickness = Var("YaxisLabelLineThickness") or ((1 / 1080) * SCREEN_HEIGHT) --how thick the y axis label is
 
