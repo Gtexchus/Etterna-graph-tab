@@ -1,23 +1,13 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080, 
-    GraphX = 50 / 1920, 
 }
-ratios.GraphTitleX = ratios.Width / 2
-ratios.GraphTitleY = 20 / 1080
-
 
 local actuals = {
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
-    GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
 }
 
 
 local bottomLabelTextSize = 0.3
-local headerTextSize = 1
 
 local function setPlaycounts(playcounts)
     for i=1, #playcounts do
@@ -61,34 +51,6 @@ setPlaycounts(playcounts)
 
 t = Def.ActorFrame{
     Name = "ChartPlaycountDistributionContainer",
-    focused = false,
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleX, actuals.GraphTitleY)
-            self:settext("Chart playcount distribution")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end,
-    },
-
 }
 
 
@@ -99,10 +61,6 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     BarSpacing = 1,
     TopLabelDefaultAlpha = 0,
     BottomLabelTextSize = bottomLabelTextSize
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
+})
 
 return t

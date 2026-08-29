@@ -1,8 +1,8 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphYPadding = 100 / 1080, --distance from x axis to bottom of container
-    GraphXPadding = 50 / 1920, --distance from x axis to left of container
+    GraphWidth = 680 / 1920,
+    GraphHeight = 412 / 1080,
     XaxisLabelsYpadding = 20 / 1080,
     YaxisLabelsXpadding = 8 / 1920,
     XaxisLabelLineWidth = 1 / 1920,
@@ -12,14 +12,6 @@ local ratios = {
 }
 
 --for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphX = ratios.GraphXPadding
-ratios.GraphY = ratios.GraphYPadding
-ratios.GraphWidth = ratios.Width  - (ratios.GraphXPadding * 2)
-ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
-ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
-
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 ratios.SkillsetLabelsContainerWidth = ratios.GraphWidth / 3
 ratios.SkillsetLabelsContainerHeight = ratios.GraphHeight / 2
 
@@ -27,17 +19,8 @@ ratios.SkillsetLabelsContainerHeight = ratios.GraphHeight / 2
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
-    GraphYPadding = ratios.GraphYPadding * SCREEN_HEIGHT,
-    GraphXPadding = ratios.GraphXPadding * SCREEN_WIDTH,
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
-    GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetLabelsContainerWidth = ratios.SkillsetLabelsContainerWidth * SCREEN_WIDTH,
     SkillsetLabelsContainerHeight  =ratios.SkillsetLabelsContainerHeight * SCREEN_HEIGHT,
     XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
@@ -54,7 +37,6 @@ local actuals = {
 --where self is an actorMultiVertex
 
 local skillsetLabelsSize = 0.7
-local headerTextSize = 1
 local tooltipTextSize = 0.3
 local buttonHoverAlpha = 0.6
 local bgAlpha = 0.7
@@ -102,38 +84,7 @@ setValues(values)
 
 local t = Def.ActorFrame{
     Name = "playerRatingOverTimeGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Player rating over time")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end
-    },
 }
-
-
-
 
 
 
@@ -170,8 +121,8 @@ t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
     YaxisLabelColorFunc = function(params)
         return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
     end,
-    X = actuals.GraphX,
-    Y = actuals.GraphY,
+    GraphWidth = actuals.GraphWidth,
+    GraphHeight = actuals.GraphHeight,
     LayerNames = ms.SkillSets,
     Xunits = "Date",
     Yunits = "MSD",
@@ -269,7 +220,7 @@ local function makeSkillsetLabelsContainer()
         Name = "SkillsetLabelsContainer",
         InitCommand = function(self)
             self:diffusealpha(1)
-            self:xy(actuals.GraphX + actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphY + actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
+            self:xy(actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
         end,
         Def.Quad{
             Name = "BG",

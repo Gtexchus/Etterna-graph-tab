@@ -345,7 +345,7 @@ local t = Def.ActorFrame{
         end,
 
         MouseOverCommand = function(self)
-            if self:GetParent():GetParent().focused and not self:IsInvisible() then
+            if not self:IsInvisible() then
                 self.mouseOver = true
                 self:queuecommand("DisplayMouseCoords")
             end

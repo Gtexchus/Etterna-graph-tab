@@ -1,23 +1,15 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080,
-    GraphX = 50 / 1920,
-    SkillsetButtonsX = 640 / 1920,
-    SkillsetButtonsY = 20 / 1080,
+    SkillsetButtonsX = 590 / 1920,
+    SkillsetButtonsY = -80 / 1080,
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
 }
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
@@ -25,7 +17,6 @@ local actuals = {
 }
 
 local smallButtonTextSize = 0.5
-local headerTextSize = 1
 local skillsetButtonsMaxWidth = 100
 local buttonHoverAlpha = 0.6
 local maxSkillsetButtonsPerColumn = 4
@@ -82,38 +73,6 @@ setValues(values, "overall")
 
 local t = Def.ActorFrame{
     Name = "MeanOverMSDGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Mean over Overall MSD")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end,
-
-        UpdateCommand = function(self, params)
-            self:settext("Mean over " .. params.skillset .. " MSD")
-        end
-    },
 }
 
 --make skillset buttons
@@ -137,7 +96,7 @@ local function makeSkillsetButton(skillset_, x, y)
         UpdateCommand = function(self, params)
             local txt = self:GetChild("Text")
             if params.skillset == skillset_ then
-                txt:strokecolor(Brightness(COLORS:getMainColor("PrimaryText"), 0.7))
+                txt:strokecolor(color("#A400FF"))
             else
                 txt:strokecolor(color("0,0,0,0"))
             end
@@ -149,14 +108,12 @@ local function makeSkillsetButton(skillset_, x, y)
                 local graphContainer = self:GetParent():GetParent()
                 local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
                 local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
-                local title = graphContainer:GetChild("Title")
                 local labelsContainer = self:GetParent():GetParent():GetChild("Graph"):GetChild("LabelsContainer")
                 local skillsetButtons = sbc:GetChildren()
                 --update everything
                 setValuesSkillsetOnly(values, skillset_)
                 plots:playcommand("Set")
                 sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
-                title:playcommand("Update", {skillset = skillset_})
             end
         end,
 
@@ -234,10 +191,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YoriginCentered = true,
     Xunits = "MSD",
     Yunits = "Mean"
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
+})
 
 return t

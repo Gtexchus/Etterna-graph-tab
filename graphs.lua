@@ -83,6 +83,8 @@ local ratios = {
     BackButtonHorizontalPadding = 10 / 1920,
     BackButtonVerticalPadding = 10 / 1080,
     VerticalDividerHeight = 500 / 1080,
+    GraphX = 50 / 1920,
+    GraphY = 100 / 1080,
 }
 
 local actuals = {
@@ -92,6 +94,8 @@ local actuals = {
     BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
     BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT,
     VerticalDividerHeight = ratios.VerticalDividerHeight * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
 }
 -- scoping magic
 do
@@ -107,9 +111,14 @@ do
 end
 
 ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
+ratios.GraphTitleX = ratios.Width / 2
+ratios.GraphTitleY = 30 / 1080
+
 actuals.GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH
+actuals.GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH
+actuals.GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT
 
-
+local titleTextSize = 1
 local buttonTextSize = 0.7
 local headerTextSize = 0.9
 local buttonHoverAlpha = 0.6
@@ -124,21 +133,40 @@ local function createGraphContainer()
 
         FocusGraphCommand = function(self, params)
             if not self:GetChild(params.graphActorName) then --if the graph doesnt exist then load it
-                self:playcommand("LoadGraph", {graphFileName = params.graphFileName})
+                self:playcommand("LoadGraph", {graphFileName = params.graphFileName, graphActorName = params.graphActorName})
             end
-            self:GetChild(params.graphActorName):playcommand("Focus") --focus the graph
+            self:GetChild(params.graphActorName):diffusealpha(1)--make the graph visible
+            self:GetChild(params.graphActorName):z(1)
             self:GetParent():GetChild("ButtonContainer"):diffusealpha(0) --set graph buttons to invisible
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
+            self:GetChild("Title"):playcommand("Update", {graphTitle = params.graphTitle}) --update title
+            self:GetChild("Title"):diffusealpha(1) --make title visible
         end,
 
         LoadGraphCommand = function(self, params)
             if params.graphFileName ~= nil then
                 --local beforeTime = os.clock()
                 self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/" .. params.graphFileName))
+                self:GetChild(params.graphActorName):xy(actuals.GraphX, actuals.GraphY) --set x and y
                 BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
                 --print(string.format("%s %s %s %.3f%s", "Loading", params.graphFileName, "took:", os.clock() - beforeTime, "ms"))
             end
         end,
+
+        LoadFont("Common Normal") .. {
+            Name = "Title",
+            InitCommand = function(self)
+                self:xy(actuals.GraphTitleX, actuals.GraphTitleY)
+                self:diffusealpha(0)
+                self:zoom(titleTextSize)
+            end,
+
+            UpdateCommand = function(self, params)
+                if params.graphTitle ~= nil then
+                    self:settext(params.graphTitle)
+                end
+            end
+        },
 
         UIElements.TextButton(1, 1, "Common Normal") .. { --back button
             Name = "Back",
@@ -159,12 +187,18 @@ local function createGraphContainer()
             ClickCommand = function(self, params)
                 if self:IsInvisible() then return end
                 if params.update == "OnMouseDown" then
-                    self:GetParent():PlayCommandsOnChildren("Unfocus") --unfocus all graphs
+                    local c = self:GetParent():GetChildren()
+                    local thisIsntAGraph = {Back = true, Title = true}
+                    for _, v in pairs(c) do --set all children of GraphContainer to invisible
+                        v:diffusealpha(0)
+                        if thisIsntAGraph[v:GetName()] == nil then
+                            v:z(-1)
+                        end
+                    end
                     self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
                     --ensure the buttons get unmoused over correctly
                     --probably shouldn't run this command manually but who cares
                     self:GetParent():GetParent():GetChild("ButtonContainer"):PlayCommandsOnChildren("RolloverUpdate", {update = "out"})
-                    self:diffusealpha(0) --set back button to invisible
                     self:GetParent():z(-1)
                 end
             end,
@@ -207,7 +241,7 @@ local function createGraphButtonContainer()
                     if self:IsInvisible() then return end
                     if params.update == "OnMouseDown" then
                         local graphContainer = self:GetParent():GetParent():GetParent():GetChild("GraphContainer")
-                        graphContainer:playcommand("FocusGraph", {graphActorName = buttons[j][i].graphActorName, graphFileName = buttons[j][i].graphFileName})
+                        graphContainer:playcommand("FocusGraph", {graphActorName = buttons[j][i].graphActorName, graphFileName = buttons[j][i].graphFileName, graphTitle = buttons[j][i].graphButtonText})
                         graphContainer:z(1) 
                     end
                 end, 
