@@ -108,7 +108,7 @@ end
 
 ratios.GraphButtonMaxWidth = (ratios.Width - ((ratios.GraphButtonHorizontalPadding*2) * (#buttons + 1))) / #buttons
 ratios.GraphTitleX = ratios.Width / 2
-ratios.GraphTitleY = 20 / 1080
+ratios.GraphTitleY = 30 / 1080
 
 actuals.GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH
 actuals.GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH
