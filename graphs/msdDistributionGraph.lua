@@ -14,6 +14,8 @@ local actuals = {
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     BarSpacing = ratios.BarSpacing * SCREEN_WIDTH,
+    SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
+    SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
