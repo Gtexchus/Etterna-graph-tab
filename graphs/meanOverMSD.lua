@@ -100,7 +100,7 @@ local function makeSkillsetButton(skillset_, x, y)
         UpdateCommand = function(self, params)
             local txt = self:GetChild("Text")
             if params.skillset == skillset_ then
-                txt:strokecolor(Brightness(COLORS:getMainColor("PrimaryText"), 0.7))
+                txt:strokecolor(color("#A400FF"))
             else
                 txt:strokecolor(color("0,0,0,0"))
             end
