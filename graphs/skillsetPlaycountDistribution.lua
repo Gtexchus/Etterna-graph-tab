@@ -1,14 +1,10 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080, 
-    GraphX = 50 / 1920, 
     BarWidth = 50 / 1920,
 }
 
 local actuals = {
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
     BarWidth = ratios.BarWidth * SCREEN_WIDTH,
 }
 
@@ -37,10 +33,6 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     ColorFunc = function(params) return skillsetColors[params.barNum + 1] end,
     BarNumToStringFunc = function(params) return ms.SkillSetsTranslatedByName[ms.SkillSets[params.barNum + 1]] end,
     BarWidth = actuals.BarWidth
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
+})
 
 return t

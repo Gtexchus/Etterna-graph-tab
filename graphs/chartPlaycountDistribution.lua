@@ -1,13 +1,9 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080, 
-    GraphX = 50 / 1920, 
 }
 
 local actuals = {
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
 }
 
 
@@ -65,10 +61,6 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     BarSpacing = 1,
     TopLabelDefaultAlpha = 0,
     BottomLabelTextSize = bottomLabelTextSize
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
+})
 
 return t

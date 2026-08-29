@@ -1,10 +1,8 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080,
-    GraphX = 50 / 1920,
-    SkillsetButtonsX = 640 / 1920,
-    SkillsetButtonsY = 20 / 1080,
+    SkillsetButtonsX = 590 / 1920,
+    SkillsetButtonsY = -80 / 1080,
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
 }
@@ -13,8 +11,6 @@ local ratios = {
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
@@ -374,10 +370,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     PlotAlpha = plotAlpha,
     Xunits = "MSD",
     Yunits = "Accuracy"
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
+})
 
 return t

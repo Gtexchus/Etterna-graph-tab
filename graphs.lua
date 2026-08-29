@@ -83,6 +83,8 @@ local ratios = {
     BackButtonHorizontalPadding = 10 / 1920,
     BackButtonVerticalPadding = 10 / 1080,
     VerticalDividerHeight = 500 / 1080,
+    GraphX = 50 / 1920,
+    GraphY = 100 / 1080,
 }
 
 local actuals = {
@@ -92,6 +94,8 @@ local actuals = {
     BackButtonHorizontalPadding = ratios.BackButtonHorizontalPadding * SCREEN_WIDTH,
     BackButtonVerticalPadding = ratios.BackButtonVerticalPadding * SCREEN_HEIGHT,
     VerticalDividerHeight = ratios.VerticalDividerHeight * SCREEN_HEIGHT,
+    GraphX = ratios.GraphX * SCREEN_WIDTH,
+    GraphY = ratios.GraphY * SCREEN_HEIGHT,
 }
 -- scoping magic
 do
@@ -114,7 +118,7 @@ actuals.GraphButtonMaxWidth = ratios.GraphButtonMaxWidth * SCREEN_WIDTH
 actuals.GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH
 actuals.GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT
 
-
+local titleTextSize = 1
 local buttonTextSize = 0.7
 local headerTextSize = 0.9
 local buttonHoverAlpha = 0.6
@@ -129,7 +133,7 @@ local function createGraphContainer()
 
         FocusGraphCommand = function(self, params)
             if not self:GetChild(params.graphActorName) then --if the graph doesnt exist then load it
-                self:playcommand("LoadGraph", {graphFileName = params.graphFileName})
+                self:playcommand("LoadGraph", {graphFileName = params.graphFileName, graphActorName = params.graphActorName})
             end
             self:GetChild(params.graphActorName):diffusealpha(1)--make the graph visible
             self:GetChild(params.graphActorName):z(1)
@@ -143,6 +147,7 @@ local function createGraphContainer()
             if params.graphFileName ~= nil then
                 --local beforeTime = os.clock()
                 self:AddChildFromPath(THEME:GetPathB("", "ScreenSelectMusic decorations/generalPages/graphs/" .. params.graphFileName))
+                self:GetChild(params.graphActorName):xy(actuals.GraphX, actuals.GraphY) --set x and y
                 BUTTON:RefreshCurrentButtons("ScreenSelectMusic") 
                 --print(string.format("%s %s %s %.3f%s", "Loading", params.graphFileName, "took:", os.clock() - beforeTime, "ms"))
             end
@@ -153,6 +158,7 @@ local function createGraphContainer()
             InitCommand = function(self)
                 self:xy(actuals.GraphTitleX, actuals.GraphTitleY)
                 self:diffusealpha(0)
+                self:zoom(titleTextSize)
             end,
 
             UpdateCommand = function(self, params)

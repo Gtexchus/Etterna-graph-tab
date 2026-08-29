@@ -1,16 +1,12 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080,
-    GraphX = 50 / 1920,
 }
 
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
 }
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
@@ -297,12 +293,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     PlotAlpha = plotAlpha,
     Xunits = "Date",
     Yunits = "Accuracy"
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
-
-
+})
 
 return t

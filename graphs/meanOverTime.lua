@@ -1,15 +1,11 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
-    GraphY = 100 / 1080,
-    GraphX = 50 / 1920,
 }
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
-    GraphX = ratios.GraphX * SCREEN_WIDTH,
-    GraphY = ratios.GraphY * SCREEN_HEIGHT,
 }
 
 local plotAlpha = 0.5
@@ -105,10 +101,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YoriginCentered = true,
     Xunits = "Date",
     Yunits = "Mean"
-}) .. {
-    InitCommand = function(self)
-        self:xy(actuals.GraphX, actuals.GraphY)
-    end
-}
+})
 
 return t
