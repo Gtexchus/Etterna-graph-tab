@@ -122,6 +122,7 @@ local titleTextSize = 1
 local buttonTextSize = 0.7
 local headerTextSize = 0.9
 local buttonHoverAlpha = 0.6
+local fadeTime = 0.2
 
 local function createGraphContainer()
     local t = Def.ActorFrame{
@@ -136,13 +137,20 @@ local function createGraphContainer()
                 self:playcommand("LoadGraph", {graphFileName = params.graphFileName, graphActorName = params.graphActorName})
             end
             local graph = self:GetChild(params.graphActorName)
+            local title = self:GetChild("Title")
+            local back = self:GetChild("Back")
+            local buttonContainer = self:GetParent():GetChild("ButtonContainer")
+            graph:smooth(fadeTime)
+            title:smooth(fadeTime)
+            back:smooth(fadeTime)
+            buttonContainer:smooth(fadeTime)
             graph:diffusealpha(1)--make the graph visible
             graph:z(1)
             graph:playcommand("Focus") --play the graph's focus command (if it has one)
-            self:GetParent():GetChild("ButtonContainer"):diffusealpha(0) --set graph buttons to invisible
-            self:GetChild("Back"):diffusealpha(1) --make the back button visible
-            self:GetChild("Title"):playcommand("Update", {graphTitle = params.graphTitle}) --update title
-            self:GetChild("Title"):diffusealpha(1) --make title visible
+            buttonContainer:diffusealpha(0) --set graph buttons to invisible
+            back:diffusealpha(1) --make the back button visible
+            title:playcommand("Update", {graphTitle = params.graphTitle}) --update title
+            title:diffusealpha(1) --make title visible
         end,
 
         LoadGraphCommand = function(self, params)
@@ -192,16 +200,19 @@ local function createGraphContainer()
                     local c = self:GetParent():GetChildren()
                     local thisIsntAGraph = {Back = true, Title = true} --children of GraphContainer that arent graphs (this is probably a sign of bad design choice)
                     for _, v in pairs(c) do --set all children of GraphContainer to invisible
+                        v:smooth(fadeTime)
                         v:diffusealpha(0)
                         if thisIsntAGraph[v:GetName()] == nil then --do this if it is a graph
                             v:z(-1)
                             v:playcommand("Unfocus")--play the graph's unfocus command (if it has one)
                         end
                     end
-                    self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
+                    local buttonContainer = self:GetParent():GetParent():GetChild("ButtonContainer")
+                    buttonContainer:smooth(fadeTime)
+                    buttonContainer:diffusealpha(1) --set graph buttons to visible
                     --ensure the buttons get unmoused over correctly
                     --probably shouldn't run this command manually but who cares
-                    self:GetParent():GetParent():GetChild("ButtonContainer"):PlayCommandsOnChildren("RolloverUpdate", {update = "out"})
+                    buttonContainer:PlayCommandsOnChildren("RolloverUpdate", {update = "out"})
                     self:GetParent():z(-1)
                 end
             end,
