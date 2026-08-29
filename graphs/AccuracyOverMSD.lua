@@ -5,6 +5,7 @@ local ratios = {
     SkillsetButtonsY = -80 / 1080,
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
+    YaxisLabelOffset = 5 / 1920,
 }
 
 
@@ -15,6 +16,7 @@ local actuals = {
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
+    YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
@@ -122,6 +124,8 @@ local XaxisLabelsScale = 4
 local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelLineAlpha = 0.3
 local YaxisLabelsCount = (getGradeNum(minWife) - getGradeNum(maxWife)) + 1
+local yAxisLabelTextSize = 0.5
+local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
 SCOREMAN:SortRecentScoresForGame()
 
@@ -369,7 +373,10 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YaxisLabelCount = YaxisLabelsCount,
     PlotAlpha = plotAlpha,
     Xunits = "MSD",
-    Yunits = "Accuracy"
+    Yunits = "Accuracy",
+    YaxisLabelOffset = actuals.YaxisLabelOffset,
+    YaxisLabelTextSize = yAxisLabelTextSize,
+    YaxisLabelTextMaxWidth = yAxisLabelTextMaxWidth
 })
 
 return t

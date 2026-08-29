@@ -1,12 +1,14 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
+    YaxisLabelOffset = 5 / 1920,
 }
 
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
+    YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
@@ -109,6 +111,8 @@ local yAxisLabelLineAlpha = 0.3
 local xAxisLabelInnerLineColor = color("#52525280")
 
 local YaxisLabelsCount = (getGradeNum(minWife) - getGradeNum(maxWife)) + 1
+local yAxisLabelTextSize = 0.5
+local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
 SCOREMAN:SortRecentScoresForGame()
 local function setValues(values)
@@ -292,7 +296,10 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
     PlotAlpha = plotAlpha,
     Xunits = "Date",
-    Yunits = "Accuracy"
+    Yunits = "Accuracy",
+    YaxisLabelOffset = actuals.YaxisLabelOffset,
+    YaxisLabelTextSize = yAxisLabelTextSize,
+    YaxisLabelTextMaxWidth = yAxisLabelTextMaxWidth
 })
 
 return t
