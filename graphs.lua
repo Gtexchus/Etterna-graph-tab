@@ -135,8 +135,10 @@ local function createGraphContainer()
             if not self:GetChild(params.graphActorName) then --if the graph doesnt exist then load it
                 self:playcommand("LoadGraph", {graphFileName = params.graphFileName, graphActorName = params.graphActorName})
             end
-            self:GetChild(params.graphActorName):diffusealpha(1)--make the graph visible
-            self:GetChild(params.graphActorName):z(1)
+            local graph = self:GetChild(params.graphActorName)
+            graph:diffusealpha(1)--make the graph visible
+            graph:z(1)
+            graph:playcommand("Focus") --play the graph's focus command (if it has one)
             self:GetParent():GetChild("ButtonContainer"):diffusealpha(0) --set graph buttons to invisible
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
             self:GetChild("Title"):playcommand("Update", {graphTitle = params.graphTitle}) --update title
@@ -188,11 +190,12 @@ local function createGraphContainer()
                 if self:IsInvisible() then return end
                 if params.update == "OnMouseDown" then
                     local c = self:GetParent():GetChildren()
-                    local thisIsntAGraph = {Back = true, Title = true}
+                    local thisIsntAGraph = {Back = true, Title = true} --children of GraphContainer that arent graphs (this is probably a sign of bad design choice)
                     for _, v in pairs(c) do --set all children of GraphContainer to invisible
                         v:diffusealpha(0)
-                        if thisIsntAGraph[v:GetName()] == nil then
+                        if thisIsntAGraph[v:GetName()] == nil then --do this if it is a graph
                             v:z(-1)
+                            v:playcommand("Unfocus")--play the graph's unfocus command (if it has one)
                         end
                     end
                     self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
