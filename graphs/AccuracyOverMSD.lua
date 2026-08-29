@@ -9,17 +9,12 @@ local ratios = {
     SkillsetButtonsVerticalSpacing = 20 / 1080,
 }
 
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
@@ -116,7 +111,6 @@ local function getUpperGradeBoundary(wife)
 end
 
 local smallButtonTextSize = 0.5
-local headerTextSize = 1
 local skillsetButtonsMaxWidth = 100
 local buttonHoverAlpha = 0.6
 --the idea is to have each midgrade take up the same physical space on the graph
@@ -162,38 +156,6 @@ setValues(values, "overall")
 
 local t = Def.ActorFrame{
     Name = "AccuracyOverMSDGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Accuracy over Overall MSD")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end,
-
-        UpdateCommand = function(self, params)
-            self:settext("Accuracy over " .. params.skillset .. " MSD")
-        end
-    },
 }
 
 --make skillset buttons
@@ -229,14 +191,12 @@ local function makeSkillsetButton(skillset_, x, y)
                 local graphContainer = self:GetParent():GetParent()
                 local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
                 local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
-                local title = graphContainer:GetChild("Title")
                 local labelsContainer = self:GetParent():GetParent():GetChild("Graph"):GetChild("LabelsContainer")
                 local skillsetButtons = sbc:GetChildren()
                 --update everything
                 setValues(values, skillset_)
                 plots:playcommand("Set")
                 sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
-                title:playcommand("Update", {skillset = skillset_})
             end
         end,
 

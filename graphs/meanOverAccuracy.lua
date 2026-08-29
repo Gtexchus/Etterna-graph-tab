@@ -8,16 +8,12 @@ local ratios = {
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
 }
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
@@ -111,7 +107,6 @@ local function getUpperGradeBoundary(wife)
 end
 
 local smallButtonTextSize = 0.5
-local headerTextSize = 1
 local skillsetButtonsMaxWidth = 100
 local buttonHoverAlpha = 0.6
 local maxSkillsetButtonsPerColumn = 4
@@ -162,38 +157,6 @@ setValues(values)
 
 local t = Def.ActorFrame{
     Name = "MeanOverAccuracyGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Mean over Accuracy")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end,
-
-        UpdateCommand = function(self, params)
-            self:settext("Mean over " .. params.skillset .. " MSD")
-        end
-    },
 }
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {

@@ -18,8 +18,6 @@ ratios.GraphWidth = ratios.Width  - (ratios.GraphXPadding * 2)
 ratios.GraphHeight = ratios.Height - (ratios.GraphYPadding * 2) 
 ratios.GraphBottom = ratios.GraphY + ratios.GraphHeight
 
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 ratios.SkillsetLabelsContainerWidth = ratios.GraphWidth / 3
 ratios.SkillsetLabelsContainerHeight = ratios.GraphHeight / 2
 
@@ -36,8 +34,6 @@ local actuals = {
     GraphBottom = ratios.GraphBottom * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetLabelsContainerWidth = ratios.SkillsetLabelsContainerWidth * SCREEN_WIDTH,
     SkillsetLabelsContainerHeight  =ratios.SkillsetLabelsContainerHeight * SCREEN_HEIGHT,
     XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
@@ -54,7 +50,6 @@ local actuals = {
 --where self is an actorMultiVertex
 
 local skillsetLabelsSize = 0.7
-local headerTextSize = 1
 local tooltipTextSize = 0.3
 local buttonHoverAlpha = 0.6
 local bgAlpha = 0.7
@@ -102,38 +97,7 @@ setValues(values)
 
 local t = Def.ActorFrame{
     Name = "playerRatingOverTimeGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Player rating over time")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end
-    },
 }
-
-
-
 
 
 

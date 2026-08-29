@@ -8,16 +8,12 @@ local ratios = {
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
     SkillsetButtonsVerticalSpacing = 20 / 1080,
 }
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
@@ -25,7 +21,6 @@ local actuals = {
 }
 
 local smallButtonTextSize = 0.5
-local headerTextSize = 1
 local skillsetButtonsMaxWidth = 100
 local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelLineAlpha = 0.3
@@ -64,38 +59,6 @@ setValues(values, "overall")
 
 local t = Def.ActorFrame{
     Name = "MSDoverTimeGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Overall MSD over time")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end,
-
-        UpdateCommand = function(self, params)
-            self:settext(params.skillset .. " MSD over time")
-        end
-    },
 }
 
 --make skillset buttons
@@ -130,14 +93,12 @@ local function makeSkillsetButton(skillset_, x, y)
                 local graphContainer = self:GetParent():GetParent()
                 local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
                 local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
-                local title = graphContainer:GetChild("Title")
                 local labelsContainer = self:GetParent():GetParent():GetChild("Graph"):GetChild("LabelsContainer")
                 local skillsetButtons = sbc:GetChildren()
                 --update everything
                 setValues(values, skillset_)
                 plots:playcommand("Set") --this needs to be run first because setMSDcounts is run there
                 sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
-                title:playcommand("Update", {skillset = skillset_})
             end
         end,
 

@@ -10,15 +10,11 @@ local ratios = {
     GraphButtonPaddingWidth = 20 / 1920,
     GraphButtonPaddingHeight = 20 / 1080
 }
-ratios.GraphTitleX = ratios.Width / 2
-ratios.GraphTitleY = 20 / 1080
 
 local actuals = {
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
     BarSpacing = ratios.BarSpacing * SCREEN_WIDTH,
-    GraphTitleX = ratios.GraphTitleX * SCREEN_WIDTH,
-    GraphTitleY = ratios.GraphTitleY * SCREEN_HEIGHT,
     GraphTypeButtonX = ratios.GraphTypeButtonX * SCREEN_WIDTH,
     GraphTypeButtonY = ratios.GraphTypeButtonY * SCREEN_HEIGHT,
     GraphButtonPaddingWidth = ratios.GraphButtonPaddingWidth * SCREEN_WIDTH,
@@ -27,7 +23,6 @@ local actuals = {
 
 local bottomLabelTextSize = 0.4
 local smallButtonTextSize = 0.5
-local headerTextSize = 1
 local buttonHoverAlpha = 0.6
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
@@ -155,33 +150,6 @@ setGradeCounts(gradeCounts, false)
 
 t = Def.ActorFrame{
     Name = "GradeDistributionGraphContainer",
-    focused = false,
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleX, actuals.GraphTitleY)
-            self:settext("Grade Distribution")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end
-    },
 
     UIElements.TextButton(1, 1, "Common Normal") .. {
         Name = "GraphTypeButton",

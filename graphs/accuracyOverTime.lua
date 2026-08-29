@@ -5,17 +5,12 @@ local ratios = {
     GraphX = 50 / 1920,
 }
 
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.GraphTitleCenterX = ratios.Width / 2
-ratios.GraphTitleCenterY = 20 / 1080
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
     GraphX = ratios.GraphX * SCREEN_WIDTH,
     GraphY = ratios.GraphY * SCREEN_HEIGHT,
-    GraphTitleCenterX = ratios.GraphTitleCenterX * SCREEN_WIDTH,
-    GraphTitleCenterY = ratios.GraphTitleCenterY * SCREEN_HEIGHT,
 }
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
@@ -112,7 +107,6 @@ local maxWife = 1
 local plotAlpha = 0.5
 
 local smallButtonTextSize = 0.5
-local headerTextSize = 1
 local buttonHoverAlpha = 0.6
 local XaxisLabelsCount = 5
 local yAxisLabelLineAlpha = 0.3
@@ -150,34 +144,6 @@ setValues(values)
 
 local t = Def.ActorFrame{
     Name = "AccuracyOverTimeGraphContainer",
-    focused = false,
-
-    InitCommand = function(self)
-        self:diffusealpha(0)
-    end,
-
-    FocusCommand = function(self)
-        self:diffusealpha(1)
-        self.focused = true
-        self:z(1)
-    end,
-
-    UnfocusCommand = function(self)
-        self:diffusealpha(0)
-        self.focused = false
-        self:z(-1)
-    end,
-
-    LoadFont("Common Normal") .. {
-        Name = "Title",
-        InitCommand = function(self)
-            self:valign(0)
-            self:zoom(headerTextSize)
-            self:xy(actuals.GraphTitleCenterX, actuals.GraphTitleCenterY)
-            self:settext("Accuracy over time")
-            registerActorToColorConfigElement(self, "main", "PrimaryText")
-        end
-    },
 }
 
 

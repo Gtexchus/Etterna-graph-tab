@@ -132,6 +132,7 @@ local function createGraphContainer()
                 self:playcommand("LoadGraph", {graphFileName = params.graphFileName})
             end
             self:GetChild(params.graphActorName):diffusealpha(1)--make the graph visible
+            self:GetChild(params.graphActorName):z(1)
             self:GetParent():GetChild("ButtonContainer"):diffusealpha(0) --set graph buttons to invisible
             self:GetChild("Back"):diffusealpha(1) --make the back button visible
             self:GetChild("Title"):playcommand("Update", {graphTitle = params.graphTitle}) --update title
@@ -181,8 +182,12 @@ local function createGraphContainer()
                 if self:IsInvisible() then return end
                 if params.update == "OnMouseDown" then
                     local c = self:GetParent():GetChildren()
+                    local thisIsntAGraph = {Back = true, Title = true}
                     for _, v in pairs(c) do --set all children of GraphContainer to invisible
                         v:diffusealpha(0)
+                        if thisIsntAGraph[v:GetName()] == nil then
+                            v:z(-1)
+                        end
                     end
                     self:GetParent():GetParent():GetChild("ButtonContainer"):diffusealpha(1) --set graph buttons to visible
                     --ensure the buttons get unmoused over correctly
