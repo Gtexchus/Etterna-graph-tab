@@ -1,11 +1,13 @@
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
+    YaxisLabelOffset = 5 / 1920,
 }
 
 local actuals = {
     Width = ratios.Width * SCREEN_WIDTH,
     Height = ratios.Height * SCREEN_HEIGHT,
+    YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
 local plotAlpha = 0.5
@@ -45,7 +47,8 @@ local function setValues(values)
     end
 end
 
-
+local yAxisLabelTextSize = 0.5
+local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
 local values = {}
 setValues(values)
@@ -100,7 +103,10 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YaxisLabelCount = YaxisLabelCount,
     YoriginCentered = true,
     Xunits = "Date",
-    Yunits = "Mean"
+    Yunits = "Mean",
+    YaxisLabelOffset = actuals.YaxisLabelOffset,
+    YaxisLabelTextSize = yAxisLabelTextSize,
+    YaxisLabelTextMaxWidth = yAxisLabelTextMaxWidth
 })
 
 return t

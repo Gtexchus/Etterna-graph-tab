@@ -189,8 +189,8 @@ local maxYvalueFunc = Var("MaxYvalueFunc") or function(params) return math.max(p
 
 actuals.GraphWidth = Var("GraphWidth") or ((680 / 1920) * SCREEN_WIDTH) --total width of graph
 actuals.GraphHeight = Var("GraphHeight") or ((412 / 1080) * SCREEN_HEIGHT) --total height of graph
-actuals.XaxisLabelOffset = Var("XaxisLabelOffset") or ((20 / 1920) * SCREEN_HEIGHT) --how far down the x axis label is from the x axis
-actuals.YaxisLabelOffset = Var("YaxisLabelOffset") or ((20 / 1080) * SCREEN_WIDTH) --how far left the y axis label is from the y axis
+actuals.XaxisLabelOffset = Var("XaxisLabelOffset") or ((20 / 1080) * SCREEN_HEIGHT) --how far down the x axis label is from the x axis
+actuals.YaxisLabelOffset = Var("YaxisLabelOffset") or ((20 / 1920) * SCREEN_WIDTH) --how far left the y axis label is from the y axis
 actuals.XaxisLabelLineThickness = Var("XaxisLabelLineThickness") or ((1 / 1920) * SCREEN_WIDTH) --how thick the x axis label is
 actuals.YaxisLabelLineThickness = Var("YaxisLabelLineThickness") or ((1 / 1080) * SCREEN_HEIGHT) --how thick the y axis label is
 
@@ -229,6 +229,8 @@ local yAxisLabelInnerLineColor = Var("XaxisLabelInnerLineColor") or color("#ffff
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
+local xAxisLabelTextMaxWidth = Var("XaxisLabelTextMaxWidth") or 500 --max width of x axis label text
+local yAxisLabelTextMaxWidth = Var("YaxisLabelTextMaxWidth") or 500 --max width of y axis label text
 local plotAnimationSeconds = Var("PlotAnimationSeconds") or 1 --tween time of plot
 local dotWidth = Var("DotWidth") or 2 --width of a single point
 local dotHeight = Var("DotHeight") or 2 --height of a single point
@@ -446,6 +448,7 @@ for i=1, (xAxisLabelsCount) do
                 }) 
                 self:settext(xStr)
                 self:diffuse(xAxisLabelColorFunc({xValue = xValue}).text)
+                self:maxwidth(xAxisLabelTextMaxWidth)
             end
         },
 
@@ -541,6 +544,7 @@ for i=1, (yAxisLabelsCount) do
                 })
                 self:settext(yStr)
                 self:diffuse(yAxisLabelColorFunc({yValue = yValue}).text)
+                self:maxwidth(yAxisLabelTextMaxWidth)
             end
         },
 
