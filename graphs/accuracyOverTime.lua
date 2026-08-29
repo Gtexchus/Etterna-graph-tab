@@ -295,7 +295,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     XaxisLabelInnerLineColor =xAxisLabelInnerLineColor,
     YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
     PlotAlpha = plotAlpha,
-    Xunits = "MSD",
+    Xunits = "Date",
     Yunits = "Accuracy"
 }) .. {
     InitCommand = function(self)

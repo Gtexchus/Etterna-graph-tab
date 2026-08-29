@@ -103,7 +103,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     XaxisLabelCount = XaxisLabelCount,
     YaxisLabelCount = YaxisLabelCount,
     YoriginCentered = true,
-    Xunits = "Time",
+    Xunits = "Date",
     Yunits = "Mean"
 }) .. {
     InitCommand = function(self)
