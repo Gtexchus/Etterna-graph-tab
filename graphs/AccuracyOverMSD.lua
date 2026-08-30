@@ -64,11 +64,7 @@ end
 local function getGradeNum(wife) --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
     --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
     local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
-        if wife == 1 then
-            return 0
-        else
-            return tonumber(GetGradeFromPercent(wife):sub(11, 12))
-        end
+        return tonumber(GetGradeFromPercent(wife):sub(11, 12))
     end
 
     local midGradeNumToGradeNum = {
@@ -116,6 +112,8 @@ local buttonHoverAlpha = 0.6
 
 local minWife = 0.93
 local maxWife = 1
+local minFoundWife = 1
+local maxFoundWife = 0
 
 local plotAlpha = 0.5
 local maxSkillsetButtonsPerColumn = 4
@@ -123,7 +121,6 @@ local maxSkillsetButtonsPerColumn = 4
 local XaxisLabelsScale = 4
 local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelLineAlpha = 0.3
-local YaxisLabelsCount = (getGradeNum(minWife) - getGradeNum(maxWife)) + 1
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
@@ -145,6 +142,8 @@ local function setValues(values, skillset)
                 values[index] = {}
                 values[index][1] = ssr
                 values[index][2] = wife
+                minFoundWife = math.min(minFoundWife, wife)
+                maxFoundWife = math.max(maxFoundWife, wife)
             end
         end
     end
@@ -152,6 +151,7 @@ end
 
 local values = {}
 setValues(values, "overall")
+local YaxisLabelsCount = (getGradeNum(minFoundWife) - getGradeNum(maxFoundWife)) + 2
 
 
 local t = Def.ActorFrame{
