@@ -136,22 +136,27 @@ local t = Def.ActorFrame{
             end
 
             for i = 1, #values do
-                maxValue = math.max(maxValue, values[i])
+                if values[i] ~= nil then
+                    maxValue = math.max(maxValue, values[i])
+                end
             end
 
             for i = 1, #values do
                 local x = (i-1) * (actuals.BarWidth + actuals.BarSpacing)
-                local y = yFunc({
-                    value = values[i],
-                    GraphWidth = actuals.GraphWidth,
-                    GraphHeight = actuals.GraphHeight,
-                    maxValue = maxValue,
-                })
-                local height = actuals.GraphHeight - y
-                local color = colorFunc({barNum = i, 
-                value = values[i]})
+                local y = 0
+                if values[i] ~= nil then
+                    y = yFunc({
+                        value = values[i],
+                        GraphWidth = actuals.GraphWidth,
+                        GraphHeight = actuals.GraphHeight,
+                        maxValue = maxValue,
+                    })
+                    local height = actuals.GraphHeight - y
+                    local color = colorFunc({barNum = i, 
+                    value = values[i]})
+                    placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
+                end
                 barCoords[#barCoords + 1] = {x, y}
-                placeBarVerticesTopLeftAnchor(vertices, x, y, actuals.BarWidth, height, color)
             end
 
             if self:GetNumVertices() ~= 0 then
