@@ -194,7 +194,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
         --i could use the values of minGrade and maxGrade that are defined in this file,
         --but it feels cleaner to calculate them here using params
-        local stupidY = params.GraphHeight - params.y --cant be bothered to remake this function cleanly so fuck you
+        local stupidY = math.max(params.GraphHeight - params.y, 0) --cant be bothered to remake this function cleanly so fuck you
         local minGrade = getGradeNum(params.minYvalue)
         local maxGrade = getGradeNum(params.maxYvalue)
         if params.maxYvalue == 1 then --special case for 100%, because we want a label for 100%

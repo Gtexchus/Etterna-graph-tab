@@ -196,7 +196,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return params.GraphHeight * (shit / fatShit)
     end,
     XvalueFunc = function(params) --i fucking hate this too
-        local stupidX = params.GraphWidth - params.x --cant be bothered to remake this function cleanly so fuck you
+        local stupidX = math.max(params.GraphWidth - params.x, 0) --cant be bothered to remake this function cleanly so fuck you
         local minGrade = getGradeNum(params.minXvalue)
         local maxGrade = getGradeNum(params.maxXvalue)
         if params.maxXvalue == 1 then --special case for 100%, because we want a label for 100%
