@@ -149,24 +149,24 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Yfunc = function(params) --i fucking hate this
-        local wife = params.yValue
+        local wife = params.value
         local gradeTier = getGradeNum(wife)
-        local minGradeTier = getGradeNum(params.minYvalue)
-        local maxGradeTier = getGradeNum(params.maxYvalue)
-        if params.maxYvalue == 1 then
+        local minGradeTier = getGradeNum(params.minValue)
+        local maxGradeTier = getGradeNum(params.maxValue)
+        if params.maxValue == 1 then
             maxGradeTier = 0
         end
 
-        local lowerWifeBound = getLowerGradeBoundary(params.yValue)
+        local lowerWifeBound = getLowerGradeBoundary(params.value)
         local upperWifeBound
         if gradeTier > 1 then --if its not an AAAAA
-            upperWifeBound = getUpperGradeBoundary(params.yValue)
+            upperWifeBound = getUpperGradeBoundary(params.value)
         else
             upperWifeBound = 1
         end
         local numberOfSections = (minGradeTier - maxGradeTier)
         local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section
-        local sectionHeight = params.GraphHeight / numberOfSections --39.4
+        local sectionHeight = params.GraphLength / numberOfSections --39.4
 
         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
@@ -176,7 +176,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.yValue)) end,
 
     XvalueToStringFunc = function(params)
-        local dateTable = os.date("*t", params.xValue)
+        local dateTable = os.date("*t", params.value)
         local day = tostring(dateTable["day"])
         local month = tostring(dateTable["month"])
         local year = tostring(dateTable["year"])
@@ -194,17 +194,17 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
         --i could use the values of minGrade and maxGrade that are defined in this file,
         --but it feels cleaner to calculate them here using params
-        local stupidY = math.max(params.GraphHeight - params.y, 0) --cant be bothered to remake this function cleanly so fuck you
-        local minGrade = getGradeNum(params.minYvalue)
-        local maxGrade = getGradeNum(params.maxYvalue)
-        if params.maxYvalue == 1 then --special case for 100%, because we want a label for 100%
+        local stupidY = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
+        local minGrade = getGradeNum(params.minValue)
+        local maxGrade = getGradeNum(params.maxValue)
+        if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
             maxGrade = 0
         end
         local numberOfSections = minGrade - maxGrade --how many sections there are in total
-        local yPercent = stupidY / params.GraphHeight
+        local yPercent = stupidY / params.GraphLength
         local sectionNumber = notShit.floor(yPercent * numberOfSections) --section we are in, top section is 0
-        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphHeight
-        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphHeight
+        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
+        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
         --[[about upper and lowerSectionBound:
         these are the y coordinates of the top and bottom acc "lines" that make up a section
         upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
@@ -234,12 +234,12 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
             [0.7] = true,
             [0.6] = true
         }
-        local acc = params.yValue
+        local acc = params.value
         if acc == 1 then --special case for 100%
             return tostring(acc * 100) .. "%"
         elseif gradeBoundaries[acc] then --if the acc is EXACTLY a grade boundary, so the y axis labels are labeled with the grade instead of the acc
             --this assumes that the y axis labels lie exactly on the grade boundaries, which should be the case if i've done everything right
-            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.yValue)))
+            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.value)))
         elseif acc > 0.99 then
             return string.format("%7.4f%s", acc * 100, "%")
         else
@@ -252,12 +252,12 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         --compare minYvalue with the lower grade boundary of yValue
         --e.g. if yValue = 0.932 (93.2%) then minYvalue is compared with 0.93
         --this is so minYvalue ends up being a grade boundary
-        return math.min(params.minYvalue, getLowerGradeBoundary(params.yValue))
+        return math.min(params.minValue, getLowerGradeBoundary(params.value))
     end,
 
     MaxYvalueFunc = function(params)
         --same as minYvalue, except round up
-        return math.max(params.maxYvalue, getUpperGradeBoundary(params.yValue))
+        return math.max(params.maxValue, getUpperGradeBoundary(params.value))
     end,
 
     
@@ -280,7 +280,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     ]]
 
     YaxisLabelColorFunc = function(params)
-        local color = colorByGrade(GetGradeFromPercent(params.yValue))
+        local color = colorByGrade(GetGradeFromPercent(params.value))
         local innerLineColor = {}
         for k, v in pairs(color) do
             innerLineColor[k] = v

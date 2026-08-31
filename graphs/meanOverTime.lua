@@ -63,21 +63,21 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Yfunc = function(params)
         --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 50
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 50
         --higher scale means the graph starts squishing at a higher y value
         --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
-        local shit = asinh(params.yValue / scale) - asinh(params.minYvalue / scale)
-        local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
-        return params.GraphHeight * (shit / fatShit)
+        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
+        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
+        return params.GraphLength * (shit / fatShit)
     end,
     YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 50
-        local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
-        local wetFart = params.y / params.GraphHeight
-        return math.sinh((fatShit * wetFart) + asinh(params.minYvalue / scale)) * scale
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 50
+        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
+        local wetFart = params.coord / params.GraphLength
+        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
     end,
     XvalueToStringFunc = function(params)
-        local dateTable = os.date("*t", params.xValue)
+        local dateTable = os.date("*t", params.value)
         local day = tostring(dateTable["day"])
         local month = tostring(dateTable["month"])
         local year = tostring(dateTable["year"])
@@ -90,7 +90,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return string.format("%s-%s-%s", year, month, day)
     end,
     YvalueToStringFunc = function(params)
-        return string.format("%5.2f", params.yValue)
+        return string.format("%5.2f", params.value)
     end,
     XaxisLabelColorFunc = function(params)
         return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
