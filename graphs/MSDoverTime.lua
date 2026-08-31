@@ -131,7 +131,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     ColorFunc = function(params) return colorByMSD(params.yValue) end,
     XvalueToStringFunc = function(params)
-        local dateTable = os.date("*t", params.xValue)
+        local dateTable = os.date("*t", params.value)
         local day = tostring(dateTable["day"])
         local month = tostring(dateTable["month"])
         local year = tostring(dateTable["year"])
@@ -144,12 +144,12 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return string.format("%s-%s-%s", year, month, day)
     end,
     YvalueToStringFunc = function(params)
-        if string.format("%5.2f", params.yValue) == string.format("%5.2f", notShit.floor(params.yValue + 0.0001)) then -- if the first two decimal points are 00
+        if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then -- if the first two decimal points are 00
             --this is so the y axis labels are integers and arent 12.00, for example
             -- +0.0001 because of floating point nonsense
-            return params.yValue
+            return params.value
         else
-            return string.format("%5.2f", params.yValue)
+            return string.format("%5.2f", params.value)
         end
     end,
 
@@ -158,7 +158,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     end,
 
     YaxisLabelColorFunc = function(params)
-        local color = colorByMSD(params.yValue)
+        local color = colorByMSD(params.value)
         local innerLineColor = {}
         for k, v in pairs(color) do
             innerLineColor[k] = v

@@ -56,30 +56,28 @@ local values = Var("Values")
 
 
 --functions
-local xFunc = Var("Xfunc") or function(params) return params.GraphWidth * ((params.xValue - params.minXvalue) / (params.maxXvalue - params.minXvalue)) end
+local xFunc = Var("Xfunc") or function(params) return params.GraphLength * ((params.value - params.minValue) / (params.maxValue - params.minValue)) end
 --[[xFunc:
 purpose: returns an x coordinate calculated from an x value. Inverse of xValueFunc.
 
 params: 
-xValue [number] (point's value)
-GraphWidth [number] (total width of graph)
-GraphHeight [number] (total height of graph)
-minXvalue [number] (lowest x value a point may have)
-maxXvalue [number] (highest value a point may have)
+value [number] (point's value)
+GraphLength [number] (total width of graph)
+minValue [number] (lowest x value a point may have)
+maxValue [number] (highest value a point may have)
 
 returns: number (x coordinate of point)
 ]]
 
-local yFunc = Var("Yfunc") or function(params) return params.GraphHeight * ((params.yValue - params.minYvalue)/ (params.maxYvalue - params.minYvalue)) end  
+local yFunc = Var("Yfunc") or function(params) return params.GraphLength * ((params.value - params.minValue)/ (params.maxValue - params.minValue)) end  
 --[[yFunc
 purpose: returns a y coordinate calculated from a y value. Inverse of yValueFunc.
 
 params: 
-yValue [number] (point's y value)
-GraphWidth [number] (total width of graph)
-GraphHeight [number] (total height of graph)
-minYvalue [number] (lowest y value a point may have)
-maxYvalue [number] (highest y value a point may have)
+value [number] (point's y value)
+GraphLength [number] (total height of graph)
+minValue [number] (lowest y value a point may have)
+maxValue [number] (highest y value a point may have)
 
 returns: number (y coordinate of point)
 ]]
@@ -100,7 +98,7 @@ local xAxisLabelColorFunc = Var("XaxisLabelColorFunc") or function(params) retur
 purpose: colors all parts of the x axis label (text, outer line, inner line)
 
 params:
-xValue [number] (label's x value)
+value [number] (label's x value)
 
 returns: table of colors, with keys {text, outerLine, innerLine}
 ]]
@@ -110,81 +108,79 @@ local yAxisLabelColorFunc = Var("YaxisLabelColorFunc") or function(params) retur
 purpose: colors all parts of the y axis label (text, outer line, inner line)
 
 params:
-yValue [number] (label's y value)
+value [number] (label's y value)
 
 returns: table of colors, with keys {text, outerLine, innerLine}
 ]]
 
-local xValueToStringFunc = Var("XvalueToStringFunc") or function(params) return tostring(params.xValue) end
+local xValueToStringFunc = Var("XvalueToStringFunc") or function(params) return tostring(params.value) end
 --[[xValueToStringFunc 
 purpose: returns a string representation of a given xValue
 
 params:
-xValue [number] (point's x value)
-GraphWidth [number] (total width of graph)
-GraphHeight [number] (total height of graph)
-minXvalue [number] (lowest x value a point may have)
-maxXvalue [number] (highest x value a point may have)
+value [number] (point's x value)
+GraphLength [number] (total width of graph)
+minValue [number] (lowest x value a point may have)
+maxValue [number] (highest x value a point may have)
 
 returns: string (string representation of xValue) 
 ]]
 
-local yValueToStringFunc = Var("YvalueToStringFunc") or function(params) return tostring(params.yValue) end
+local yValueToStringFunc = Var("YvalueToStringFunc") or function(params) return tostring(params.value) end
 --[[yValueToStringFunc 
 purpose: returns a string representation of a given yValue
 
 params:
-yValue [number] (point's y value)
-GraphWidth [number] (total width of graph)
-GraphHeight [number] (total height of graph)
-minYvalue [number] (lowest y value a point may have)
-maxYvalue [number] (highest y value a point may have)
+value [number] (point's y value)
+GraphLength [number] (total height of graph)
+minValue [number] (lowest y value a point may have)
+maxValue [number] (highest y value a point may have)
 
 returns: string (string representation of yValue)
 ]]
 
-local xValueFunc = Var("XvalueFunc") or function(params) return ((params.x / params.GraphWidth) * (params.maxXvalue - params.minXvalue)) + params.minXvalue end
+local xValueFunc = Var("XvalueFunc") or function(params) return ((params.coord / params.GraphLength) * (params.maxValue - params.minValue)) + params.minValue end
 --[[xValueFunc 
 purpose: returns an x value calculated from an x coordinate. Inverse of xFunc.
 
 params:
-x [number] (the x coordinate)
-minXvalue [number] (lowest x value a point may have)
-maxXvalue [number] (highest x value a point may have)
-GraphWidth [number] (total width of graph)
+coord [number] (the x coordinate)
+minValue [number] (lowest x value a point may have)
+maxValue [number] (highest x value a point may have)
+GraphLength [number] (total width of graph)
 
 returns: number (the x value corresponding to the x coordinate)
 ]]
 
-local yValueFunc = Var("YvalueFunc") or function(params) return ((params.y / params.GraphHeight) * (params.maxYvalue - params.minYvalue)) + params.minYvalue end
+local yValueFunc = Var("YvalueFunc") or function(params) return ((params.coord / params.GraphLength) * (params.maxValue - params.minValue)) + params.minValue end
 --[[yValueFunc 
 purpose: returns a y value calculated from a y coordinate. Inverse of yFunc.
 
 params:
-y [number] (the y coordinate)
-minXvalue [number] (lowest y value a point may have)
-maxXvalue [number] (highest y value a point may have)
-GraphHeight [number] (total height of graph)
+coord [number] (the y coordinate)
+minValue [number] (lowest y value a point may have)
+maxValue [number] (highest y value a point may have)
+GraphLength [number] (total height of graph)
 
 returns: number (the y value corresponding to the y coordinate)
 ]]
 
-local minXvalueFunc = Var("MinXvalueFunc") or function(params) return math.min(params.minXvalue, params.xValue) end
+local minXvalueFunc = Var("MinXvalueFunc") or function(params) return math.min(params.minValue, params.value) end
 --[[minXvalueFunc
 purpose: returns an updated minXvalue given the current minXvalue and an xValue
 
 params:
-minXvalue [number] (the current minXvalue)
-xValue [number] (an xValue)
+minValue [number] (the current minXvalue)
+value [number] (an xValue)
 
 returns: number (an updated minXvalue)
 ]]
 
-local maxXvalueFunc = Var("MaxXvalueFunc") or function(params) return math.max(params.maxXvalue, params.xValue) end
+local maxXvalueFunc = Var("MaxXvalueFunc") or function(params) return math.max(params.maxValue, params.value) end
 
-local minYvalueFunc = Var("MinYvalueFunc") or function(params) return math.min(params.minYvalue, params.yValue) end
+local minYvalueFunc = Var("MinYvalueFunc") or function(params) return math.min(params.minValue, params.value) end
 
-local maxYvalueFunc = Var("MaxYvalueFunc") or function(params) return math.max(params.maxYvalue, params.yValue) end
+local maxYvalueFunc = Var("MaxYvalueFunc") or function(params) return math.max(params.maxValue, params.value) end
 
 
 actuals.GraphWidth = Var("GraphWidth") or ((680 / 1920) * SCREEN_WIDTH) --total width of graph
@@ -202,10 +198,10 @@ local minYvalue = values[1][2]
 local maxYvalue = values[1][2]
 
 for i = 1, #values do 
-    minXvalue = minXvalueFunc({minXvalue = minXvalue, xValue = values[i][1]})
-    maxXvalue = maxXvalueFunc({maxXvalue = maxXvalue, xValue = values[i][1]})
-    minYvalue = minYvalueFunc({minYvalue = minYvalue, yValue = values[i][2]})
-    maxYvalue = maxYvalueFunc({maxYvalue = maxYvalue, yValue = values[i][2]})
+    minXvalue = minXvalueFunc({minValue = minXvalue, value = values[i][1]})
+    maxXvalue = maxXvalueFunc({maxValue = maxXvalue, value = values[i][1]})
+    minYvalue = minYvalueFunc({minValue = minYvalue, value = values[i][2]})
+    maxYvalue = maxYvalueFunc({maxValue = maxYvalue, value = values[i][2]})
 end
 
 if minXvalue < 0 and maxXvalue > 0 and Var("XoriginCentered") then -- if XoriginCentered = true then x=0 is in the vertical center of the graph
@@ -310,18 +306,16 @@ local t = Def.ActorFrame{
         SetCommand = function(self) --plots the points on the graph
             local vertices = {}
             for i = 1, #values do
-                local x = xFunc({xValue = values[i][1],
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue
+                local x = xFunc({value = values[i][1],
+                GraphLength = actuals.GraphWidth,
+                minValue = minXvalue,
+                maxValue = maxXvalue
                 })
 
-                local y = actuals.GraphHeight - yFunc({yValue = values[i][2],
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue
+                local y = actuals.GraphHeight - yFunc({value = values[i][2],
+                GraphLength = actuals.GraphHeight,
+                minValue = minYvalue,
+                maxValue = maxYvalue
                 })
 
                 local color = colorFunc({xValue = values[i][1], yValue = values[i][2]})
@@ -371,30 +365,28 @@ local t = Def.ActorFrame{
                 mouseX = math.floor(mouseX+0.5) --round
                 mouseY = math.floor(mouseY + 0.5)
 
-                local xValue = xValueFunc({x = mouseX,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue,
-                GraphWidth = actuals.GraphWidth
+                local xValue = xValueFunc({coord = mouseX,
+                minValue = minXvalue,
+                maxValue = maxXvalue,
+                GraphLength = actuals.GraphWidth
                 })
 
-                local yValue = yValueFunc({y = actuals.GraphHeight - mouseY,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue,
-                GraphHeight = actuals.GraphHeight
+                local yValue = yValueFunc({coord = actuals.GraphHeight - mouseY,
+                minValue = minYvalue,
+                maxValue = maxYvalue,
+                GraphLength = actuals.GraphHeight
                 })
 
-                local xStr = xValueToStringFunc({xValue = xValue,
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue
+                local xStr = xValueToStringFunc({value = xValue,
+                GraphLength = actuals.GraphWidth,
+                minValue = minXvalue,
+                maxValue = maxXvalue
                 })
 
-                local yStr = yValueToStringFunc({yValue = yValue,
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue
+                local yStr = yValueToStringFunc({value = yValue,
+                GraphLength = actuals.GraphHeight,
+                minValue = minYvalue,
+                maxValue = maxYvalue
                 })
 
                 local tooltipStr = string.format("%s: %s\n%s: %s", xUnits, xStr, yUnits, yStr)
@@ -436,20 +428,19 @@ for i=1, (xAxisLabelsCount) do
             SetCommand = function(self)
                 local x = (((i-1)/(xAxisLabelsCount-1)) * actuals.GraphWidth) --for some reason using GetParent():GetX() doesnt work
 
-                local xValue = xValueFunc({x = x,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue,
-                GraphWidth = actuals.GraphWidth
+                local xValue = xValueFunc({coord = x,
+                minValue = minXvalue,
+                maxValue = maxXvalue,
+                GraphLength = actuals.GraphWidth
                 })
 
-                local xStr = xValueToStringFunc({xValue = xValue,
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue
+                local xStr = xValueToStringFunc({value = xValue,
+                GraphLength = actuals.GraphWidth,
+                minValue = minXvalue,
+                maxValue = maxXvalue
                 }) 
                 self:settext(xStr)
-                self:diffuse(xAxisLabelColorFunc({xValue = xValue}).text)
+                self:diffuse(xAxisLabelColorFunc({value = xValue}).text)
                 self:maxwidth(xAxisLabelTextMaxWidth)
             end
         },
@@ -466,13 +457,13 @@ for i=1, (xAxisLabelsCount) do
             SetCommand = function(self)
                 local x = (((i-1)/(xAxisLabelsCount-1)) * actuals.GraphWidth) --for some reason using GetParent():GetX() doesnt work
 
-                local xValue = xValueFunc({x = x,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue,
-                GraphWidth = actuals.GraphWidth
+                local xValue = xValueFunc({coord = x,
+                minValue = minXvalue,
+                maxValue = maxXvalue,
+                GraphLength = actuals.GraphWidth
                 })
 
-                self:diffuse(xAxisLabelColorFunc({xValue = xValue}).outerLine)
+                self:diffuse(xAxisLabelColorFunc({value = xValue}).outerLine)
             end
         },
 
@@ -489,13 +480,13 @@ for i=1, (xAxisLabelsCount) do
             SetCommand = function(self)
                 local x = (((i-1)/(xAxisLabelsCount-1)) * actuals.GraphWidth) --for some reason using GetParent():GetX() doesnt work
 
-                local xValue = xValueFunc({x = x,
-                minXvalue = minXvalue,
-                maxXvalue = maxXvalue,
-                GraphWidth = actuals.GraphWidth
+                local xValue = xValueFunc({coord = x,
+                minValue = minXvalue,
+                maxValue = maxXvalue,
+                GraphLength = actuals.GraphWidth
                 })
 
-                self:diffuse(xAxisLabelColorFunc({xValue = xValue}).innerLine)
+                self:diffuse(xAxisLabelColorFunc({value = xValue}).innerLine)
             end
         }
     }
@@ -533,19 +524,18 @@ for i=1, (yAxisLabelsCount) do
                 --for some reason using GetParent():GetY() doesnt work
                 --i genuinely have no idea why +actuals.GraphHeight works, but it works
                 local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight
-                local yValue = yValueFunc({y = actuals.GraphHeight - y,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue,
-                GraphHeight = actuals.GraphHeight
+                local yValue = yValueFunc({coord = actuals.GraphHeight - y,
+                minValue = minYvalue,
+                maxValue = maxYvalue,
+                GraphLength = actuals.GraphHeight
                 })
-                local yStr = yValueToStringFunc({yValue = yValue,
-                GraphWidth = actuals.GraphWidth,
-                GraphHeight = actuals.GraphHeight,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue
+                local yStr = yValueToStringFunc({value = yValue,
+                GraphLength = actuals.GraphHeight,
+                minValue = minYvalue,
+                maxValue = maxYvalue
                 })
                 self:settext(yStr)
-                self:diffuse(yAxisLabelColorFunc({yValue = yValue}).text)
+                self:diffuse(yAxisLabelColorFunc({value = yValue}).text)
                 self:maxwidth(yAxisLabelTextMaxWidth)
             end
         },
@@ -562,13 +552,13 @@ for i=1, (yAxisLabelsCount) do
             SetCommand = function(self)
                 local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight --for some reason using GetParent():GetY() doesnt work
 
-                local yValue = yValueFunc({y = actuals.GraphHeight - y,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue,
-                GraphHeight = actuals.GraphHeight
+                local yValue = yValueFunc({coord = actuals.GraphHeight - y,
+                minValue = minYvalue,
+                maxValue = maxYvalue,
+                GraphLength = actuals.GraphHeight
                 })
 
-                self:diffuse(yAxisLabelColorFunc({yValue = yValue}).outerLine)
+                self:diffuse(yAxisLabelColorFunc({value = yValue}).outerLine)
             end
         },
 
@@ -585,13 +575,13 @@ for i=1, (yAxisLabelsCount) do
             SetCommand = function(self)
                 local y = (-((i-1)/(yAxisLabelsCount-1)) * actuals.GraphHeight) + actuals.GraphHeight --for some reason using GetParent():GetY() doesnt work
 
-                local yValue = yValueFunc({y = actuals.GraphHeight - y,
-                minYvalue = minYvalue,
-                maxYvalue = maxYvalue,
-                GraphHeight = actuals.GraphHeight
+                local yValue = yValueFunc({coord = actuals.GraphHeight - y,
+                minValue = minYvalue,
+                maxValue = maxYvalue,
+                GraphLength = actuals.GraphHeight
                 })
 
-                self:diffuse(yAxisLabelColorFunc({yValue = yValue}).innerLine)
+                self:diffuse(yAxisLabelColorFunc({value = yValue}).innerLine)
             end
         }
     }

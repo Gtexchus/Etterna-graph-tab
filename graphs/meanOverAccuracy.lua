@@ -162,24 +162,24 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Xfunc = function(params) --i fucking hate this
-        local wife = params.xValue
+        local wife = params.value
         local gradeTier = getGradeNum(wife)
-        local minGradeTier = getGradeNum(params.minXvalue)
-        local maxGradeTier = getGradeNum(params.maxXvalue)
-        if params.maxXvalue == 1 then
+        local minGradeTier = getGradeNum(params.minValue)
+        local maxGradeTier = getGradeNum(params.maxValue)
+        if params.maxValue == 1 then
             maxGradeTier = 0
         end
 
-        local lowerWifeBound = getLowerGradeBoundary(params.xValue)
+        local lowerWifeBound = getLowerGradeBoundary(params.value)
         local upperWifeBound
         if gradeTier > 1 then --if its not an AAAAA
-            upperWifeBound = getUpperGradeBoundary(params.xValue)
+            upperWifeBound = getUpperGradeBoundary(params.value)
         else
             upperWifeBound = 1
         end
         local numberOfSections = (minGradeTier - maxGradeTier)
         local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section  3
-        local sectionWidth = params.GraphWidth / numberOfSections --39.4
+        local sectionWidth = params.GraphLength / numberOfSections --39.4
 
         local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
 
@@ -188,25 +188,25 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     end,
     Yfunc = function(params)
         --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 10
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 10
         --higher scale means the graph starts squishing at a higher y value
         --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
-        local shit = asinh(params.yValue / scale) - asinh(params.minYvalue / scale)
-        local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
-        return params.GraphHeight * (shit / fatShit)
+        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
+        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
+        return params.GraphLength * (shit / fatShit)
     end,
     XvalueFunc = function(params) --i fucking hate this too
-        local stupidX = math.max(params.GraphWidth - params.x, 0) --cant be bothered to remake this function cleanly so fuck you
-        local minGrade = getGradeNum(params.minXvalue)
-        local maxGrade = getGradeNum(params.maxXvalue)
-        if params.maxXvalue == 1 then --special case for 100%, because we want a label for 100%
+        local stupidX = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
+        local minGrade = getGradeNum(params.minValue)
+        local maxGrade = getGradeNum(params.maxValue)
+        if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
             maxGrade = 0
         end
         local numberOfSections = minGrade - maxGrade --how many sections there are in total
-        local xPercent = stupidX / params.GraphWidth
+        local xPercent = stupidX / params.GraphLength
         local sectionNumber = notShit.floor(xPercent * numberOfSections)
-        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphWidth
-        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphWidth
+        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
+        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
         local progressIntoSection = ((lowerSectionBound - stupidX ) / (lowerSectionBound - upperSectionBound))
         local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1)
         local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber))
@@ -214,10 +214,10 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return acc
     end,
     YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minYvalue), math.abs(params.maxYvalue)) / 10
-        local fatShit = asinh(params.maxYvalue / scale) - asinh(params.minYvalue / scale)
-        local wetFart = params.y / params.GraphHeight
-        return math.sinh((fatShit * wetFart) + asinh(params.minYvalue / scale)) * scale
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 10
+        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
+        local wetFart = params.coord / params.GraphLength
+        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
     end,
     XvalueToStringFunc = function(params)
         local gradeBoundaries = { --stores all grade boundaries for grades
@@ -238,12 +238,12 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
             [0.7] = true,
             [0.6] = true
         }
-        local acc = params.xValue
+        local acc = params.value
         if acc == 1 then --special case for 100%
             return tostring(acc * 100) .. "%"
         elseif gradeBoundaries[acc] then --if the acc is EXACTLY a grade boundary, so the y axis labels are labeled with the grade instead of the acc
             --this assumes that the y axis labels lie exactly on the grade boundaries, which should be the case if i've done everything right
-            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.xValue)))
+            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.value)))
         elseif acc > 0.99 then
             return string.format("%7.4f%s", acc * 100, "%")
         else
@@ -251,19 +251,19 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         end
     end,
     YvalueToStringFunc = function(params)
-        return string.format("%5.2f", params.yValue)
+        return string.format("%5.2f", params.value)
     end,
     MinXvalueFunc = function(params)
-        return math.min(params.minXvalue, getLowerGradeBoundary(params.xValue))
+        return math.min(params.minValue, getLowerGradeBoundary(params.value))
     end,
 
     MaxXvalueFunc = function(params)
-        return math.max(params.maxXvalue, getUpperGradeBoundary(params.xValue))
+        return math.max(params.maxValue, getUpperGradeBoundary(params.value))
     end,
     ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.xValue)) end,
 
     XaxisLabelColorFunc = function(params)
-        local color = colorByGrade(GetGradeFromPercent(params.xValue))
+        local color = colorByGrade(GetGradeFromPercent(params.value))
         local innerLineColor = {}
         for k, v in pairs(color) do
             innerLineColor[k] = v
