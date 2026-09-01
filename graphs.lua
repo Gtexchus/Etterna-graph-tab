@@ -62,6 +62,7 @@ local buttons = {
         {graphActorName = "MAoverMSDGraphContainer", graphFileName = "MAoverMSD", graphButtonText = "MA over MSD"},
         {graphActorName = "MAoverTimeGraphContainer", graphFileName = "MAoverTime", graphButtonText = "MA over Time"},
         {graphActorName = "ChartLengthOverTimeGraphContainer", graphFileName = "chartLengthOverTime", graphButtonText = "Chart length over Time"},
+        {graphActorName = "ChartLengthOverMSDGraphContainer", graphFileName = "chartLengthOverMSD", graphButtonText = "Chart length over MSD"},
     },
 
     --line graphs
