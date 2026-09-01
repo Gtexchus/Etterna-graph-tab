@@ -127,7 +127,9 @@ local function getUpperGradeBoundary(wife, useMidGrades)
 end
 
 
-
+--this is a table of functions that are used often for making graphs
+--e.g. CoordFuncAcc is used in AccuracyOverMSD, AccuracyOverTime etc.
+--this is so I don't have to copy and paste these every time
 local commonGraphFunctions = {
     ToStringFuncIntegerOr2DP = function(params)
         if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then -- if the first two decimal points are 00
