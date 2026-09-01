@@ -17,6 +17,8 @@ local yAxisLabelInnerLineColor = color("#52525280")
 
 local base = 10
 
+SCOREMAN:SortRecentScoresForGame()
+
 local function setValues(values)
     for i = 1, #values do
         table.remove(values, 1)
