@@ -177,6 +177,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
     end,
 
+    --[[ --use this to make the axis labels start and end on some power of base
     MinYvalueFunc = function(params)
         return math.min(params.minValue, base^(math.floor(math.log(params.value, base))))
     end,
@@ -184,6 +185,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     MaxYvalueFunc = function(params)
         return math.max(params.maxValue, base^(math.floor(math.log(params.value, base)) + 1))
     end,
+    ]]
 
     PlotAlpha = plotAlpha,
     XaxisLabelScale = xAxisLabelScale,
