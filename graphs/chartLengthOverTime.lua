@@ -16,6 +16,12 @@ local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize
 
 local base = 10
 
+--if you want to zoom in on the highest density section of the graph (where the most scores are)
+--try increasing minLen and scaleDivisor
+--e.g. you may want to try minLen = 60 and scaleDivisor = 1000
+local minLen = 0 --in seconds
+local scaleDivisor = 50
+
 SCOREMAN:SortRecentScoresForGame()
 
 local function asinh(x)
@@ -38,7 +44,7 @@ local function setValues(values)
                 local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
                 local steps = SONGMAN:GetStepsByChartKey(score:GetChartKey())
                 local len = steps:GetLengthSeconds() / score:GetMusicRate()
-                if len > 0 then
+                if len > minLen then
                     local index = #values + 1
                     values[index] = {}
                     values[index][1] = date
@@ -61,7 +67,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     ColorFunc = function(params) return colorByMusicLength(params.yValue) end,
     Yfunc = function(params)
         --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 50
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
         --higher scale means the graph starts squishing at a higher y value
         --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
         local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
@@ -69,7 +75,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return params.GraphLength * (shit / fatShit)
     end,
     YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 50
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
         local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
         local wetFart = params.coord / params.GraphLength
         return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
