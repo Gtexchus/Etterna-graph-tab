@@ -60,6 +60,7 @@ local buttons = {
         {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonText = "Accuracy over MSD"}, 
         {graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonText = "Accuracy Over Time"},
         {graphActorName = "MAoverMSDGraphContainer", graphFileName = "MAoverMSD", graphButtonText = "MA over MSD"},
+        {graphActorName = "MAoverTimeGraphContainer", graphFileName = "MAoverTime", graphButtonText = "MA over Time"},
     },
 
     --line graphs
