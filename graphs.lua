@@ -40,6 +40,7 @@ local t = Def.ActorFrame {
 --this is a table of functions that are used often for making graphs
 --e.g. CoordFuncAcc is used in AccuracyOverMSD, AccuracyOverTime etc.
 --this is so I don't have to copy and paste these every time
+--I really hate how this looks
 local commonGraphFunctions = {}
 do --create a new scope for all this
     --------------------------------------- misc functions ---------------------------------------
