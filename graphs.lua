@@ -310,7 +310,7 @@ do --create a new scope for all this
     --axis label color funcs
 
     commonGraphFunctions.AxisLabelColorFuncMSD = function(params, innerLineAlpha)
-        innerLineAlpha = innerLineAlpha or 0.5
+        innerLineAlpha = innerLineAlpha or 0.3
         local color = colorByMSD(params.value)
         local innerLineColor = {}
         for k, v in pairs(color) do
