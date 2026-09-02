@@ -154,24 +154,43 @@ do --create a new scope for all this
 
     --coord funcs
 
+    --these functions take in a value as an input and output a screen space coordinate on the graph
+    --these functions are the inverse of ValueFuncs
+
     cgf.CoordFuncAsinh = function(params, scaleDivisor)
+        --an asinh graph squishes big values like a log graph but works nicely for negatives and 0
         scaleDivisor = scaleDivisor or 50
-        --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
         local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        --higher scale means the graph starts squishing at a higher y value
-        --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
+        --higher scale means the graph starts squishing at a higher value
+        --e.g. scale = 0.5 may begin to squish the graph at value = 5, but scale = 5 may begin to squish the graph at value = 50
         local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
         local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
         return params.GraphLength * (shit / fatShit)
     end
 
     cgf.CoordFuncLog = function(params, base)
+        --a log graph squishes big numbers but doesnt work for values <= 0
         local hi = math.log(params.value, base) - math.log(params.minValue, base)
         local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
         return params.GraphLength * (hi / bye)
     end
 
     cgf.CoordFuncAcc = function(params, useMidGrades) --i fucking hate this
+        --this takes in a wife% (e.g. 0.93)
+        --each grade between minValue and maxValue is given a section
+        --all sections are equally sized
+        --the value is then linearly placed inside the section it belongs in
+        --e.g., if minValue = 0.93 and maxValue = 0.997, and midgrades are on
+        --then there would be 3 sections: one section for AA, one for AA., and one for AA:
+        --in this case, if we input 0.95 into this function,
+        --it would need to be placed somewhere in the first section, because 0.95 is between 0.93 (AA) and 0.965 (AA.)
+        --we use a linear scale to find out where in the first section 0.95 belongs
+        --(0.965-0.95)/(0.965-0.93) = 0.43, so the point corresponding to 0.95 is placed 43% between 0.93 and 0.965
+        --that is to say, the point corresponding to 0.95 is placed 43% into the first section of the graph
+        --since the graph has 3 sections total, 43% / 3 = 14%, so the point is placed 14% along the graph
+        --I hope that makes sense
+
+        --this function also treats the gap between AAAAA and 100% as a section, hence why 100% is referred to as having a grade tier of 0
         if useMidGrades == nil then 
             useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
         end
@@ -192,9 +211,9 @@ do --create a new scope for all this
         end
         local numberOfSections = (minGradeTier - maxGradeTier)
         local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section
-        local sectionHeight = params.GraphLength / numberOfSections --39.4
+        local sectionHeight = params.GraphLength / numberOfSections
 
-        local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
+        local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound)
 
         local y =  ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
         return y
@@ -203,6 +222,9 @@ do --create a new scope for all this
 
 
     --value funcs
+
+    --these functions take in a screen space coordinate and output the corresponding value
+    --these functions are the inverse of CoordFuncs
 
     cgf.ValueFuncAsinh = function(params, scaleDivisor)
         local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
@@ -233,9 +255,6 @@ do --create a new scope for all this
         local sectionNumber = notShit.floor(yPercent * numberOfSections) --section we are in, top section is 0
         local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
         local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
-        --[[about upper and lowerSectionBound:
-        these are the y coordinates of the top and bottom acc "lines" that make up a section
-        upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
         local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
         local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
         local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
@@ -246,6 +265,8 @@ do --create a new scope for all this
 
 
     --value toString funcs
+
+    --these turn a value into a nice readable string format
 
     cgf.ValueToStringFuncIntegerOr2DP = function(params)
         if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then 
@@ -258,6 +279,7 @@ do --create a new scope for all this
     end
 
     cgf.ValueToStringFuncTime = function(params)
+        --turns milliseconds since the epoch into yyyy/mm/dd
         local dateTable = os.date("*t", params.value)
         local day = tostring(dateTable["day"])
         local month = tostring(dateTable["month"])
