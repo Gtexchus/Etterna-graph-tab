@@ -6,6 +6,8 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
+local commonGraphFunctions = Var("CommonGraphFunctions")
+
 local plotAlpha = 0.5
 local xAxisLabelCount = 5
 local yAxisLabelCount = 10
@@ -65,30 +67,14 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
 
     Yfunc = function(params)
-        local hi = math.log(params.value, base) - math.log(params.minValue, base)
-        local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
-        return params.GraphLength * (hi / bye)
+        return commonGraphFunctions.CoordFuncLog(params, base)
     end,
 
     YvalueFunc = function(params)
-        local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
-        local why = params.coord / params.GraphLength
-        return base^((why * bye) + math.log(params.minValue, base))
+        return commonGraphFunctions.ValueFuncLog(params, base)
     end,
 
-    XvalueToStringFunc = function(params)
-        local dateTable = os.date("*t", params.value)
-        local day = tostring(dateTable["day"])
-        local month = tostring(dateTable["month"])
-        local year = tostring(dateTable["year"])
-        if string.len(day) == 1 then --e.g. if its 1 then make it 01
-            day = 0 .. day
-        end
-        if string.len(month) == 1 then
-            month = 0 .. month
-        end
-        return string.format("%s-%s-%s", year, month, day)
-    end,
+    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncTime,
 
     YvalueToStringFunc = function(params)
         return string.format("%5.2f", params.value)

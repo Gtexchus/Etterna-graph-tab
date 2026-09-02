@@ -16,6 +16,8 @@ local actuals = {
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
 
+local commonGraphFunctions = Var("CommonGraphFunctions")
+
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100
 local xAxisLabelInnerLineColor = color("#52525280")
@@ -130,41 +132,17 @@ t[#t + 1] = sbc
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     ColorFunc = function(params) return colorByMSD(params.yValue) end,
-    XvalueToStringFunc = function(params)
-        local dateTable = os.date("*t", params.value)
-        local day = tostring(dateTable["day"])
-        local month = tostring(dateTable["month"])
-        local year = tostring(dateTable["year"])
-        if string.len(day) == 1 then --e.g. if its 1 then make it 01
-            day = 0 .. day
-        end
-        if string.len(month) == 1 then
-            month = 0 .. month
-        end
-        return string.format("%s-%s-%s", year, month, day)
-    end,
-    YvalueToStringFunc = function(params)
-        if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then -- if the first two decimal points are 00
-            --this is so the y axis labels are integers and arent 12.00, for example
-            -- +0.0001 because of floating point nonsense
-            return params.value
-        else
-            return string.format("%5.2f", params.value)
-        end
-    end,
+
+    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncTime,
+
+    YvalueToStringFunc = commonGraphFunctions.ValueToStringFuncIntegerOr2DP,
 
     XaxisLabelColorFunc = function(params)
         return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
     end,
 
     YaxisLabelColorFunc = function(params)
-        local color = colorByMSD(params.value)
-        local innerLineColor = {}
-        for k, v in pairs(color) do
-            innerLineColor[k] = v
-        end
-        innerLineColor[4] = yAxisLabelLineAlpha
-        return {text = color, outerLine = color, innerLine = innerLineColor}
+        return commonGraphFunctions.AxisLabelColorFuncMSD(params, yAxisLabelLineAlpha)
     end,
 
     XaxisLabelCount = 5,

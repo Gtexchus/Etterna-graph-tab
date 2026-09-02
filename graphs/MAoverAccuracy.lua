@@ -8,6 +8,8 @@ local actuals = {
 
 local commonGraphFunctions = Var("CommonGraphFunctions")
 
+local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+
 local plotAlpha = 0.5
 local yAxisLabelCount = 10
 local yAxisLabelTextSize = 0.5
