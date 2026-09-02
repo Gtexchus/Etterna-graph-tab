@@ -19,7 +19,7 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
-local commonGraphFunctions = Var("CommonGraphFunctions")
+local cgf = Var("cgf")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
@@ -70,7 +70,7 @@ end
 
 local values = {}
 setValues(values, "overall")
-local YaxisLabelsCount = (commonGraphFunctions.GetGradeNum(minFoundWife, useMidGrades) - commonGraphFunctions.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local YaxisLabelsCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
 
 
 local t = Def.ActorFrame{
@@ -152,24 +152,24 @@ t[#t + 1] = sbc
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Yfunc = function(params) 
-        return commonGraphFunctions.CoordFuncAcc(params, useMidGrades)
+        return cgf.CoordFuncAcc(params, useMidGrades)
     end,
 
     YvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAcc(params, useMidGrades)
+        return cgf.ValueFuncAcc(params, useMidGrades)
     end,
 
     ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.yValue)) end,
-    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncIntegerOr2DP,
+    XvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
-    YvalueToStringFunc = commonGraphFunctions.ValueToStringFuncAcc,
+    YvalueToStringFunc = cgf.ValueToStringFuncAcc,
 
     MinYvalueFunc = function(params)
-        return commonGraphFunctions.MinValueFuncAcc(params, useMidGrades)
+        return cgf.MinValueFuncAcc(params, useMidGrades)
     end,
 
     MaxYvalueFunc = function(params)
-        return commonGraphFunctions.MaxValueFuncAcc(params, useMidGrades)
+        return cgf.MaxValueFuncAcc(params, useMidGrades)
     end,
 
     
@@ -178,7 +178,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     end,
 
     YaxisLabelColorFunc = function(params)
-        return commonGraphFunctions.AxisLabelColorFuncAcc(params, yAxisLabelLineAlpha)
+        return cgf.AxisLabelColorFuncAcc(params, yAxisLabelLineAlpha)
     end,
 
     XaxisLabelScale = XaxisLabelsScale,

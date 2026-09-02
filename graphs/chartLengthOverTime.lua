@@ -6,7 +6,7 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
-local commonGraphFunctions = Var("CommonGraphFunctions")
+local cgf = Var("cgf")
 
 local xAxisLabelCount = 5
 local yAxisLabelCount = 10
@@ -69,14 +69,14 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     ColorFunc = function(params) return colorByMusicLength(params.yValue) end,
 
     Yfunc = function(params)
-        return commonGraphFunctions.CoordFuncAsinh(params, scaleDivisor)
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
     YvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAsinh(params, scaleDivisor)
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
 
-    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncTime,
+    XvalueToStringFunc = cgf.ValueToStringFuncTime,
 
     YvalueToStringFunc = function(params)
         return SecondsToMMSS(params.value) end,

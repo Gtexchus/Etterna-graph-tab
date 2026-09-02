@@ -16,7 +16,7 @@ local actuals = {
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
 
-local commonGraphFunctions = Var("CommonGraphFunctions")
+local cgf = Var("cgf")
 
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100
@@ -133,16 +133,16 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     ColorFunc = function(params) return colorByMSD(params.yValue) end,
 
-    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncTime,
+    XvalueToStringFunc = cgf.ValueToStringFuncTime,
 
-    YvalueToStringFunc = commonGraphFunctions.ValueToStringFuncIntegerOr2DP,
+    YvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
     XaxisLabelColorFunc = function(params)
         return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
     end,
 
     YaxisLabelColorFunc = function(params)
-        return commonGraphFunctions.AxisLabelColorFuncMSD(params, yAxisLabelLineAlpha)
+        return cgf.AxisLabelColorFuncMSD(params, yAxisLabelLineAlpha)
     end,
 
     XaxisLabelCount = 5,

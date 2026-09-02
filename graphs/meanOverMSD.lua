@@ -18,7 +18,7 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
-local commonGraphFunctions = Var("CommonGraphFunctions")
+local cgf = Var("cgf")
 
 local scaleDivisor = 50
 
@@ -154,14 +154,14 @@ t[#t + 1] = sbc
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Yfunc = function(params)
-        return commonGraphFunctions.CoordFuncAsinh(params, scaleDivisor)
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
     YvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAsinh(params, scaleDivisor)
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
 
-    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncIntegerOr2DP,
+    XvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
     YvalueToStringFunc = function(params)
         return string.format("%5.2f", params.value)
@@ -170,7 +170,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     ColorFunc = function(params) return colorByMSD(params.xValue) end,
 
     XaxisLabelColorFunc = function(params)
-        return commonGraphFunctions.AxisLabelColorFuncMSD(params, xAxisLabelLineAlpha)
+        return cgf.AxisLabelColorFuncMSD(params, xAxisLabelLineAlpha)
     end,
     YaxisLabelColorFunc = function(params)
         return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}

@@ -5,7 +5,7 @@ local ratios = {
 local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
-local commonGraphFunctions = Var("CommonGraphFunctions")
+local cgf = Var("cgf")
 
 local plotAlpha = 0.5
 local yAxisLabelCount = 10
@@ -56,7 +56,7 @@ end
 
 local values = {}
 setValues(values)
-local xAxisLabelCount = (commonGraphFunctions.GetGradeNum(minFoundWife, useMidGrades) - commonGraphFunctions.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local xAxisLabelCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
 
 local t = Def.ActorFrame{
     Name = "ChartLengthOverAccuracyGraphContainer"
@@ -65,30 +65,30 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Xfunc = function(params)
-        return commonGraphFunctions.CoordFuncAcc(params, useMidGrades)
+        return cgf.CoordFuncAcc(params, useMidGrades)
     end,
 
     XvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAcc(params, useMidGrades)
+        return cgf.ValueFuncAcc(params, useMidGrades)
     end,
 
     MinXvalueFunc = function(params)
-        return commonGraphFunctions.MinValueFuncAcc(params, useMidGrades)
+        return cgf.MinValueFuncAcc(params, useMidGrades)
     end,
     
     MaxXvalueFunc = function(params)
-        return commonGraphFunctions.MaxValueFuncAcc(params, useMidGrades)
+        return cgf.MaxValueFuncAcc(params, useMidGrades)
     end,
 
-    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncAcc,
-    XaxisLabelColorFunc = commonGraphFunctions.AxisLabelColorFuncAcc,
+    XvalueToStringFunc = cgf.ValueToStringFuncAcc,
+    XaxisLabelColorFunc = cgf.AxisLabelColorFuncAcc,
 
     Yfunc = function(params)
-        return commonGraphFunctions.CoordFuncAsinh(params, scaleDivisor)
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
     YvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAsinh(params, scaleDivisor)
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
 
     YvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,

@@ -18,7 +18,7 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
-local commonGraphFunctions = Var("CommonGraphFunctions")
+local cgf = Var("cgf")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
@@ -72,7 +72,7 @@ end
 
 local values = {}
 setValues(values)
-local XaxisLabelCount = (commonGraphFunctions.GetGradeNum(minFoundWife, useMidGrades) - commonGraphFunctions.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local XaxisLabelCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
 
 
 local t = Def.ActorFrame{
@@ -82,37 +82,37 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Xfunc = function(params)
-        return commonGraphFunctions.CoordFuncAcc(params, useMidGrades)
+        return cgf.CoordFuncAcc(params, useMidGrades)
     end,
 
     XvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAcc(params, useMidGrades)
+        return cgf.ValueFuncAcc(params, useMidGrades)
     end,
 
     Yfunc = function(params)
-        return commonGraphFunctions.CoordFuncAsinh(params, scaleDivisor)
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
     YvalueFunc = function(params)
-        return commonGraphFunctions.ValueFuncAsinh(params, scaleDivisor)
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
-    XvalueToStringFunc = commonGraphFunctions.ValueToStringFuncAcc,
+    XvalueToStringFunc = cgf.ValueToStringFuncAcc,
 
     YvalueToStringFunc = function(params)
         return string.format("%5.2f", params.value)
     end,
     MinXvalueFunc = function(params)
-        return commonGraphFunctions.MinValueFuncAcc(params, useMidGrades)
+        return cgf.MinValueFuncAcc(params, useMidGrades)
     end,
 
     MaxXvalueFunc = function(params)
-        return commonGraphFunctions.MaxValueFuncAcc(params, useMidGrades)
+        return cgf.MaxValueFuncAcc(params, useMidGrades)
     end,
 
     ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.xValue)) end,
 
     XaxisLabelColorFunc = function(params)
-        return commonGraphFunctions.AxisLabelColorFuncAcc(params, xAxisLabelInnerLineAlpha)
+        return cgf.AxisLabelColorFuncAcc(params, xAxisLabelInnerLineAlpha)
     end,
 
     YaxisLabelColorFunc = function(params)
