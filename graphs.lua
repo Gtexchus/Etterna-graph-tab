@@ -385,6 +385,7 @@ local buttons = {
         {graphActorName = "ChartLengthOverTimeGraphContainer", graphFileName = "chartLengthOverTime", graphButtonText = "Chart length over Time"},
         {graphActorName = "ChartLengthOverMSDGraphContainer", graphFileName = "chartLengthOverMSD", graphButtonText = "Chart length over MSD"},
         {graphActorName = "ChartLengthOverAccuracyGraphContainer", graphFileName = "chartLengthOverAccuracy", graphButtonText = "Chart length over Accuracy"},
+        {graphActorName = "MAoverAccuracyGraphContainer", graphFileName = "MAoverAccuracy", graphButtonText = "MA over Accuracy"},
     },
 
     --line graphs
