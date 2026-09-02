@@ -37,123 +37,15 @@ local t = Def.ActorFrame {
 
 ----------------------------------------------------------------- common graph functions -----------------------------------------------------------------
 
-local function asinh(x)
-    return math.log(x + math.sqrt(x * x + 1))
-end
-
 --this is a table of functions that are used often for making graphs
 --e.g. CoordFuncAcc is used in AccuracyOverMSD, AccuracyOverTime etc.
 --this is so I don't have to copy and paste these every time
-local commonGraphFunctions = {
-    ToStringFuncIntegerOr2DP = function(params)
-        if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then -- if the first two decimal points are 00
-            -- +0.0001 because of floating point nonsense
-            return params.value
-        else
-            return string.format("%5.2f", params.value)
-        end
-    end,
+local commonGraphFunctions = {}
+do --create a new scope for all this
+    --------------------------------------- misc functions ---------------------------------------
 
-    AxisLabelColorFuncMSD = function(params, innerLineAlpha)
-        innerLineAlpha = innerLineAlpha or 0.5
-        local color = colorByMSD(params.value)
-        local innerLineColor = {}
-        for k, v in pairs(color) do
-            innerLineColor[k] = v
-        end
-        innerLineColor[4] = innerLineAlpha
-        return {text = color, outerLine = color, innerLine = innerLineColor}
-    end,
-
-    ValueToStringFuncAcc = function(params)
-        local gradeBoundaries = { --stores all grade boundaries for grades
-            [1] = true,
-            [0.999935] = true,
-            [0.9998] = true,
-            [0.9997] = true,
-            [0.99955] = true,
-            [0.999] = true,
-            [0.998] = true,
-            [0.997] = true,
-            [0.99] = true,
-            [0.965] = true,
-            [0.93] = true,
-            [0.9] = true,
-            [0.85] = true,
-            [0.8] = true,
-            [0.7] = true,
-            [0.6] = true
-        }
-        local acc = params.value
-        if acc == 1 then --special case for 100%
-            return tostring(acc * 100) .. "%"
-        elseif gradeBoundaries[acc] then --if the acc is EXACTLY a grade boundary, so the y axis labels are labeled with the grade instead of the acc
-            --this assumes that the y axis labels lie exactly on the grade boundaries, which should be the case if i've done everything right
-            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.value)))
-        elseif acc > 0.99 then
-            return string.format("%7.4f%s", acc * 100, "%")
-        else
-            return string.format("%7.2f%s", acc * 100, "%")
-        end
-    end,
-
-
-    AxisLabelColorFuncAcc = function(params, innerLineAlpha)
-        innerLineAlpha = innerLineAlpha or 0.3
-        local color = colorByGrade(GetGradeFromPercent(params.value))
-        local innerLineColor = {}
-        for k, v in pairs(color) do
-            innerLineColor[k] = v
-        end
-        innerLineColor[4] = innerLineAlpha
-        return {text = color, outerLine = color, innerLine = innerLineColor}
-    end,
-
-    ValueToStringFuncTime = function(params)
-        local dateTable = os.date("*t", params.value)
-        local day = tostring(dateTable["day"])
-        local month = tostring(dateTable["month"])
-        local year = tostring(dateTable["year"])
-        if string.len(day) == 1 then --e.g. if its 1 then make it 01
-            day = 0 .. day
-        end
-        if string.len(month) == 1 then
-            month = 0 .. month
-        end
-        return string.format("%s-%s-%s", year, month, day)
-    end,
-
-    CoordFuncAsinh = function(params, scaleDivisor)
-        scaleDivisor = scaleDivisor or 50
-        --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        --higher scale means the graph starts squishing at a higher y value
-        --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
-        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        return params.GraphLength * (shit / fatShit)
-    end,
-
-    ValueFuncAsinh = function(params, scaleDivisor)
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        local wetFart = params.coord / params.GraphLength
-        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
-    end,
-
-    CoordFuncLog = function(params, base)
-        local hi = math.log(params.value, base) - math.log(params.minValue, base)
-        local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
-        return params.GraphLength * (hi / bye)
-    end,
-
-    ValueFuncLog = function(params, base)
-        local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
-        local why = params.coord / params.GraphLength
-        return base^((why * bye) + math.log(params.minValue, base))
-    end,
-
-    GetGradeNum = function(wife, useMidGrades) --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
+    commonGraphFunctions.GetGradeNum = function(wife, useMidGrades) 
+        --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
         --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
         if useMidGrades == nil then 
             useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
@@ -187,152 +79,281 @@ local commonGraphFunctions = {
         end
         return midGradeNumToGradeNum[getGradeTierNumber(wife)]
     end
-}
 
+    --all the bullshit needed for acc graphs
 
---all the bullshit needed for acc graphs
+    local function gradeTierToWife(n, useMidGrades)
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        --afaik there isnt a function to convert from 
+        --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
+        --so this table will have to do
+        local toWife = { 
+            [0] = 1, --not technically a grade but its here for convenience
+            0.999935, --AAAAA
+            0.9998,
+            0.9997,
+            0.99955, --AAAA
+            0.999,
+            0.998,
+            0.997, --AAA
+            0.99,
+            0.965,
+            0.93, --AA
+            0.9,
+            0.85,
+            0.8, --A
+            0.7, --B
+            0.6 --C
+        }
 
-local function gradeTierToWife(n, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        local toWifeNoMidGrades = { 
+            [0] = 1, --not technically a grade but its here for convenience
+            0.999935, --AAAAA
+            0.99955, --AAAA
+            0.997, --AAA
+            0.93, --AA
+            0.8, --A
+            0.7, --B
+            0.6 --C
+        }
+
+        if useMidGrades then
+            return toWife[n]
+        end
+        return toWifeNoMidGrades[n]
     end
-    --afaik there isnt a function to convert from 
-    --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
-    --so this table will have to do
-    local toWife = { 
-        [0] = 1, --not technically a grade but its here for convenience
-        0.999935, --AAAAA
-        0.9998,
-        0.9997,
-        0.99955, --AAAA
-        0.999,
-        0.998,
-        0.997, --AAA
-        0.99,
-        0.965,
-        0.93, --AA
-        0.9,
-        0.85,
-        0.8, --A
-        0.7, --B
-        0.6 --C
-    }
 
-    local toWifeNoMidGrades = { 
-        [0] = 1, --not technically a grade but its here for convenience
-        0.999935, --AAAAA
-        0.99955, --AAAA
-        0.997, --AAA
-        0.93, --AA
-        0.8, --A
-        0.7, --B
-        0.6 --C
-    }
 
-    if useMidGrades then
-        return toWife[n]
+    local function getLowerGradeBoundary(wife, useMidGrades)
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        return gradeTierToWife(commonGraphFunctions.GetGradeNum(wife, useMidGrades), useMidGrades)
     end
-    return toWifeNoMidGrades[n]
+
+    local function getUpperGradeBoundary(wife, useMidGrades)
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        if wife == 1 then
+            return 1
+        end
+        return gradeTierToWife(commonGraphFunctions.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
+    end
+
+
+    local function asinh(x)
+        return math.log(x + math.sqrt(x * x + 1))
+    end
+
+    --------------------------------------- params for graphs ---------------------------------------
+
+    --coord funcs
+
+    commonGraphFunctions.CoordFuncAsinh = function(params, scaleDivisor)
+        scaleDivisor = scaleDivisor or 50
+        --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
+        --higher scale means the graph starts squishing at a higher y value
+        --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
+        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
+        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
+        return params.GraphLength * (shit / fatShit)
+    end
+
+    commonGraphFunctions.CoordFuncLog = function(params, base)
+        local hi = math.log(params.value, base) - math.log(params.minValue, base)
+        local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
+        return params.GraphLength * (hi / bye)
+    end
+
+    commonGraphFunctions.CoordFuncAcc = function(params, useMidGrades) --i fucking hate this
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        local wife = params.value
+        local gradeTier = commonGraphFunctions.GetGradeNum(wife, useMidGrades)
+        local minGradeTier = commonGraphFunctions.GetGradeNum(params.minValue, useMidGrades)
+        local maxGradeTier = commonGraphFunctions.GetGradeNum(params.maxValue, useMidGrades)
+        if params.maxValue == 1 then
+            maxGradeTier = 0
+        end
+
+        local lowerWifeBound = getLowerGradeBoundary(params.value, useMidGrades)
+        local upperWifeBound
+        if gradeTier > 1 then --if its not an AAAAA
+            upperWifeBound = getUpperGradeBoundary(params.value, useMidGrades)
+        else
+            upperWifeBound = 1
+        end
+        local numberOfSections = (minGradeTier - maxGradeTier)
+        local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section
+        local sectionHeight = params.GraphLength / numberOfSections --39.4
+
+        local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
+
+        local y =  ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
+        return y
+    end
+
+
+
+    --value funcs
+
+    commonGraphFunctions.ValueFuncAsinh = function(params, scaleDivisor)
+        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
+        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
+        local wetFart = params.coord / params.GraphLength
+        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
+    end
+
+    commonGraphFunctions.ValueFuncLog = function(params, base)
+        local bye = math.log(params.maxValue, base) - math.log(params.minValue, base)
+        local why = params.coord / params.GraphLength
+        return base^((why * bye) + math.log(params.minValue, base))
+    end
+
+    commonGraphFunctions.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
+        --here, a "section" is one square on the graph, e.g. gap between AA. and AA:
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        local stupidY = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
+        local minGrade = commonGraphFunctions.GetGradeNum(params.minValue, useMidGrades)
+        local maxGrade = commonGraphFunctions.GetGradeNum(params.maxValue, useMidGrades)
+        if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
+            maxGrade = 0
+        end
+        local numberOfSections = minGrade - maxGrade --how many sections there are in total
+        local yPercent = stupidY / params.GraphLength
+        local sectionNumber = notShit.floor(yPercent * numberOfSections) --section we are in, top section is 0
+        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
+        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
+        --[[about upper and lowerSectionBound:
+        these are the y coordinates of the top and bottom acc "lines" that make up a section
+        upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
+        local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
+        local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
+        local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
+        local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
+        return acc
+    end
+
+
+
+    --value toString funcs
+
+    commonGraphFunctions.ValueToStringFuncIntegerOr2DP = function(params)
+        if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then 
+            -- if the first two decimal points are 00
+            -- +0.0001 because of floating point nonsense
+            return params.value
+        else
+            return string.format("%5.2f", params.value)
+        end
+    end
+
+    commonGraphFunctions.ValueToStringFuncTime = function(params)
+        local dateTable = os.date("*t", params.value)
+        local day = tostring(dateTable["day"])
+        local month = tostring(dateTable["month"])
+        local year = tostring(dateTable["year"])
+        if string.len(day) == 1 then --e.g. if its 1 then make it 01
+            day = 0 .. day
+        end
+        if string.len(month) == 1 then
+            month = 0 .. month
+        end
+        return string.format("%s-%s-%s", year, month, day)
+    end
+
+    commonGraphFunctions.ValueToStringFuncAcc = function(params)
+        local gradeBoundaries = { --stores all grade boundaries for grades
+            [1] = true,
+            [0.999935] = true,
+            [0.9998] = true,
+            [0.9997] = true,
+            [0.99955] = true,
+            [0.999] = true,
+            [0.998] = true,
+            [0.997] = true,
+            [0.99] = true,
+            [0.965] = true,
+            [0.93] = true,
+            [0.9] = true,
+            [0.85] = true,
+            [0.8] = true,
+            [0.7] = true,
+            [0.6] = true
+        }
+        local acc = params.value
+        if acc == 1 then --special case for 100%
+            return tostring(acc * 100) .. "%"
+        elseif gradeBoundaries[acc] then 
+            --if the acc is EXACTLY a grade boundary, 
+            --so the y axis labels are labeled with the grade instead of the acc
+            --this assumes that the y axis labels lie exactly on the grade boundaries, 
+            --which should be the case if i've done everything right
+            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.value)))
+        elseif acc > 0.99 then
+            return string.format("%7.4f%s", acc * 100, "%")
+        else
+            return string.format("%7.2f%s", acc * 100, "%")
+        end
+    end
+
+
+
+    --axis label color funcs
+
+    commonGraphFunctions.AxisLabelColorFuncMSD = function(params, innerLineAlpha)
+        innerLineAlpha = innerLineAlpha or 0.5
+        local color = colorByMSD(params.value)
+        local innerLineColor = {}
+        for k, v in pairs(color) do
+            innerLineColor[k] = v
+        end
+        innerLineColor[4] = innerLineAlpha
+        return {text = color, outerLine = color, innerLine = innerLineColor}
+    end
+
+    commonGraphFunctions.AxisLabelColorFuncAcc = function(params, innerLineAlpha)
+        innerLineAlpha = innerLineAlpha or 0.3
+        local color = colorByGrade(GetGradeFromPercent(params.value))
+        local innerLineColor = {}
+        for k, v in pairs(color) do
+            innerLineColor[k] = v
+        end
+        innerLineColor[4] = innerLineAlpha
+        return {text = color, outerLine = color, innerLine = innerLineColor}
+    end
+
+
+
+    --min/max value funcs
+
+    commonGraphFunctions.MinValueFuncAcc = function(params, useMidGrades)
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        --compare minValue with the lower grade boundary of value
+        --e.g. if yValue = 0.932 (93.2%) then minYvalue is compared with 0.93
+        --this is so minYvalue ends up being a grade boundary
+        return math.min(params.minValue, getLowerGradeBoundary(params.value, useMidGrades))
+    end
+
+    commonGraphFunctions.MaxValueFuncAcc = function(params, useMidGrades)
+        if useMidGrades == nil then 
+            useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+        end
+        --same as MinValueFuncAcc, except round up
+        return math.max(params.maxValue, getUpperGradeBoundary(params.value, useMidGrades))
+    end
+
+    -----------------------------------------------------------------------------------------------------------------------
 end
-
-
-local function getLowerGradeBoundary(wife, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    return gradeTierToWife(commonGraphFunctions.GetGradeNum(wife, useMidGrades), useMidGrades)
-end
-
-local function getUpperGradeBoundary(wife, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    if wife == 1 then
-        return 1
-    end
-    return gradeTierToWife(commonGraphFunctions.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
-end
-
---have to add these after the table's initialisation because they use a function thats in the table
---this is so fucking ugly i hate it
-commonGraphFunctions.CoordFuncAcc = function(params, useMidGrades) --i fucking hate this
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    local wife = params.value
-    local gradeTier = commonGraphFunctions.GetGradeNum(wife, useMidGrades)
-    local minGradeTier = commonGraphFunctions.GetGradeNum(params.minValue, useMidGrades)
-    local maxGradeTier = commonGraphFunctions.GetGradeNum(params.maxValue, useMidGrades)
-    if params.maxValue == 1 then
-        maxGradeTier = 0
-    end
-
-    local lowerWifeBound = getLowerGradeBoundary(params.value, useMidGrades)
-    local upperWifeBound
-    if gradeTier > 1 then --if its not an AAAAA
-        upperWifeBound = getUpperGradeBoundary(params.value, useMidGrades)
-    else
-        upperWifeBound = 1
-    end
-    local numberOfSections = (minGradeTier - maxGradeTier)
-    local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section
-    local sectionHeight = params.GraphLength / numberOfSections --39.4
-
-    local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
-
-    local y =  ((sectionNumber * sectionHeight) + (sectionHeight * progressIntoSection))
-    return y
-end
-
-commonGraphFunctions.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
-    --here, a "section" is one square on the graph, e.g. gap between AA. and AA:
-
-    --i could use the values of minGrade and maxGrade that are defined in this file,
-    --but it feels cleaner to calculate them here using params
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    local stupidY = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
-    local minGrade = commonGraphFunctions.GetGradeNum(params.minValue, useMidGrades)
-    local maxGrade = commonGraphFunctions.GetGradeNum(params.maxValue, useMidGrades)
-    if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
-        maxGrade = 0
-    end
-    local numberOfSections = minGrade - maxGrade --how many sections there are in total
-    local yPercent = stupidY / params.GraphLength
-    local sectionNumber = notShit.floor(yPercent * numberOfSections) --section we are in, top section is 0
-    local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
-    local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
-    --[[about upper and lowerSectionBound:
-    these are the y coordinates of the top and bottom acc "lines" that make up a section
-    upperSectionBound is the one that is higher on the screen, but because positive y is down, upperSectionBound < lowerSectionBound]]
-    local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
-    local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
-    local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
-    local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
-    return acc
-end
-
-commonGraphFunctions.MinValueFuncAcc = function(params, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    --compare minValue with the lower grade boundary of value
-    --e.g. if yValue = 0.932 (93.2%) then minYvalue is compared with 0.93
-    --this is so minYvalue ends up being a grade boundary
-    return math.min(params.minValue, getLowerGradeBoundary(params.value, useMidGrades))
-end
-
-commonGraphFunctions.MaxValueFuncAcc = function(params, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    --same as MinValueFuncAcc, except round up
-    return math.max(params.maxValue, getUpperGradeBoundary(params.value, useMidGrades))
-end
-
---------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 --[[
 table of {
