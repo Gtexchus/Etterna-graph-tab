@@ -41,7 +41,8 @@ local function setValues(values, skillset)
             local grade = score:GetWifeGrade()
             local steps = SONGMAN:GetStepsByChartKey(score:GetChartKey())
             local len = steps:GetLengthSeconds() / score:GetMusicRate()
-            if wife >= (minWife) and wife <= (maxWife) and grade ~= "Failed" and grade ~= "Grade_Failed" and len > minLen then
+            local notes = steps:GetRadarValues(PLAYER_1):GetValue("RadarCategory_Notes")
+            if wife >= (minWife) and wife <= (maxWife) and grade ~= "Failed" and grade ~= "Grade_Failed" and len > minLen and notes >= 200 then
                 local index = #values + 1
                 values[index] = {}
                 values[index][1] = wife

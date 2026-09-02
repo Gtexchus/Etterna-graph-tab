@@ -44,7 +44,6 @@ local function setValues(values)
                 p = score:GetTapNoteScore(ms.JudgeCount[2])
             end
             local ma = m/p
-
             if m > 0 and p > 0 and ma > 1 and wife >= (minWife) and wife <= (maxWife) and grade ~= "Failed" and grade ~= "Grade_Failed" then
                 local index = #values + 1
                 values[index] = {}
