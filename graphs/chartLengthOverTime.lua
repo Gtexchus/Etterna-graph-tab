@@ -6,6 +6,8 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
+local cgf = Var("cgf")
+
 local xAxisLabelCount = 5
 local yAxisLabelCount = 10
 local plotAlpha = 0.5
@@ -65,35 +67,17 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     ColorFunc = function(params) return colorByMusicLength(params.yValue) end,
+
     Yfunc = function(params)
-        --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        --higher scale means the graph starts squishing at a higher y value
-        --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
-        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        return params.GraphLength * (shit / fatShit)
-    end,
-    YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        local wetFart = params.coord / params.GraphLength
-        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
-    XvalueToStringFunc = function(params)
-        local dateTable = os.date("*t", params.value)
-        local day = tostring(dateTable["day"])
-        local month = tostring(dateTable["month"])
-        local year = tostring(dateTable["year"])
-        if string.len(day) == 1 then --e.g. if its 1 then make it 01
-            day = 0 .. day
-        end
-        if string.len(month) == 1 then
-            month = 0 .. month
-        end
-        return string.format("%s-%s-%s", year, month, day)
+    YvalueFunc = function(params)
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
+
+    XvalueToStringFunc = cgf.ValueToStringFuncTime,
+
     YvalueToStringFunc = function(params)
         return SecondsToMMSS(params.value) end,
 

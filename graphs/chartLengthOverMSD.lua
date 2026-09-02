@@ -14,6 +14,8 @@ local actuals = {
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
 
+local cgf = Var("cgf")
+
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100
 local buttonHoverAlpha = 0.6
@@ -140,42 +142,21 @@ t[#t + 1] = sbc
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     ColorFunc = function(params) return colorByMSD(params.xValue) end,
+
     Yfunc = function(params)
-        --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        --higher scale means the graph starts squishing at a higher y value
-        --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
-        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        return params.GraphLength * (shit / fatShit)
-    end,
-    YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / scaleDivisor
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        local wetFart = params.coord / params.GraphLength
-        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
-    XvalueToStringFunc = function(params)
-        if string.format("%5.2f", params.value) == string.format("%5.2f", notShit.floor(params.value + 0.0001)) then -- if the first two decimal points are 00
-            --this is so the x axis labels are integers and arent 12.00, for example
-            -- +0.0001 because of floating point nonsense
-            return params.value
-        else
-            return string.format("%5.2f", params.value)
-        end
+    YvalueFunc = function(params)
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
-    YvalueToStringFunc = function(params)
-        return SecondsToMMSS(params.value) end,
+
+    XvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
+
+    YvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
 
     XaxisLabelColorFunc = function(params)
-        local color = colorByMSD(params.value)
-        local innerLineColor = {}
-        for k, v in pairs(color) do
-            innerLineColor[k] = v
-        end
-        innerLineColor[4] = xAxisLabelInnerLineAlpha
-        return {text = color, outerLine = color, innerLine = innerLineColor}
+        return cgf.AxisLabelColorFuncMSD(params, xAxisLabelInnerLineAlpha)
     end,
 
     YaxisLabelColorFunc = function(params)

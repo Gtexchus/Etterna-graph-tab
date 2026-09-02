@@ -18,87 +18,11 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
+local cgf = Var("cgf")
+
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
-local function getGradeNum(wife) --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
-    --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
-    local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
-        return tonumber(GetGradeFromPercent(wife):sub(11, 12))
-    end
-    local midGradeNumToGradeNum = {
-        [0] = 0,
-        [1] = 1,
-        [2] = 2,
-        [3] = 2,
-        [4] = 2,
-        [5] = 3,
-        [6] = 3,
-        [7] = 3,
-        [8] = 4,
-        [9] = 4,
-        [10] = 4,
-        [11] = 5,
-        [12] = 5,
-        [13] = 5,
-        [14] = 6,
-        [15] = 6,
-        [16] = 8,
-        [17] = 9,
-    }
-    if useMidGrades then
-        return getGradeTierNumber(wife)
-    end
-    return midGradeNumToGradeNum[getGradeTierNumber(wife)]
-end
-
-local function gradeTierToWife(n)
-    --afaik there isnt a function to convert from 
-    --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
-    --so this table will have to do
-    local toWife = { 
-        [0] = 1, --not technically a grade but its here for convenience
-        0.999935, --AAAAA
-        0.9998,
-        0.9997,
-        0.99955, --AAAA
-        0.999,
-        0.998,
-        0.997, --AAA
-        0.99,
-        0.965,
-        0.93, --AA
-        0.9,
-        0.85,
-        0.8, --A
-        0.7, --B
-        0.6 --C
-    }
-    local toWifeNoMidGrades = { 
-        [0] = 1, --not technically a grade but its here for convenience
-        0.999935, --AAAAA
-        0.99955, --AAAA
-        0.997, --AAA
-        0.93, --AA
-        0.8, --A
-        0.7, --B
-        0.6 --C
-    }
-    if useMidGrades then
-        return toWife[n]
-    end
-    return toWifeNoMidGrades[n]
-end
-
-local function getLowerGradeBoundary(wife)
-    return gradeTierToWife(getGradeNum(wife))
-end
-
-local function getUpperGradeBoundary(wife)
-    if wife == 1 then
-        return 1
-    end
-    return gradeTierToWife(getGradeNum(wife) - 1)
-end
+local scaleDivisor = 10
 
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100
@@ -118,10 +42,6 @@ local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
 SCOREMAN:SortRecentScoresForGame()
-
-local function asinh(x)
-    return math.log(x + math.sqrt(x * x + 1))
-end
 
 local function setValues(values)
     for i = 1, #values do
@@ -152,7 +72,7 @@ end
 
 local values = {}
 setValues(values)
-local XaxisLabelCount = (getGradeNum(minFoundWife) - getGradeNum(maxFoundWife)) + 2
+local XaxisLabelCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
 
 
 local t = Def.ActorFrame{
@@ -161,115 +81,38 @@ local t = Def.ActorFrame{
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
-    Xfunc = function(params) --i fucking hate this
-        local wife = params.value
-        local gradeTier = getGradeNum(wife)
-        local minGradeTier = getGradeNum(params.minValue)
-        local maxGradeTier = getGradeNum(params.maxValue)
-        if params.maxValue == 1 then
-            maxGradeTier = 0
-        end
-
-        local lowerWifeBound = getLowerGradeBoundary(params.value)
-        local upperWifeBound
-        if gradeTier > 1 then --if its not an AAAAA
-            upperWifeBound = getUpperGradeBoundary(params.value)
-        else
-            upperWifeBound = 1
-        end
-        local numberOfSections = (minGradeTier - maxGradeTier)
-        local sectionNumber = minGradeTier - gradeTier --if this is 0 then its the bottom section  3
-        local sectionWidth = params.GraphLength / numberOfSections --39.4
-
-        local progressIntoSection = (wife - lowerWifeBound) / (upperWifeBound - lowerWifeBound) --0
-
-        local y =  ((sectionNumber * sectionWidth) + (sectionWidth * progressIntoSection))
-        return y
+    Xfunc = function(params)
+        return cgf.CoordFuncAcc(params, useMidGrades)
     end,
+
+    XvalueFunc = function(params)
+        return cgf.ValueFuncAcc(params, useMidGrades)
+    end,
+
     Yfunc = function(params)
-        --make it an asinh graph because it squishes big values like a log graph but works nicely for negatives and 0
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 10
-        --higher scale means the graph starts squishing at a higher y value
-        --e.g. scale = 0.5 may begin to squish the graph at yValue = 5, but scale = 5 may begin to squish the graph at yValue = 50
-        local shit = asinh(params.value / scale) - asinh(params.minValue / scale)
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        return params.GraphLength * (shit / fatShit)
+        return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
-    XvalueFunc = function(params) --i fucking hate this too
-        local stupidX = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
-        local minGrade = getGradeNum(params.minValue)
-        local maxGrade = getGradeNum(params.maxValue)
-        if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
-            maxGrade = 0
-        end
-        local numberOfSections = minGrade - maxGrade --how many sections there are in total
-        local xPercent = stupidX / params.GraphLength
-        local sectionNumber = notShit.floor(xPercent * numberOfSections)
-        local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
-        local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
-        local progressIntoSection = ((lowerSectionBound - stupidX ) / (lowerSectionBound - upperSectionBound))
-        local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1)
-        local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber))
-        local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
-        return acc
-    end,
+
     YvalueFunc = function(params)
-        local scale = math.max(math.abs(params.minValue), math.abs(params.maxValue)) / 10
-        local fatShit = asinh(params.maxValue / scale) - asinh(params.minValue / scale)
-        local wetFart = params.coord / params.GraphLength
-        return math.sinh((fatShit * wetFart) + asinh(params.minValue / scale)) * scale
+        return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
-    XvalueToStringFunc = function(params)
-        local gradeBoundaries = { --stores all grade boundaries for grades
-            [1] = true,
-            [0.999935] = true,
-            [0.9998] = true,
-            [0.9997] = true,
-            [0.99955] = true,
-            [0.999] = true,
-            [0.998] = true,
-            [0.997] = true,
-            [0.99] = true,
-            [0.965] = true,
-            [0.93] = true,
-            [0.9] = true,
-            [0.85] = true,
-            [0.8] = true,
-            [0.7] = true,
-            [0.6] = true
-        }
-        local acc = params.value
-        if acc == 1 then --special case for 100%
-            return tostring(acc * 100) .. "%"
-        elseif gradeBoundaries[acc] then --if the acc is EXACTLY a grade boundary, so the y axis labels are labeled with the grade instead of the acc
-            --this assumes that the y axis labels lie exactly on the grade boundaries, which should be the case if i've done everything right
-            return THEME:GetString("Grade", ToEnumShortString(GetGradeFromPercent(params.value)))
-        elseif acc > 0.99 then
-            return string.format("%7.4f%s", acc * 100, "%")
-        else
-            return string.format("%7.2f%s", acc * 100, "%")
-        end
-    end,
+    XvalueToStringFunc = cgf.ValueToStringFuncAcc,
+
     YvalueToStringFunc = function(params)
         return string.format("%5.2f", params.value)
     end,
     MinXvalueFunc = function(params)
-        return math.min(params.minValue, getLowerGradeBoundary(params.value))
+        return cgf.MinValueFuncAcc(params, useMidGrades)
     end,
 
     MaxXvalueFunc = function(params)
-        return math.max(params.maxValue, getUpperGradeBoundary(params.value))
+        return cgf.MaxValueFuncAcc(params, useMidGrades)
     end,
+
     ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.xValue)) end,
 
     XaxisLabelColorFunc = function(params)
-        local color = colorByGrade(GetGradeFromPercent(params.value))
-        local innerLineColor = {}
-        for k, v in pairs(color) do
-            innerLineColor[k] = v
-        end
-        innerLineColor[4] = xAxisLabelInnerLineAlpha
-        return {text = color, outerLine = color, innerLine = innerLineColor}
+        return cgf.AxisLabelColorFuncAcc(params, xAxisLabelInnerLineAlpha)
     end,
 
     YaxisLabelColorFunc = function(params)
