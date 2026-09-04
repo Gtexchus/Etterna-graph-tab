@@ -107,7 +107,8 @@ do --create a new scope for all this
             0.85,
             0.8, --A
             0.7, --B
-            0.6 --C
+            0.6, --C
+            0 --D ????
         }
 
         local toWifeNoMidGrades = { 
@@ -118,7 +119,8 @@ do --create a new scope for all this
             0.93, --AA
             0.8, --A
             0.7, --B
-            0.6 --C
+            0.6, --C
+            0 --D ????
         }
 
         if useMidGrades then
