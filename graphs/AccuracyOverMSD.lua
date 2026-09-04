@@ -191,4 +191,167 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YaxisLabelTextMaxWidth = yAxisLabelTextMaxWidth
 })
 
+
+local function gradeTierToWife(n, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
+    --afaik there isnt a function to convert from 
+    --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
+    --so this table will have to do
+    local toWife = { 
+        [0] = 1, --not technically a grade but its here for convenience
+        0.999935, --AAAAA
+        0.9998,
+        0.9997,
+        0.99955, --AAAA
+        0.999,
+        0.998,
+        0.997, --AAA
+        0.99,
+        0.965,
+        0.93, --AA
+        0.9,
+        0.85,
+        0.8, --A
+        0.7, --B
+        0.6 --C
+    }
+
+    local toWifeNoMidGrades = { 
+        [0] = 1, --not technically a grade but its here for convenience
+        0.999935, --AAAAA
+        0.99955, --AAAA
+        0.997, --AAA
+        0.93, --AA
+        0.8, --A
+        0.7, --B
+        0.6 --C
+    }
+
+    if useMidGrades then
+        return toWife[n]
+    end
+    return toWifeNoMidGrades[n]
+end
+
+
+local function getLowerGradeBoundary(wife, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
+    return gradeTierToWife(cgf.GetGradeNum(wife, useMidGrades), useMidGrades)
+end
+
+local function getUpperGradeBoundary(wife, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
+    if wife == 1 then
+        return 1
+    end
+    return gradeTierToWife(cgf.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
+end
+
+
+local accCurveValues = {{}}
+
+local resolutionPerSection = 2
+
+local minSSR = 100
+local maxSSR = 0
+local function setAccCurveValues(accCurveValues)
+    local minGradeTier = cgf.GetGradeNum(minFoundWife, useMidGrades) 
+    local maxGradeTier = cgf.GetGradeNum(maxFoundWife, useMidGrades)
+    for i=1, YaxisLabelsCount - 1 do
+        for j=1, resolutionPerSection do
+            local currentWife = gradeTierToWife(minGradeTier - (i-1))
+            local lowerGradeBoundary = getLowerGradeBoundary(currentWife, useMidGrades)
+            local upperGradeBoundary = getUpperGradeBoundary(currentWife, useMidGrades)
+
+            local h = (upperGradeBoundary - lowerGradeBoundary) / resolutionPerSection
+            local lowerBound = lowerGradeBoundary + ((j-1) * h)
+            local upperBound = lowerGradeBoundary + (j * h)
+            local mid = (lowerBound + upperBound) / 2
+
+            local c = 0
+            local totalSSR = 0
+            local totalSSRsquared = 0
+            for k=1, #values do
+                local w = values[k][2]
+                local ssr = values[k][1]
+                minSSR = math.min(ssr, minSSR)
+                maxSSR = math.max(ssr, maxSSR)
+                if w > lowerBound and w < upperBound then
+                    totalSSR = totalSSR + ssr
+                    totalSSRsquared = totalSSRsquared + ssr^2
+                    c = c + 1
+                end
+            end
+
+            if c > 0 then
+                local mean = totalSSR / c
+                local meanOfSquares = totalSSRsquared / c
+                local sd = math.sqrt(meanOfSquares - mean^2)
+
+                local highestPossible = mean + (sd * 2)
+
+                local i = #accCurveValues[1] + 1
+                accCurveValues[1][i] = {}
+                accCurveValues[1][i][1] = highestPossible
+                accCurveValues[1][i][2] = mid
+            end
+        end
+    end
+end
+
+setAccCurveValues(accCurveValues)
+
+t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
+    Values = accCurveValues,
+    Yfunc = function(params) 
+        return cgf.CoordFuncAcc(params, useMidGrades)
+    end,
+
+    YvalueFunc = function(params)
+        return cgf.ValueFuncAcc(params, useMidGrades)
+    end,
+
+    XvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
+
+    YvalueToStringFunc = cgf.ValueToStringFuncAcc,
+
+    MinYvalueFunc = function(params)
+        return cgf.MinValueFuncAcc({value = minFoundWife, minValue = minFoundWife}, useMidGrades)
+    end,
+
+    MaxYvalueFunc = function(params)
+        return cgf.MaxValueFuncAcc({value = maxFoundWife, maxValue = maxFoundWife}, useMidGrades)
+    end,
+
+    MinXvalueFunc = function(params)
+        return minSSR
+    end,
+
+    MaxXvalueFunc = function(params)
+        return maxSSR
+    end,
+
+    
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+    end,
+
+    YaxisLabelColorFunc = function(params)
+        return cgf.AxisLabelColorFuncAcc(params, yAxisLabelLineAlpha)
+    end,
+
+    PlotAlpha = plotAlpha,
+    XaxisLabelScale = XaxisLabelsScale,
+    Xunits = "MSD",
+    Yunits = "Accuracy",
+    BGcolor = color("#ffffff00")
+})
+
+
 return t
