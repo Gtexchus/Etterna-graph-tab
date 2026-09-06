@@ -48,7 +48,7 @@ local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 local samplerate = 7 * 24 * 60 * 60 --time between each sample for the line, in seconds
 --lower samplerate makes the line more accurate, but uses more vertices
 
-local minGradeTier = 10 --confusing name because lower acc means higher GradeTier
+local minGradeTier = 13 --confusing name because lower acc means higher GradeTier
 local maxGradeTier = 1
 
 local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
