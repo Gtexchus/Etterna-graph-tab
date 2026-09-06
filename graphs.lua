@@ -416,6 +416,7 @@ local buttons = {
     --line graphs
     {
         {graphActorName = "playerRatingOverTimeGraphContainer", graphFileName = "playerRatingOverTime", graphButtonText = "Player rating over time"},
+        {graphActorName = "GradesOverTimeGraphContainer", graphFileName = "gradesOverTime", graphButtonText = "Grades over time"},
     },
 
     --intensive graphs
