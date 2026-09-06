@@ -45,6 +45,46 @@ local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
     return midGradeNumToGradeNum[gradeTier]
 end
 
+--given a gradeNum, returns the color corresponding to that grade
+--if the gradeNum is a midGrade, the color returned is somewhere 
+--between the midGrade's whole grade and the next whole grade
+--differenceFactor is used to determine how close to the next color it should be
+--e.g. if gradeNum corresponds to an AA., 
+--with differenceFactor = 1, the color will be 33% between AA and AAA
+--with differenceFactor = 2, the color will be 16.5% between AA and AAA
+--its basically a gradient ok
+local function getMidGradeColor(gradeNum, useMidGrades)
+    local differenceFactor = 3
+    local grades = {"Grade_Tier01",
+    "Grade_Tier04",
+    "Grade_Tier07",
+    "Grade_Tier10",
+    "Grade_Tier13",
+    "Grade_Tier14",
+    "Grade_Tier15",
+    "Grade_Tier16",
+    "Grade_Failed"}
+    if not useMidGrades then
+        return colorByGrade(grades[gradeNum])
+    end
+    local gradeTierStr = tostring(gradeNum)
+    if gradeNum < 10 then
+        gradeTierStr = "0" .. gradeTierStr
+    end
+    local gradeFamily = getGradeFamilyForMidGrade("Grade_Tier" .. gradeTierStr):sub(11, 12)
+    local diff = gradeFamily - gradeNum
+    local baseColor = colorByGrade(grades[midGradeNumToGradeNum[gradeNum]])
+    if diff == 0 then 
+        return baseColor 
+    end
+    local nextColor = colorByGrade(grades[midGradeNumToGradeNum[gradeNum] - 1])
+    local color = {}
+    for j=1, 4 do
+        color[j] = ((nextColor[j] - baseColor[j]) * (diff/(3 * differenceFactor))) + baseColor[j]
+    end
+    return color
+end
+
 local function setValues(values, useMidGrades)
     --initialise values
     for i = 1, #values do 
@@ -143,20 +183,8 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     end,
 
     ColorFunc = function(params) 
-        local grades = {"Grade_Tier01",
-        "Grade_Tier04",
-        "Grade_Tier07",
-        "Grade_Tier10",
-        "Grade_Tier13",
-        "Grade_Tier14",
-        "Grade_Tier15",
-        "Grade_Tier16",
-        "Grade_Failed"}
-        local i = params.layer + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
-        if useMidGrades then
-            i = midGradeNumToGradeNum[i]
-        end
-        return colorByGrade(grades[i])
+        local gradeNum = params.layer + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+        return getMidGradeColor(gradeNum, useMidGrades)
     end,
 
     XaxisLabelColorFunc = function(params)
