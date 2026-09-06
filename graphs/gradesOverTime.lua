@@ -32,7 +32,7 @@ local midGradeNumToGradeNum = {
 SCOREMAN:SortRecentScoresForGame()
 local cgf = Var("cgf")
 
-local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+local useMidGrades = false
 
 local samplerate = 7 * 24 * 60 * 60 --time between each sample for the line, in seconds
 --lower samplerate makes the line more accurate, but uses more vertices
@@ -64,6 +64,7 @@ local function setValues(values, useMidGrades)
                 local dateText = score:GetDate()
                 if dateText ~= nil then
                     minTime = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
+                    break
                 end
             end
             i = i + 1
@@ -73,7 +74,6 @@ local function setValues(values, useMidGrades)
             gradeCountsForThisLoop[i] = 0
         end
         while dt < samplerate and i <= SCOREMAN:GetTotalNumberOfScores() do
-            
             local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i) --loop through scores backwards (most recent is last)
             if score ~= nil then
                 local grade = score:GetWifeGrade()
