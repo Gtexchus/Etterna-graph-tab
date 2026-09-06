@@ -46,33 +46,37 @@ local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
 end
 
 local function setValues(values, useMidGrades)
-    for i = 1, #values do
+    --initialise values
+    for i = 1, #values do 
         table.remove(values, 1)
     end
     local count = (getGradeNumGivenAGradeTier(minGradeTier, useMidGrades) - getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades)) + 1
     for i=1, count do
         values[#values + 1] = {}
     end
+
     local i = 0
     while i <= SCOREMAN:GetTotalNumberOfScores() do --for every saved score
-        local dt = 0
-        local minTime = -1
+        local dt = 0 --chnage in time of scores since we started this sample
+        local minTime = -1 --time of the first score in the sample
 
-        while minTime < 0 do
+        while minTime < 0 do --get the next valid time
             local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
             if score ~= nil then
                 local dateText = score:GetDate()
                 if dateText ~= nil then
                     minTime = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
-                    break
+                    break --make sure to break so we dont skip over a score
                 end
             end
             i = i + 1
         end
-        local gradeCountsForThisLoop = {}
-        for i = 1, count do
+
+        local gradeCountsForThisLoop = {} -- count up all grades of scores we find within this sample
+        for i = 1, count do --initialise
             gradeCountsForThisLoop[i] = 0
         end
+        --while we are still within the time bounds for this sample
         while dt < samplerate and i <= SCOREMAN:GetTotalNumberOfScores() do
             local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i) --loop through scores backwards (most recent is last)
             if score ~= nil then
@@ -82,16 +86,18 @@ local function setValues(values, useMidGrades)
                 local dateText = score:GetDate()
                 if dateText ~= nil and gradeTierNumber ~= nil and gradeTierNumber <= minGradeTier and gradeTierNumber >= maxGradeTier then
                     local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
-                    dt = date - minTime 
-                    if dt > samplerate then break end
+                    dt = date - minTime --update dt with the new change in time
+                    if dt > samplerate then break end --too much time has passed, end the sample!
+                    --relative to maxGradeTier
+                    --e.g. if gradeTierNumber = 5 and maxGradeTier = 5, then relativeGradeNum = 1
                     local relativeGradeNum = getGradeNumGivenAGradeTier(gradeTierNumber, useMidGrades) - (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
-
+                    --incrament the grade count by one
                     gradeCountsForThisLoop[relativeGradeNum] = gradeCountsForThisLoop[relativeGradeNum] + 1
                 end
             end
             i = i + 1
         end
-        for i=1, #values do
+        for i=1, #values do --add all of gradeCountsForThisLoop to values
             local index = #values[i] + 1
             local prev
             if index > 1 then
