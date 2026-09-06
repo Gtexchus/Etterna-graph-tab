@@ -6,6 +6,9 @@ local actuals = {
 
 }
 
+local xAxisLabelInnerLineColor = color("#52525280")
+local yAxisLabelInnerLineColor = color("#52525280")
+
 local midGradeNumToGradeNum = {
     [1] = 1,
     [2] = 2,
@@ -25,6 +28,7 @@ local midGradeNumToGradeNum = {
     [16] = 8,
     [17] = 9,
 }
+
 SCOREMAN:SortRecentScoresForGame()
 local cgf = Var("cgf")
 
@@ -78,16 +82,15 @@ local function setValues(values, useMidGrades)
                 local dateText = score:GetDate()
                 if dateText ~= nil and gradeTierNumber ~= nil and gradeTierNumber <= minGradeTier and gradeTierNumber >= maxGradeTier then
                     local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
-                    dt = date - minTime --if date > samplerate then break end
+                    dt = date - minTime 
+                    if dt > samplerate then break end
                     local relativeGradeNum = getGradeNumGivenAGradeTier(gradeTierNumber, useMidGrades) - (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
 
                     gradeCountsForThisLoop[relativeGradeNum] = gradeCountsForThisLoop[relativeGradeNum] + 1
-                    ms.ok("inner: " .. relativeGradeNum .. " : " .. gradeCountsForThisLoop[relativeGradeNum])
                 end
             end
             i = i + 1
         end
-        ms.ok("========================================= END OF LOOP")
         for i=1, #values do
             local index = #values[i] + 1
             local prev
@@ -99,14 +102,25 @@ local function setValues(values, useMidGrades)
             values[i][index] = {}
             values[i][index][1] = minTime + samplerate
             values[i][index][2] = prev + gradeCountsForThisLoop[i]
-            --ms.ok(i .. " : " .. gradeCountsForThisLoop[i])
         end
     end
 end
 
-local values = {}
+local values = {} --values[1] is the highest acc
 setValues(values, useMidGrades)
 
+
+local layerNames = {}
+
+for i=1, #values do
+    local gradeNum = maxGradeTier + (i-1)
+    if gradeNum < 10 then
+        gradeNum = 0 .. tostring(gradeNum)
+    else
+        gradeNum = tostring(gradeNum)
+    end
+    layerNames[i] = getGradeStrings("Grade_Tier" .. gradeNum)
+end
 
 local t = Def.ActorFrame{
     Name = "GradesOverTimeGraphContainer",
@@ -116,10 +130,44 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     Values = values,
 
+    YvalueToStringFunc = function(params)
+        return tostring(notShit.floor(params.value))
+    end,
+
+    ColorFunc = function(params) 
+        local grades = {"Grade_Tier01",
+        "Grade_Tier04",
+        "Grade_Tier07",
+        "Grade_Tier10",
+        "Grade_Tier13",
+        "Grade_Tier14",
+        "Grade_Tier15",
+        "Grade_Tier16",
+        "Grade_Failed"}
+        local i = params.layer + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+        if useMidGrades then
+            i = midGradeNumToGradeNum[i]
+        end
+        return colorByGrade(grades[i])
+    end,
+
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+    end,
+
+    YaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
+    end,
+
+    LayerNames = layerNames,
+
     XvalueToStringFunc = cgf.ValueToStringFuncTime,
     
     XaxisLabelCount = 5,
-    YaxisLabelCount = 5
+    YaxisLabelScale = 200,
+    Xunits = "Date", 
+    Yunits = "",
+    TooltipTextSize = 0.3,
 })
 
 return t
