@@ -24,7 +24,7 @@ local midGradeNumToGradeNum = {
     [12] = 5,
     [13] = 5,
     [14] = 6,
-    [15] = 6,
+    [15] = 7,
     [16] = 8,
     [17] = 9,
 }
@@ -32,7 +32,7 @@ local midGradeNumToGradeNum = {
 SCOREMAN:SortRecentScoresForGame()
 local cgf = Var("cgf")
 
-local useMidGrades = false
+local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
 local samplerate = 7 * 24 * 60 * 60 --time between each sample for the line, in seconds
 --lower samplerate makes the line more accurate, but uses more vertices
