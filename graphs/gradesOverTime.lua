@@ -176,6 +176,7 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     Xunits = "Date", 
     Yunits = "",
     TooltipTextSize = 0.3,
+    ExtendLinesToEndOfGraph = true
 })
 
 return t

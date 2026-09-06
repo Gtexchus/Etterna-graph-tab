@@ -219,6 +219,16 @@ if minYvalue < 0 and maxYvalue > 0 and Var("YoriginCentered") then-- if YoriginC
     minYvalue = -greatest
 end
 
+if Var("ExtendLinesToEndOfGraph") then
+    for i=1, #values do
+        local lastYvalue = values[i][#values[i]][2]
+        local index = #values[i] + 1
+        values[i][index] = {}
+        values[i][index][1] = maxXvalue
+        values[i][index][2] = lastYvalue
+    end
+end
+
 
 
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
