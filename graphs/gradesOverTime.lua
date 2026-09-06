@@ -98,16 +98,18 @@ local function setValues(values, useMidGrades)
             i = i + 1
         end
         for i=1, #values do --add all of gradeCountsForThisLoop to values
-            local index = #values[i] + 1
-            local prev
-            if index > 1 then
-                prev = values[i][index - 1][2]
-            else
-                prev = 0
+            if gradeCountsForThisLoop[i] > 0 then
+                local index = #values[i] + 1
+                local prev
+                if index > 1 then
+                    prev = values[i][index - 1][2]
+                else
+                    prev = 0
+                end
+                values[i][index] = {}
+                values[i][index][1] = minTime + samplerate
+                values[i][index][2] = prev + gradeCountsForThisLoop[i]
             end
-            values[i][index] = {}
-            values[i][index][1] = minTime + samplerate
-            values[i][index][2] = prev + gradeCountsForThisLoop[i]
         end
     end
 end
