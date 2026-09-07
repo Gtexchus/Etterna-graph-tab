@@ -52,6 +52,9 @@ local minGradeTier = 13 --confusing name because lower acc means higher GradeTie
 local maxGradeTier = 1
 
 local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
     if useMidGrades then return gradeTier end
     return midGradeNumToGradeNum[gradeTier]
 end
@@ -65,6 +68,9 @@ end
 --with differenceFactor = 2, the color will be 16.5% between AA and AAA
 --its basically a gradient ok
 local function getMidGradeColor(gradeNum, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
     local differenceFactor = 3
     local grades = {"Grade_Tier01",
     "Grade_Tier04",
@@ -97,6 +103,9 @@ local function getMidGradeColor(gradeNum, useMidGrades)
 end
 
 local function setValues(values, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
     --initialise values
     for i = 1, #values do 
         table.remove(values, 1)
