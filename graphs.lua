@@ -72,7 +72,7 @@ do --create a new scope for all this
             [12] = 5,
             [13] = 5,
             [14] = 6,
-            [15] = 6,
+            [15] = 7,
             [16] = 8,
             [17] = 9,
         }
@@ -416,6 +416,7 @@ local buttons = {
     --line graphs
     {
         {graphActorName = "playerRatingOverTimeGraphContainer", graphFileName = "playerRatingOverTime", graphButtonText = "Player rating over time"},
+        {graphActorName = "GradesOverTimeGraphContainer", graphFileName = "gradesOverTime", graphButtonText = "Grades over time"},
     },
 
     --intensive graphs
