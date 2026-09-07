@@ -163,6 +163,12 @@ local function setValues(values, useMidGrades)
             end
         end
     end
+
+    for i=1, #values do --make sure there are no empty lines, otherwise there will be errors out the ass
+        if #values[i] == 0 then --if the line is empty
+            values[i][1] = {os.time(os.date("!*t")), 0} --add a single point at today's date
+        end
+    end
 end
 
 local values = {} --values[1] is the highest acc
