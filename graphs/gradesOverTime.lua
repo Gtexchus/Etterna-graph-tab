@@ -1,6 +1,7 @@
 local ratios = {
     GraphWidth = 680 / 1920,
     GraphHeight = 412 / 1080,
+    YaxisLabelOffset = 5 / 1920,
     LayerLabelsHorizontalPadding = 5 / 1920,
     LayerLabelsVerticalPadding = 10 / 1080,
 }
@@ -11,6 +12,7 @@ ratios.LayerLabelsContainerHeight = ratios.GraphHeight / 1.5
 local actuals = {
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
+    YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH,
     LayerLabelsContainerWidth = ratios.LayerLabelsContainerWidth * SCREEN_WIDTH,
     LayerLabelsContainerHeight  =ratios.LayerLabelsContainerHeight * SCREEN_HEIGHT,
     LayerLabelsHorizontalPadding = ratios.LayerLabelsHorizontalPadding * SCREEN_WIDTH,
@@ -136,7 +138,7 @@ local function setValues(values, useMidGrades)
         local dt = 0 --chnage in time of scores since we started this sample
         local minTime = -1 --time of the first score in the sample
 
-        while minTime < 0 do --get the next valid time
+        while minTime < 0 and i <= SCOREMAN:GetTotalNumberOfScores() do --get the next valid time
             local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
             if score ~= nil then
                 local dateText = score:GetDate()
@@ -261,9 +263,10 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     YaxisLabelScale = 200,
     Xunits = "Date", 
     Yunits = "",
+    YaxisLabelOffset = actuals.YaxisLabelOffset,
     TooltipTextSize = 0.3,
     ExtendLinesToEndOfGraph = true,
-    PlotAnimationSeconds = plotAnimationSeconds
+    PlotAnimationSeconds = plotAnimationSeconds,
 })
 
 
