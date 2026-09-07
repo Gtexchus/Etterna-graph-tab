@@ -1,10 +1,25 @@
 local ratios = {
-
+    GraphWidth = 680 / 1920,
+    GraphHeight = 412 / 1080,
+    LayerLabelsHorizontalPadding = 5 / 1920,
+    LayerLabelsVerticalPadding = 10 / 1080,
 }
+
+ratios.LayerLabelsContainerWidth = ratios.GraphWidth / 5
+ratios.LayerLabelsContainerHeight = ratios.GraphHeight / 1.5
 
 local actuals = {
-
+    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
+    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
+    LayerLabelsContainerWidth = ratios.LayerLabelsContainerWidth * SCREEN_WIDTH,
+    LayerLabelsContainerHeight  =ratios.LayerLabelsContainerHeight * SCREEN_HEIGHT,
+    LayerLabelsHorizontalPadding = ratios.LayerLabelsHorizontalPadding * SCREEN_WIDTH,
+    LayerLabelsVerticalPadding = ratios.LayerLabelsVerticalPadding * SCREEN_HEIGHT
 }
+
+local buttonHoverAlpha = 0.6
+local layerLabelSize = 0.6
+local bgColour = color("#000000")
 
 --slightly confusing terminology used for this; wtf is a gradeNum????
 --a gradeNum is basically the end number of a Grade_Tier, e.g. the gradeNum for Grade_Tier08 would be 8
@@ -19,6 +34,7 @@ local actuals = {
 
 local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelInnerLineColor = color("#52525280")
+local plotAnimationSeconds = 0.5
 
 local midGradeNumToGradeNum = {
     [1] = 1,
@@ -246,7 +262,118 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     Xunits = "Date", 
     Yunits = "",
     TooltipTextSize = 0.3,
-    ExtendLinesToEndOfGraph = true
+    ExtendLinesToEndOfGraph = true,
+    PlotAnimationSeconds = plotAnimationSeconds
 })
+
+
+local function makeLayerLabelsContainer()
+    local clicked = {}
+    for i=1, #values do
+        clicked[i] = false
+    end
+    local function makeLayerLabel(i)
+        local profile = GetPlayerOrMachineProfile(PLAYER_1)
+        local p = ((i-1)/(#values-1))
+        return Def.ActorFrame{
+            Name = "Grade",
+            InitCommand = function(self)
+                self:y(p * actuals.LayerLabelsContainerHeight + ((0.5-p) * actuals.LayerLabelsVerticalPadding))
+            end,
+
+            UIElements.TextButton(1, 1, "Common Normal") .. {
+                Name = "LayerStr",
+                InitCommand = function(self)
+                    self:x(actuals.LayerLabelsHorizontalPadding)
+                    local txt = self:GetChild("Text")
+                    local bg = self:GetChild("BG")
+                    bg:halign(0):valign(p)
+                    txt:halign(0):valign(p)
+                    bg:zoomto(actuals.LayerLabelsContainerWidth - (actuals.LayerLabelsHorizontalPadding * 2), actuals.LayerLabelsContainerHeight / #values)
+                    txt:zoom(layerLabelSize)
+                    txt:settext(layerNames[i])
+                    local gradeNum = i + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+                    txt:diffuse(getMidGradeColor(gradeNum, useMidGrades))
+                    txt:diffusealpha(1)
+                end,
+                ClickCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "OnMouseDown" then
+                        local txt = self:GetChild("Text")
+                        clicked[i] = not clicked[i]
+                        if clicked[i] then
+                            local gradeNum = i + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+                            local c = getMidGradeColor(gradeNum, useMidGrades)
+                            c[4] = 0.8
+                            txt:strokecolor(c)
+                        else
+                            txt:strokecolor(color("#00000000"))
+                        end
+                        local allNotClicked = true
+                        for j=1, #clicked do
+                            if clicked[j] then
+                                allNotClicked = false
+                                break
+                            end
+                        end
+                        if allNotClicked then
+                            local a = {} for i = 1, #values do a[i] = true end
+                            self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", a)
+                        else
+                            self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", clicked)
+                        end
+                    end
+                end,
+
+                RolloverUpdateCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "in" then
+                        self:diffusealpha(buttonHoverAlpha)
+                    else
+                        self:diffusealpha(1)
+                    end
+                end
+            },
+
+            LoadFont("Common Normal") .. {
+                Name = "LayerValueStr",
+                InitCommand = function(self)
+                    self:halign(1):valign(p)
+                    self:zoom(layerLabelSize)
+                    self:x(actuals.LayerLabelsContainerWidth - actuals.LayerLabelsHorizontalPadding)
+                    local value = values[i][#values[i]][2]
+                    self:settext(tostring(value))
+                    self:diffusealpha(1)
+                end
+            }
+        }
+    end
+    local t = Def.ActorFrame{
+        Name = "LayerLabelsContainer",
+        InitCommand = function(self)
+            self:diffusealpha(1)
+            --self:xy(actuals.GraphWidth - actuals.LayerLabelsContainerWidth, actuals.GraphHeight - actuals.LayerLabelsContainerHeight)
+        end,
+        Def.Quad{
+            Name = "BG",
+            InitCommand = function(self)
+                self:zoomto(actuals.LayerLabelsContainerWidth, actuals.LayerLabelsContainerHeight)
+                self:diffuse(bgColour)
+                self:halign(0):valign(0)
+                self:xy(0, 0) 
+            end
+        },
+    }
+    --make the layer labels box
+    for i=1, #values do
+        t[#t +1 ] = makeLayerLabel(i)
+    end
+    return t
+end
+
+
+t[#t+1] = makeLayerLabelsContainer()
+
+
 
 return t
