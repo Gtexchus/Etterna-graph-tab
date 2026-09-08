@@ -64,6 +64,7 @@ local t = Def.ActorFrame{
     Name = "MeanOverTimeGraphContainer",
 
     FinishedLoadingCommand = function(self)
+        if self:GetChild("Graph") then return end --make sure we dont accidentally load multiple graphs
         --i dont know how to colour the plots on this one
         local graph = LoadActorWithParams("templates/scatterGraph.lua", {
             Values = values,

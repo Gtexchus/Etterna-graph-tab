@@ -81,6 +81,7 @@ local t = Def.ActorFrame{
     Name = "MeanOverAccuracyGraphContainer",
 
     FinishedLoadingCommand = function(self)
+        if self:GetChild("Graph") then return end --make sure we dont accidentally load multiple graphs
 
         local XaxisLabelCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
         

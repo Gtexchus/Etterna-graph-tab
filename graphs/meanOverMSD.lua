@@ -89,6 +89,7 @@ local t = Def.ActorFrame{
     FinishedLoadingCommand = function(self)
         --loadingHandler has finished loading values
         --so its time to load the graph and other relevant things
+        if self:GetChild("Graph") then return end --make sure we dont accidentally load multiple graphs
 
         local graph = LoadActorWithParams("templates/scatterGraph.lua", {
             Values = values,
