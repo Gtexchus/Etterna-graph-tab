@@ -1,12 +1,35 @@
-local values = Var("Values")
-local setValues = Var("SetValues")
+--this is used to handle loading for graphs that take a long time to load
+--it displays a nice progress bar to update the user on how much is left to load
+--it also makes the game somewhat usable instead of freezing it completely
+--lower incraments means the game will stutter less but it will take longer to load
+
+local values = Var("Values") --the values we want to set
+local setValues = Var("SetValues") --the function to set the values
+--setValues takes the form of:
+--function setValues(values, i, params)
+--where i is the number of iteration we are currently on
+--setValues is the function that defines how a single iteration of the loop should work
+--i.e. one call of setValues adds one item to values
 
 local initialiseValues = Var("InitialiseValues") or function() return end
 
 local setValuesParams = Var("SetValuesParams") or {}
 
 local numOfValuesToLoad = Var("NumOfValuesToLoad") or 1
+--the number of iterations we need to do in total
+--this is the number that i goes up to in setValues
+--it basically looks like:
+--for i=1, numOfValuesToLoad do
+    --setValues(values, i, setValuesParams)
+--end
+
 local increments = Var("Increments") or 10
+--increments is the number of times setValues is called in a row before sleeping and briefly giving control back to the game
+--this is needed, as if we never slept, then the loop for setting values takes up the entire thread,
+--meaning frames cant be rendered and inputs cant be handeled
+--basically the game freezes and nothing can happen
+--the time between loops (when this actor is sleeping) is the time in which the game unfreezes and updates the screen and deals with inputs
+--set increments to a really high number to see why we need this
 
 local x = Var("X") or 0
 local y = Var("Y") or 0
@@ -37,17 +60,11 @@ local t = Def.ActorFrame{
         self:playcommand("Loop")
     end,
 
-    SetValuesCommand = function(self)
-        for i = 1, #values do
-            table.remove(values, 1)
-        end
-    end,
-
     SleepCommand = function(self)
        self:sleep(sleepTime)
     end,
 
-    LoopCommand = function(self)
+    LoopCommand = function(self) --outer loop
         if loadedCount >= numOfValuesToLoad then
             self:queuecommand("Finish") 
         else
@@ -59,7 +76,7 @@ local t = Def.ActorFrame{
         end
     end,
 
-    IncrementCommand = function(self)
+    IncrementCommand = function(self) --inner loop
         local startTime = os.clock()
         for i=1, increments do
             setValues(values, loadedCount + i, setValuesParams)
@@ -68,7 +85,7 @@ local t = Def.ActorFrame{
         sleepTime = (os.clock() - startTime)
     end,
 
-    FinishCommand = function(self)
+    FinishCommand = function(self) --plays when we have finished loading values
         --do stuff first idk
         self:GetParent():playcommand("FinishedLoading")
         self:diffusealpha(0)
@@ -132,4 +149,3 @@ local t = Def.ActorFrame{
 }
 
 return t
-
