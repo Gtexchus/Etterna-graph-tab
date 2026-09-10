@@ -63,7 +63,6 @@ local function setValues(values, i)
             local ov = replay:GetOffsetVector()
             local mean = wifeMean(ov)
             
-
             local index = #values + 1
             values[index] = {}
             values[index][1] = wife
