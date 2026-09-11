@@ -1,3 +1,5 @@
+local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+
 local ratios = {
     GraphWidth = 680 / 1920,
     GraphHeight = 412 / 1080,
@@ -59,7 +61,6 @@ local midGradeNumToGradeNum = {
 }
 
 SCOREMAN:SortRecentScoresForGame()
-local cgf = Var("cgf")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 

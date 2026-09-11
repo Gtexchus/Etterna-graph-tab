@@ -1,3 +1,5 @@
+local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
@@ -16,7 +18,6 @@ local actuals = {
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
 
-local cgf = Var("cgf")
 
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100

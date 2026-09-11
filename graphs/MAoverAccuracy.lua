@@ -1,3 +1,5 @@
+local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+
 local ratios = {
     YaxisLabelOffset = 5 / 1920,
 }
@@ -6,7 +8,6 @@ local actuals = {
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
-local cgf = Var("cgf")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 

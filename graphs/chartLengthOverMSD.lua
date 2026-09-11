@@ -1,3 +1,5 @@
+local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+
 local ratios = {
     YaxisLabelOffset = 5 / 1920,
     SkillsetButtonsX = 590 / 1920,
@@ -14,7 +16,6 @@ local actuals = {
     SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
 }
 
-local cgf = Var("cgf")
 
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100
