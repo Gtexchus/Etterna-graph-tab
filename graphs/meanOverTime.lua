@@ -45,14 +45,15 @@ local function setValues(values, i)
         if dateText ~= nil then
             local date = os.time({year=dateText:sub(1, 4), month=dateText:sub(6, 7), day=dateText:sub(9, 10)})
             local replay = score:GetReplay()
-            replay:LoadAllData()
-            local ov = replay:GetOffsetVector()
-            local mean = wifeMean(ov)
-
-            local index = #values + 1
-            values[index] = {}
-            values[index][1] = date
-            values[index][2] = mean
+            if replay ~= nil then
+                replay:LoadAllData()
+                local ov = replay:GetOffsetVector()
+                local mean = wifeMean(ov)
+                local index = #values + 1
+                values[index] = {}
+                values[index][1] = date
+                values[index][2] = mean
+            end
         end
     end
 end

@@ -61,16 +61,17 @@ local function setValues(values, i)
         local wife = score:GetWifeScore()
         if wife >= (minWife) and wife <= (maxWife) and grade ~= "Failed" and grade ~= "Grade_Failed" then
             local replay = score:GetReplay()
-            replay:LoadAllData()
-            local ov = replay:GetOffsetVector()
-            local mean = wifeMean(ov)
-            
-            local index = #values + 1
-            values[index] = {}
-            values[index][1] = wife
-            values[index][2] = mean
-            minFoundWife = math.min(minFoundWife, wife)
-            maxFoundWife = math.max(maxFoundWife, wife)
+            if replay ~= nil then
+                replay:LoadAllData()
+                local ov = replay:GetOffsetVector()
+                local mean = wifeMean(ov)
+                local index = #values + 1
+                values[index] = {}
+                values[index][1] = wife
+                values[index][2] = mean
+                minFoundWife = math.min(minFoundWife, wife)
+                maxFoundWife = math.max(maxFoundWife, wife)
+            end
         end
     end
 end

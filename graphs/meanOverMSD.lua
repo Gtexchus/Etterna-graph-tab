@@ -55,15 +55,16 @@ local function setValues(values, i, params)
     local score = SCOREMAN:GetRecentScoreForGame(i)
     if score ~= nil then
         local replay = score:GetReplay()
-        replay:LoadAllData()
-        local ov = replay:GetOffsetVector()
-        local mean = wifeMean(ov)
-        local ssr = score:GetSkillsetSSR(params.skillset)
-
-        local index = #values + 1
-        values[index] = {}
-        values[index][1] = ssr
-        values[index][2] = mean
+        if replay ~= nil then
+            replay:LoadAllData()
+            local ov = replay:GetOffsetVector()
+            local mean = wifeMean(ov)
+            local ssr = score:GetSkillsetSSR(params.skillset)
+            local index = #values + 1
+            values[index] = {}
+            values[index][1] = ssr
+            values[index][2] = mean
+        end
     end
 end
 
