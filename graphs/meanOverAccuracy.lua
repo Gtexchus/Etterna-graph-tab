@@ -84,7 +84,7 @@ local t = Def.ActorFrame{
     FinishedLoadingCommand = function(self)
         if self:GetChild("Graph") then return end --make sure we dont accidentally load multiple graphs
 
-        local XaxisLabelCount = (gradeUtils.GetGradeNum(minFoundWife, useMidGrades) - gradeUtils.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+        local XaxisLabelCount = (gradeUtils.WifeToGradeNum(minFoundWife, useMidGrades) - gradeUtils.WifeToGradeNum(maxFoundWife, useMidGrades)) + 2
         
         local graph = LoadActorWithParams("templates/scatterGraph.lua", {
             Values = values,

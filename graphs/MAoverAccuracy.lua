@@ -63,7 +63,7 @@ end
 
 local values = {}
 setValues(values)
-local xAxisLabelCount = (gradeUtils.GetGradeNum(minFoundWife, useMidGrades) - gradeUtils.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local xAxisLabelCount = (gradeUtils.WifeToGradeNum(minFoundWife, useMidGrades) - gradeUtils.WifeToGradeNum(maxFoundWife, useMidGrades)) + 2
 
 local t = Def.ActorFrame{
     Name = "MAoverAccuracyGraphContainer"

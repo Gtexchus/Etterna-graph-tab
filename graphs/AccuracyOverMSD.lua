@@ -72,7 +72,7 @@ end
 
 local values = {}
 setValues(values, "overall")
-local YaxisLabelsCount = (gradeUtils.GetGradeNum(minFoundWife, useMidGrades) - gradeUtils.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local YaxisLabelsCount = (gradeUtils.WifeToGradeNum(minFoundWife, useMidGrades) - gradeUtils.WifeToGradeNum(maxFoundWife, useMidGrades)) + 2
 
 
 local t = Def.ActorFrame{

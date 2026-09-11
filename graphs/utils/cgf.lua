@@ -54,9 +54,9 @@ cgf.CoordFuncAcc = function(params, useMidGrades) --i fucking hate this
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     local wife = params.value
-    local gradeTier = gradeUtils.GetGradeNum(wife, useMidGrades)
-    local minGradeTier = gradeUtils.GetGradeNum(params.minValue, useMidGrades)
-    local maxGradeTier = gradeUtils.GetGradeNum(params.maxValue, useMidGrades)
+    local gradeTier = gradeUtils.WifeToGradeNum(wife, useMidGrades)
+    local minGradeTier = gradeUtils.WifeToGradeNum(params.minValue, useMidGrades)
+    local maxGradeTier = gradeUtils.WifeToGradeNum(params.maxValue, useMidGrades)
     if params.maxValue == 1 then
         maxGradeTier = 0
     end
@@ -104,8 +104,8 @@ cgf.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     local stupidY = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
-    local minGrade = gradeUtils.GetGradeNum(params.minValue, useMidGrades)
-    local maxGrade = gradeUtils.GetGradeNum(params.maxValue, useMidGrades)
+    local minGrade = gradeUtils.WifeToGradeNum(params.minValue, useMidGrades)
+    local maxGrade = gradeUtils.WifeToGradeNum(params.maxValue, useMidGrades)
     if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
         maxGrade = 0
     end

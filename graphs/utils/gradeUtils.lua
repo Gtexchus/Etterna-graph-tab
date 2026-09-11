@@ -33,7 +33,7 @@ gradeUtils.midGradeNumToGradeNum = {
     [17] = 9,
 }
 
-gradeUtils.GetGradeNum = function(wife, useMidGrades) 
+gradeUtils.WifeToGradeNum = function(wife, useMidGrades) 
     --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
     --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
     if useMidGrades == nil then 
@@ -141,7 +141,7 @@ gradeUtils.GetLowerGradeBoundary = function(wife, useMidGrades)
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
-    return gradeUtils.GradeNumToWife(gradeUtils.GetGradeNum(wife, useMidGrades), useMidGrades)
+    return gradeUtils.GradeNumToWife(gradeUtils.WifeToGradeNum(wife, useMidGrades), useMidGrades)
 end
 
 gradeUtils.GetUpperGradeBoundary = function(wife, useMidGrades)
@@ -151,7 +151,7 @@ gradeUtils.GetUpperGradeBoundary = function(wife, useMidGrades)
     if wife == 1 then
         return 1
     end
-    return gradeUtils.GradeNumToWife(gradeUtils.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
+    return gradeUtils.GradeNumToWife(gradeUtils.WifeToGradeNum(wife, useMidGrades) - 1, useMidGrades)
 end
 
 --given a gradeNum, returns the color corresponding to that grade
