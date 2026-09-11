@@ -146,9 +146,8 @@ gradeUtils.GradeTierToGradeNum = function(gradeTier, useMidGrades)
         if useMidGrades then return 17 end
         return 9
     end
-    if type(gradeTier) == string then --if we pass in Grade_Tier05 instead of 5
+    if type(gradeTier) == "string" then --if we pass in Grade_Tier05 instead of 5
         gradeTier = tonumber(gradeTier:sub(11, 12))
-        ms.ok("string")
     end
     if useMidGrades then return gradeTier end
     return gradeUtils.midGradeNumToGradeNum[gradeTier]

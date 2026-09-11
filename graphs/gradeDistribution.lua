@@ -29,26 +29,14 @@ local function initialise(gradeCounts)
     for i = 1, #gradeCounts do
         table.remove(gradeCounts, 1)
     end
-    for i = 1, 17 do
+    local count = 17
+    if not useMidGrades then count = 9 end
+    for i = 1, count do
         --AAAAA, AAAA:, AAAA., AAAA, AAA:, AAA., AAA, AA:, AA., AA, A:, A., A, B, C, D, F
         gradeCounts[i] = 0
     end
 end
 
-local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
-    local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
-    for i=1, #gradeCounts do
-        local j = gradeUtils.midGradeNumToGradeNum[i]
-        newGradeCounts[j] = newGradeCounts[j] + gradeCounts[i]
-    end
-    --set gradeCounts = newGradeCounts byValue
-    for i=1, #gradeCounts do
-        table.remove(gradeCounts, 1)
-    end
-    for i=1, #newGradeCounts do
-        gradeCounts[i] = newGradeCounts[i]
-    end
-end
 
 local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean this up
     --this is so we can easily update the gradeCounts from anywhere
@@ -58,13 +46,8 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
             local score = SCOREMAN:GetRecentScoreForGame(i)
             if score ~= nil then
                 local grade = score:GetWifeGrade()
-               
-                if grade == "Failed" or grade == "Grade_Failed" then --F
-                    gradeCounts[17] = gradeCounts[17] + 1
-                else
-                    local i = tonumber(grade:sub(11, 12))
-                    gradeCounts[i] = gradeCounts[i] + 1
-                end
+                local gradeNum = gradeUtils.GradeTierToGradeNum(grade, useMidGrades)
+                gradeCounts[gradeNum] = gradeCounts[gradeNum] + 1
             end
         end
     else
@@ -107,17 +90,12 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
                 end
                 --this is within the chart loop instead of the song loop
                 --so one song with multiple difficulties is counted for each difficulty
-                if foundgrade == "Failed" or foundgrade == "Grade_Failed" then --F
-                    gradeCounts[17] = gradeCounts[17] + 1
-                elseif foundgrade ~= nil then
-                    local i = tonumber(foundgrade:sub(11, 12))
-                    gradeCounts[i] = gradeCounts[i] + 1
+                if foundgrade ~= nil then
+                    local gradeNum = gradeUtils.GradeTierToGradeNum(foundgrade, useMidGrades)
+                    gradeCounts[gradeNum] = gradeCounts[gradeNum] + 1
                 end
             end
         end 
-    end
-    if not useMidGrades then --if the player is weird
-        squish(gradeCounts)
     end
 end
 
