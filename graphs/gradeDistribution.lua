@@ -1,3 +1,5 @@
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
+
 --credit to martzi for the idea for this graph
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
@@ -22,25 +24,6 @@ local smallButtonTextSize = 0.5
 local buttonHoverAlpha = 0.6
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
-local midGradeNumToGradeNum = {
-    [1] = 1,
-    [2] = 2,
-    [3] = 2,
-    [4] = 2,
-    [5] = 3,
-    [6] = 3,
-    [7] = 3,
-    [8] = 4,
-    [9] = 4,
-    [10] = 4,
-    [11] = 5,
-    [12] = 5,
-    [13] = 5,
-    [14] = 6,
-    [15] = 7,
-    [16] = 8,
-    [17] = 9,
-}
 
 local function initialise(gradeCounts)
     for i = 1, #gradeCounts do
@@ -55,7 +38,7 @@ end
 local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
     local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
     for i=1, #gradeCounts do
-        local j = midGradeNumToGradeNum[i]
+        local j = gradeUtils.midGradeNumToGradeNum[i]
         newGradeCounts[j] = newGradeCounts[j] + gradeCounts[i]
     end
     --set gradeCounts = newGradeCounts byValue
@@ -208,7 +191,7 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
         "Grade_Failed"}
         local i = params.barNum
         if useMidGrades then
-            i = midGradeNumToGradeNum[i]
+            i = gradeUtils.midGradeNumToGradeNum[i]
         end
         return colorByGrade(grades[i])
     end,

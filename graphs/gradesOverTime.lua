@@ -1,4 +1,5 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
     GraphWidth = 680 / 1920,
@@ -40,25 +41,6 @@ local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelInnerLineColor = color("#52525280")
 local plotAnimationSeconds = 0.5
 
-local midGradeNumToGradeNum = {
-    [1] = 1,
-    [2] = 2,
-    [3] = 2,
-    [4] = 2,
-    [5] = 3,
-    [6] = 3,
-    [7] = 3,
-    [8] = 4,
-    [9] = 4,
-    [10] = 4,
-    [11] = 5,
-    [12] = 5,
-    [13] = 5,
-    [14] = 6,
-    [15] = 7,
-    [16] = 8,
-    [17] = 9,
-}
 
 SCOREMAN:SortRecentScoresForGame()
 
@@ -75,7 +57,7 @@ local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     if useMidGrades then return gradeTier end
-    return midGradeNumToGradeNum[gradeTier]
+    return gradeUtils.midGradeNumToGradeNum[gradeTier]
 end
 
 --given a gradeNum, returns the color corresponding to that grade
@@ -109,11 +91,11 @@ local function getMidGradeColor(gradeNum, useMidGrades)
     end
     local gradeFamily = getGradeFamilyForMidGrade("Grade_Tier" .. gradeTierStr):sub(11, 12)
     local diff = gradeFamily - gradeNum
-    local baseColor = colorByGrade(grades[midGradeNumToGradeNum[gradeNum]])
+    local baseColor = colorByGrade(grades[gradeUtils.midGradeNumToGradeNum[gradeNum]])
     if diff == 0 then 
         return baseColor 
     end
-    local nextColor = colorByGrade(grades[midGradeNumToGradeNum[gradeNum] - 1])
+    local nextColor = colorByGrade(grades[gradeUtils.midGradeNumToGradeNum[gradeNum] - 1])
     local color = {}
     for j=1, 4 do
         color[j] = ((nextColor[j] - baseColor[j]) * (diff/(3 * differenceFactor))) + baseColor[j]

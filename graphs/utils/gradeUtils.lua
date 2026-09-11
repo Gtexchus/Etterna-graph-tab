@@ -1,6 +1,27 @@
 --helper functions for grade stuff
 local gradeUtils = {}
 
+gradeUtils.midGradeNumToGradeNum = {
+    [0] = 0,
+    [1] = 1,
+    [2] = 2,
+    [3] = 2,
+    [4] = 2,
+    [5] = 3,
+    [6] = 3,
+    [7] = 3,
+    [8] = 4,
+    [9] = 4,
+    [10] = 4,
+    [11] = 5,
+    [12] = 5,
+    [13] = 5,
+    [14] = 6,
+    [15] = 7,
+    [16] = 8,
+    [17] = 9,
+}
+
 gradeUtils.GetGradeNum = function(wife, useMidGrades) 
     --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
     --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
@@ -11,30 +32,10 @@ gradeUtils.GetGradeNum = function(wife, useMidGrades)
         return tonumber(GetGradeFromPercent(wife):sub(11, 12))
     end
 
-    local midGradeNumToGradeNum = {
-        [0] = 0,
-        [1] = 1,
-        [2] = 2,
-        [3] = 2,
-        [4] = 2,
-        [5] = 3,
-        [6] = 3,
-        [7] = 3,
-        [8] = 4,
-        [9] = 4,
-        [10] = 4,
-        [11] = 5,
-        [12] = 5,
-        [13] = 5,
-        [14] = 6,
-        [15] = 7,
-        [16] = 8,
-        [17] = 9,
-    }
     if useMidGrades then
         return getGradeTierNumber(wife)
     end
-    return midGradeNumToGradeNum[getGradeTierNumber(wife)]
+    return gradeUtils.midGradeNumToGradeNum[getGradeTierNumber(wife)]
 end
 
 
