@@ -1,3 +1,6 @@
+local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
+
 local ratios = {
     GraphWidth = 680 / 1920,
     GraphHeight = 412 / 1080,
@@ -23,43 +26,12 @@ local buttonHoverAlpha = 0.6
 local layerLabelSize = 0.6
 local bgColour = color("#000000")
 
---slightly confusing terminology used for this; wtf is a gradeNum????
---a gradeNum is basically the end number of a Grade_Tier, e.g. the gradeNum for Grade_Tier08 would be 8
---however, if midgrades are turned off, then gradeNum is the end number of the Grade_Tier if midgrades never existed in the first place
---"What the fuck does this even mean????"
---If midgrades are turned off, then the gradeNum for Grade_Tier08 would be 4
---"Why the fuck does an 8 turn into a 4???"
---Grade_Tier08 corresponds to the midgrade AA: (the : is part of the midgrade)
---the 'whole grade' for AA: is AA
---AA is the 4th grade if you dont include midgrades, as it goes AAAAA, AAAA, AAA, AA, ...
---hence, if midgrades didnt exist, then Grade_Tier08 would actually be Grade_Tier04
-
 local xAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelInnerLineColor = color("#52525280")
 local plotAnimationSeconds = 0.5
 
-local midGradeNumToGradeNum = {
-    [1] = 1,
-    [2] = 2,
-    [3] = 2,
-    [4] = 2,
-    [5] = 3,
-    [6] = 3,
-    [7] = 3,
-    [8] = 4,
-    [9] = 4,
-    [10] = 4,
-    [11] = 5,
-    [12] = 5,
-    [13] = 5,
-    [14] = 6,
-    [15] = 7,
-    [16] = 8,
-    [17] = 9,
-}
 
 SCOREMAN:SortRecentScoresForGame()
-local cgf = Var("cgf")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
@@ -69,56 +41,7 @@ local samplerate = 7 * 24 * 60 * 60 --time between each sample for the line, in 
 local minGradeTier = 13 --confusing name because lower acc means higher GradeTier
 local maxGradeTier = 1
 
-local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    if useMidGrades then return gradeTier end
-    return midGradeNumToGradeNum[gradeTier]
-end
 
---given a gradeNum, returns the color corresponding to that grade
---if the gradeNum is a midGrade, the color returned is somewhere 
---between the midGrade's whole grade and the next whole grade
---differenceFactor is used to determine how close to the next color it should be
---e.g. if gradeNum corresponds to an AA., 
---with differenceFactor = 1, the color will be 33% between AA and AAA
---with differenceFactor = 2, the color will be 16.5% between AA and AAA
---its basically a gradient ok
-local function getMidGradeColor(gradeNum, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    local differenceFactor = 3
-    local grades = {"Grade_Tier01",
-    "Grade_Tier04",
-    "Grade_Tier07",
-    "Grade_Tier10",
-    "Grade_Tier13",
-    "Grade_Tier14",
-    "Grade_Tier15",
-    "Grade_Tier16",
-    "Grade_Failed"}
-    if not useMidGrades then
-        return colorByGrade(grades[gradeNum])
-    end
-    local gradeTierStr = tostring(gradeNum)
-    if gradeNum < 10 then
-        gradeTierStr = "0" .. gradeTierStr
-    end
-    local gradeFamily = getGradeFamilyForMidGrade("Grade_Tier" .. gradeTierStr):sub(11, 12)
-    local diff = gradeFamily - gradeNum
-    local baseColor = colorByGrade(grades[midGradeNumToGradeNum[gradeNum]])
-    if diff == 0 then 
-        return baseColor 
-    end
-    local nextColor = colorByGrade(grades[midGradeNumToGradeNum[gradeNum] - 1])
-    local color = {}
-    for j=1, 4 do
-        color[j] = ((nextColor[j] - baseColor[j]) * (diff/(3 * differenceFactor))) + baseColor[j]
-    end
-    return color
-end
 
 local function setValues(values, useMidGrades)
     if useMidGrades == nil then 
@@ -128,7 +51,7 @@ local function setValues(values, useMidGrades)
     for i = 1, #values do 
         table.remove(values, 1)
     end
-    local count = (getGradeNumGivenAGradeTier(minGradeTier, useMidGrades) - getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades)) + 1
+    local count = (gradeUtils.GradeTierToGradeNum(minGradeTier, useMidGrades) - gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades)) + 1
     for i=1, count do
         values[#values + 1] = {}
     end
@@ -168,7 +91,7 @@ local function setValues(values, useMidGrades)
                     if dt > samplerate then break end --too much time has passed, end the sample!
                     --relative to maxGradeTier
                     --e.g. if gradeTierNumber = 5 and maxGradeTier = 5, then relativeGradeNum = 1
-                    local relativeGradeNum = getGradeNumGivenAGradeTier(gradeTierNumber, useMidGrades) - (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+                    local relativeGradeNum = gradeUtils.GradeTierToGradeNum(gradeTierNumber, useMidGrades) - (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
                     --incrament the grade count by one
                     gradeCountsForThisLoop[relativeGradeNum] = gradeCountsForThisLoop[relativeGradeNum] + 1
                 end
@@ -202,32 +125,11 @@ local values = {} --values[1] is the highest acc
 setValues(values, useMidGrades)
 
 
-local wholeGrades = { --stupid fucking midgrade preference
-    THEME:GetString("Grade", "Tier01"), -- AAAAA
-    THEME:GetString("Grade", "Tier04"), -- AAAA
-    THEME:GetString("Grade", "Tier07"), -- AAA
-    THEME:GetString("Grade", "Tier10"), -- AA
-    THEME:GetString("Grade", "Tier13"), -- A
-    THEME:GetString("Grade", "Tier14"), -- B
-	THEME:GetString("Grade", "Tier15"), -- C
-	THEME:GetString("Grade", "Tier16"),
-	THEME:GetString("Grade", "Failed")
-}
 local layerNames = {}
 
 for i=1, #values do
-    local gradeNum = getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) + (i-1)
-    if useMidGrades then
-        local gradenumStr
-        if gradeNum < 10 then
-            gradeNumStr = 0 .. tostring(gradeNum)
-        else
-            gradeNumStr = tostring(gradeNum)
-        end
-        layerNames[i] = getGradeStrings("Grade_Tier" .. gradeNumStr)
-    else
-        layerNames[i] = wholeGrades[gradeNum]
-    end
+    local gradeNum = gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) + (i-1)
+    layerNames[i] = getGradeStrings(gradeUtils.GradeNumToGradeTier(gradeNum, useMidGrades))
 end
 
 local t = Def.ActorFrame{
@@ -243,8 +145,8 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     end,
 
     ColorFunc = function(params) 
-        local gradeNum = params.layer + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
-        return getMidGradeColor(gradeNum, useMidGrades)
+        local gradeNum = params.layer + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
+        return gradeUtils.GetMidGradeColor(gradeNum, useMidGrades)
     end,
 
     XaxisLabelColorFunc = function(params)
@@ -295,8 +197,8 @@ local function makeLayerLabelsContainer()
                     bg:zoomto(actuals.LayerLabelsContainerWidth - (actuals.LayerLabelsHorizontalPadding * 2), actuals.LayerLabelsContainerHeight / #values)
                     txt:zoom(layerLabelSize)
                     txt:settext(layerNames[i])
-                    local gradeNum = i + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
-                    txt:diffuse(getMidGradeColor(gradeNum, useMidGrades))
+                    local gradeNum = i + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
+                    txt:diffuse(gradeUtils.GetMidGradeColor(gradeNum, useMidGrades))
                     txt:diffusealpha(1)
                 end,
                 ClickCommand = function(self, params)
@@ -305,8 +207,8 @@ local function makeLayerLabelsContainer()
                         local txt = self:GetChild("Text")
                         clicked[i] = not clicked[i]
                         if clicked[i] then
-                            local gradeNum = i + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
-                            local c = getMidGradeColor(gradeNum, useMidGrades)
+                            local gradeNum = i + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
+                            local c = gradeUtils.GetMidGradeColor(gradeNum, useMidGrades)
                             c[4] = 0.8
                             txt:strokecolor(c)
                         else

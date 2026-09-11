@@ -1,3 +1,5 @@
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
+
 --credit to martzi for the idea for this graph
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
@@ -22,50 +24,19 @@ local smallButtonTextSize = 0.5
 local buttonHoverAlpha = 0.6
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
-local midGradeNumToGradeNum = {
-    [1] = 1,
-    [2] = 2,
-    [3] = 2,
-    [4] = 2,
-    [5] = 3,
-    [6] = 3,
-    [7] = 3,
-    [8] = 4,
-    [9] = 4,
-    [10] = 4,
-    [11] = 5,
-    [12] = 5,
-    [13] = 5,
-    [14] = 6,
-    [15] = 7,
-    [16] = 8,
-    [17] = 9,
-}
 
 local function initialise(gradeCounts)
     for i = 1, #gradeCounts do
         table.remove(gradeCounts, 1)
     end
-    for i = 1, 17 do
+    local count = 17
+    if not useMidGrades then count = 9 end
+    for i = 1, count do
         --AAAAA, AAAA:, AAAA., AAAA, AAA:, AAA., AAA, AA:, AA., AA, A:, A., A, B, C, D, F
         gradeCounts[i] = 0
     end
 end
 
-local function squish(gradeCounts) --squishes all midgrades in gradecounts to their full grades
-    local newGradeCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0}
-    for i=1, #gradeCounts do
-        local j = midGradeNumToGradeNum[i]
-        newGradeCounts[j] = newGradeCounts[j] + gradeCounts[i]
-    end
-    --set gradeCounts = newGradeCounts byValue
-    for i=1, #gradeCounts do
-        table.remove(gradeCounts, 1)
-    end
-    for i=1, #newGradeCounts do
-        gradeCounts[i] = newGradeCounts[i]
-    end
-end
 
 local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean this up
     --this is so we can easily update the gradeCounts from anywhere
@@ -75,13 +46,8 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
             local score = SCOREMAN:GetRecentScoreForGame(i)
             if score ~= nil then
                 local grade = score:GetWifeGrade()
-               
-                if grade == "Failed" or grade == "Grade_Failed" then --F
-                    gradeCounts[17] = gradeCounts[17] + 1
-                else
-                    local i = tonumber(grade:sub(11, 12))
-                    gradeCounts[i] = gradeCounts[i] + 1
-                end
+                local gradeNum = gradeUtils.GradeTierToGradeNum(grade, useMidGrades)
+                gradeCounts[gradeNum] = gradeCounts[gradeNum] + 1
             end
         end
     else
@@ -124,17 +90,12 @@ local function setGradeCounts(gradeCounts, usingEverySetScore) --todo: clean thi
                 end
                 --this is within the chart loop instead of the song loop
                 --so one song with multiple difficulties is counted for each difficulty
-                if foundgrade == "Failed" or foundgrade == "Grade_Failed" then --F
-                    gradeCounts[17] = gradeCounts[17] + 1
-                elseif foundgrade ~= nil then
-                    local i = tonumber(foundgrade:sub(11, 12))
-                    gradeCounts[i] = gradeCounts[i] + 1
+                if foundgrade ~= nil then
+                    local gradeNum = gradeUtils.GradeTierToGradeNum(foundgrade, useMidGrades)
+                    gradeCounts[gradeNum] = gradeCounts[gradeNum] + 1
                 end
             end
         end 
-    end
-    if not useMidGrades then --if the player is weird
-        squish(gradeCounts)
     end
 end
 
@@ -197,57 +158,11 @@ t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = gradeCounts,
     ColorFunc = function(params) 
-        local grades = {"Grade_Tier01",
-        "Grade_Tier04",
-        "Grade_Tier07",
-        "Grade_Tier10",
-        "Grade_Tier13",
-        "Grade_Tier14",
-        "Grade_Tier15",
-        "Grade_Tier16",
-        "Grade_Failed"}
-        local i = params.barNum
-        if useMidGrades then
-            i = midGradeNumToGradeNum[i]
-        end
-        return colorByGrade(grades[i])
+        return gradeUtils.GetMidGradeColor(params.barNum, useMidGrades)
     end,
 
     BarNumToStringFunc = function(params) 
-        local grades
-        --this is bullshit
-        if useMidGrades then
-            grades = {"Grade_Tier01",
-            "Grade_Tier02",
-            "Grade_Tier03",
-            "Grade_Tier04",
-            "Grade_Tier05",
-            "Grade_Tier06",
-            "Grade_Tier07",
-            "Grade_Tier08",
-            "Grade_Tier09",
-            "Grade_Tier10",
-            "Grade_Tier11",
-            "Grade_Tier12",
-            "Grade_Tier13",
-            "Grade_Tier14",
-            "Grade_Tier15",
-            "Grade_Tier16",
-            "Grade_Failed"}
-        else
-            grades = {"Grade_Tier01",
-            "Grade_Tier04",
-            "Grade_Tier07",
-            "Grade_Tier10",
-            "Grade_Tier13",
-            "Grade_Tier14",
-            "Grade_Tier15",
-            "Grade_Tier16",
-            "Grade_Failed"}
-        end
-
-
-        return getGradeStrings(grades[params.barNum]) 
+        return getGradeStrings(gradeUtils.GradeNumToGradeTier(params.barNum, useMidGrades))
     end,
 
     BarSpacing = actuals.BarSpacing,
