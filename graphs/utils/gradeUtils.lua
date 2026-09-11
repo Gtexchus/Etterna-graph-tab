@@ -34,8 +34,7 @@ gradeUtils.midGradeNumToGradeNum = {
 }
 
 gradeUtils.WifeToGradeNum = function(wife, useMidGrades) 
-    --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
-    --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
+    --converts wife% to gradeNum
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
@@ -51,6 +50,8 @@ end
 
 
 gradeUtils.GradeNumToWife = function(gradeNum, useMidGrades)
+    --converts gradeNum to wife%
+    --the returned wife% is the lower bound of the grade
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
@@ -96,6 +97,7 @@ gradeUtils.GradeNumToWife = function(gradeNum, useMidGrades)
 end
 
 gradeUtils.GradeNumToGradeTier = function(gradeNum, useMidGrades)
+    --converts gradeNum to Grade_Tier
     local grades
     --this is bullshit
     if useMidGrades then
@@ -137,6 +139,7 @@ gradeUtils.GradeNumToGradeTier = function(gradeNum, useMidGrades)
 end
 
 gradeUtils.GradeTierToGradeNum = function(gradeTier, useMidGrades)
+    --converts Grade_Tier to gradeNum
     --this function allows the input of both number and string
     --e.g. Grade_Tier05 and 5 are both valid inputs
     if useMidGrades == nil then 
@@ -155,6 +158,9 @@ end
 
 
 gradeUtils.GetLowerGradeBoundary = function(wife, useMidGrades)
+    --returns the lower grade boundary from a wife%
+    --returns a wife%
+    --basically floor() the wife% to the nearest grade boundary
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
@@ -162,6 +168,9 @@ gradeUtils.GetLowerGradeBoundary = function(wife, useMidGrades)
 end
 
 gradeUtils.GetUpperGradeBoundary = function(wife, useMidGrades)
+    --returns the upper grade boundary from a wife%
+    --returns a wife%
+    --basically ciel() the wife% to the nearest grade boundary
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
