@@ -181,18 +181,17 @@ gradeUtils.GetUpperGradeBoundary = function(wife, useMidGrades)
 end
 
 --given a gradeNum, returns the color corresponding to that grade
---if the gradeNum is a midGrade, the color returned is somewhere 
---between the midGrade's whole grade and the next whole grade
---differenceFactor is used to determine how close to the next color it should be
+--if the gradeNum is a midGrade, the color is tinted white
+--differenceFactor is used to determine how much it is tinted white
 --e.g. if gradeNum corresponds to an AA., 
---with differenceFactor = 1, the color will be 33% between AA and AAA
---with differenceFactor = 2, the color will be 16.5% between AA and AAA
+--with differenceFactor = 1, the color will be 33% between AA and white
+--with differenceFactor = 2, the color will be 16.5% between AA and white
 --its basically a gradient ok
 gradeUtils.GetMidGradeColor = function(gradeNum, useMidGrades, differenceFactor)
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
-    local differenceFactor = differenceFactor or 3
+    local differenceFactor = differenceFactor or 1.5
     local grades = {"Grade_Tier01",
     "Grade_Tier04",
     "Grade_Tier07",
@@ -215,7 +214,7 @@ gradeUtils.GetMidGradeColor = function(gradeNum, useMidGrades, differenceFactor)
     if diff == 0 then 
         return baseColor 
     end
-    local nextColor = colorByGrade(grades[gradeUtils.midGradeNumToGradeNum[gradeNum] - 1])
+    local nextColor = color("#ffffff")
     local color = {}
     for j=1, 4 do
         color[j] = ((nextColor[j] - baseColor[j]) * (diff/(3 * differenceFactor))) + baseColor[j]
