@@ -61,10 +61,10 @@ cgf.CoordFuncAcc = function(params, useMidGrades) --i fucking hate this
         maxGradeTier = 0
     end
 
-    local lowerWifeBound = gradeUtils.getLowerGradeBoundary(params.value, useMidGrades)
+    local lowerWifeBound = gradeUtils.GetLowerGradeBoundary(params.value, useMidGrades)
     local upperWifeBound
     if gradeTier > 1 then --if its not an AAAAA
-        upperWifeBound = gradeUtils.getUpperGradeBoundary(params.value, useMidGrades)
+        upperWifeBound = gradeUtils.GetUpperGradeBoundary(params.value, useMidGrades)
     else
         upperWifeBound = 1
     end
@@ -115,8 +115,8 @@ cgf.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
     local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
     local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
     local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
-    local lowerWifeBound = gradeUtils.gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
-    local upperWifeBound = gradeUtils.gradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
+    local lowerWifeBound = gradeUtils.GradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
+    local upperWifeBound = gradeUtils.GradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
     local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
     return acc
 end
@@ -224,7 +224,7 @@ cgf.MinValueFuncAcc = function(params, useMidGrades)
     --compare minValue with the lower grade boundary of value
     --e.g. if yValue = 0.932 (93.2%) then minYvalue is compared with 0.93
     --this is so minYvalue ends up being a grade boundary
-    return math.min(params.minValue, gradeUtils.getLowerGradeBoundary(params.value, useMidGrades))
+    return math.min(params.minValue, gradeUtils.GetLowerGradeBoundary(params.value, useMidGrades))
 end
 
 cgf.MaxValueFuncAcc = function(params, useMidGrades)
@@ -232,7 +232,7 @@ cgf.MaxValueFuncAcc = function(params, useMidGrades)
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     --same as MinValueFuncAcc, except round up
-    return math.max(params.maxValue, gradeUtils.getUpperGradeBoundary(params.value, useMidGrades))
+    return math.max(params.maxValue, gradeUtils.GetUpperGradeBoundary(params.value, useMidGrades))
 end
 
 return cgf

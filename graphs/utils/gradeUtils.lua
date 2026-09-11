@@ -38,7 +38,7 @@ gradeUtils.GetGradeNum = function(wife, useMidGrades)
 end
 
 
-gradeUtils.gradeTierToWife = function(n, useMidGrades)
+gradeUtils.GradeTierToWife = function(n, useMidGrades)
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
@@ -84,21 +84,21 @@ gradeUtils.gradeTierToWife = function(n, useMidGrades)
 end
 
 
-gradeUtils.getLowerGradeBoundary = function(wife, useMidGrades)
+gradeUtils.GetLowerGradeBoundary = function(wife, useMidGrades)
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
-    return gradeUtils.gradeTierToWife(gradeUtils.GetGradeNum(wife, useMidGrades), useMidGrades)
+    return gradeUtils.GradeTierToWife(gradeUtils.GetGradeNum(wife, useMidGrades), useMidGrades)
 end
 
-gradeUtils.getUpperGradeBoundary = function(wife, useMidGrades)
+gradeUtils.GetUpperGradeBoundary = function(wife, useMidGrades)
     if useMidGrades == nil then 
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     if wife == 1 then
         return 1
     end
-    return gradeUtils.gradeTierToWife(gradeUtils.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
+    return gradeUtils.GradeTierToWife(gradeUtils.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
 end
 
 return gradeUtils
