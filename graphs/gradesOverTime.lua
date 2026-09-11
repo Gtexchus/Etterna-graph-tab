@@ -41,13 +41,6 @@ local samplerate = 7 * 24 * 60 * 60 --time between each sample for the line, in 
 local minGradeTier = 13 --confusing name because lower acc means higher GradeTier
 local maxGradeTier = 1
 
-local function getGradeNumGivenAGradeTier(gradeTier, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    if useMidGrades then return gradeTier end
-    return gradeUtils.midGradeNumToGradeNum[gradeTier]
-end
 
 
 local function setValues(values, useMidGrades)
@@ -58,7 +51,7 @@ local function setValues(values, useMidGrades)
     for i = 1, #values do 
         table.remove(values, 1)
     end
-    local count = (getGradeNumGivenAGradeTier(minGradeTier, useMidGrades) - getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades)) + 1
+    local count = (gradeUtils.GradeTierToGradeNum(minGradeTier, useMidGrades) - gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades)) + 1
     for i=1, count do
         values[#values + 1] = {}
     end
@@ -98,7 +91,7 @@ local function setValues(values, useMidGrades)
                     if dt > samplerate then break end --too much time has passed, end the sample!
                     --relative to maxGradeTier
                     --e.g. if gradeTierNumber = 5 and maxGradeTier = 5, then relativeGradeNum = 1
-                    local relativeGradeNum = getGradeNumGivenAGradeTier(gradeTierNumber, useMidGrades) - (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+                    local relativeGradeNum = gradeUtils.GradeTierToGradeNum(gradeTierNumber, useMidGrades) - (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
                     --incrament the grade count by one
                     gradeCountsForThisLoop[relativeGradeNum] = gradeCountsForThisLoop[relativeGradeNum] + 1
                 end
@@ -146,7 +139,7 @@ local wholeGrades = { --stupid fucking midgrade preference
 local layerNames = {}
 
 for i=1, #values do
-    local gradeNum = getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) + (i-1)
+    local gradeNum = gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) + (i-1)
     if useMidGrades then
         local gradenumStr
         if gradeNum < 10 then
@@ -173,7 +166,7 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     end,
 
     ColorFunc = function(params) 
-        local gradeNum = params.layer + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+        local gradeNum = params.layer + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
         return gradeUtils.GetMidGradeColor(gradeNum, useMidGrades)
     end,
 
@@ -225,7 +218,7 @@ local function makeLayerLabelsContainer()
                     bg:zoomto(actuals.LayerLabelsContainerWidth - (actuals.LayerLabelsHorizontalPadding * 2), actuals.LayerLabelsContainerHeight / #values)
                     txt:zoom(layerLabelSize)
                     txt:settext(layerNames[i])
-                    local gradeNum = i + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+                    local gradeNum = i + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
                     txt:diffuse(gradeUtils.GetMidGradeColor(gradeNum, useMidGrades))
                     txt:diffusealpha(1)
                 end,
@@ -235,7 +228,7 @@ local function makeLayerLabelsContainer()
                         local txt = self:GetChild("Text")
                         clicked[i] = not clicked[i]
                         if clicked[i] then
-                            local gradeNum = i + (getGradeNumGivenAGradeTier(maxGradeTier, useMidGrades) - 1)
+                            local gradeNum = i + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
                             local c = gradeUtils.GetMidGradeColor(gradeNum, useMidGrades)
                             c[4] = 0.8
                             txt:strokecolor(c)

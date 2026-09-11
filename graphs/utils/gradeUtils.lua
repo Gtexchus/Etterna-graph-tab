@@ -136,6 +136,14 @@ gradeUtils.GradeNumToGradeTier = function(gradeNum, useMidGrades)
     return grades[gradeNum]
 end
 
+gradeUtils.GradeTierToGradeNum = function(gradeTier, useMidGrades)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
+    if useMidGrades then return gradeTier end
+    return gradeUtils.midGradeNumToGradeNum[gradeTier]
+end
+
 
 gradeUtils.GetLowerGradeBoundary = function(wife, useMidGrades)
     if useMidGrades == nil then 
