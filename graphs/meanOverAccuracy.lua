@@ -1,4 +1,5 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
@@ -83,7 +84,7 @@ local t = Def.ActorFrame{
     FinishedLoadingCommand = function(self)
         if self:GetChild("Graph") then return end --make sure we dont accidentally load multiple graphs
 
-        local XaxisLabelCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+        local XaxisLabelCount = (gradeUtils.GetGradeNum(minFoundWife, useMidGrades) - gradeUtils.GetGradeNum(maxFoundWife, useMidGrades)) + 2
         
         local graph = LoadActorWithParams("templates/scatterGraph.lua", {
             Values = values,

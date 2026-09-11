@@ -1,4 +1,5 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
     YaxisLabelOffset = 5 / 1920
@@ -57,7 +58,7 @@ end
 
 local values = {}
 setValues(values)
-local xAxisLabelCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local xAxisLabelCount = (gradeUtils.GetGradeNum(minFoundWife, useMidGrades) - gradeUtils.GetGradeNum(maxFoundWife, useMidGrades)) + 2
 
 local t = Def.ActorFrame{
     Name = "ChartLengthOverAccuracyGraphContainer"

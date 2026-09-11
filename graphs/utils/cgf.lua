@@ -1,110 +1,9 @@
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 --cgf stands for common graph functions
 --this is a table of functions that are used often for making graphs
 --e.g. CoordFuncAcc is used in AccuracyOverMSD, AccuracyOverTime etc.
 local cgf = {}
 --------------------------------------- misc functions ---------------------------------------
-
-cgf.GetGradeNum = function(wife, useMidGrades) 
-    --returns the grade tier number for a given wife%, but if useMidGrades = false, then it pretends that midgrades don't exist
-    --this means that if useMidGrades = false, getGradeNum(96.5) returns 4, even though 96.5% is Grade_Tier09
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    local function getGradeTierNumber(wife) --e.g. returns 3 from Grade_Tier03
-        return tonumber(GetGradeFromPercent(wife):sub(11, 12))
-    end
-
-    local midGradeNumToGradeNum = {
-        [0] = 0,
-        [1] = 1,
-        [2] = 2,
-        [3] = 2,
-        [4] = 2,
-        [5] = 3,
-        [6] = 3,
-        [7] = 3,
-        [8] = 4,
-        [9] = 4,
-        [10] = 4,
-        [11] = 5,
-        [12] = 5,
-        [13] = 5,
-        [14] = 6,
-        [15] = 7,
-        [16] = 8,
-        [17] = 9,
-    }
-    if useMidGrades then
-        return getGradeTierNumber(wife)
-    end
-    return midGradeNumToGradeNum[getGradeTierNumber(wife)]
-end
-
---all the bullshit needed for acc graphs
-
-local function gradeTierToWife(n, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    --afaik there isnt a function to convert from 
-    --grade tier to wife (there isnt an inverse of GetGradeFromPercent())
-    --so this table will have to do
-    local toWife = { 
-        [0] = 1, --not technically a grade but its here for convenience
-        0.999935, --AAAAA
-        0.9998,
-        0.9997,
-        0.99955, --AAAA
-        0.999,
-        0.998,
-        0.997, --AAA
-        0.99,
-        0.965,
-        0.93, --AA
-        0.9,
-        0.85,
-        0.8, --A
-        0.7, --B
-        0.6, --C
-        0 --D ????
-    }
-
-    local toWifeNoMidGrades = { 
-        [0] = 1, --not technically a grade but its here for convenience
-        0.999935, --AAAAA
-        0.99955, --AAAA
-        0.997, --AAA
-        0.93, --AA
-        0.8, --A
-        0.7, --B
-        0.6, --C
-        0 --D ????
-    }
-
-    if useMidGrades then
-        return toWife[n]
-    end
-    return toWifeNoMidGrades[n]
-end
-
-
-local function getLowerGradeBoundary(wife, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    return gradeTierToWife(cgf.GetGradeNum(wife, useMidGrades), useMidGrades)
-end
-
-local function getUpperGradeBoundary(wife, useMidGrades)
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
-    end
-    if wife == 1 then
-        return 1
-    end
-    return gradeTierToWife(cgf.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
-end
-
 
 local function asinh(x)
     return math.log(x + math.sqrt(x * x + 1))
@@ -155,17 +54,17 @@ cgf.CoordFuncAcc = function(params, useMidGrades) --i fucking hate this
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     local wife = params.value
-    local gradeTier = cgf.GetGradeNum(wife, useMidGrades)
-    local minGradeTier = cgf.GetGradeNum(params.minValue, useMidGrades)
-    local maxGradeTier = cgf.GetGradeNum(params.maxValue, useMidGrades)
+    local gradeTier = gradeUtils.GetGradeNum(wife, useMidGrades)
+    local minGradeTier = gradeUtils.GetGradeNum(params.minValue, useMidGrades)
+    local maxGradeTier = gradeUtils.GetGradeNum(params.maxValue, useMidGrades)
     if params.maxValue == 1 then
         maxGradeTier = 0
     end
 
-    local lowerWifeBound = getLowerGradeBoundary(params.value, useMidGrades)
+    local lowerWifeBound = gradeUtils.getLowerGradeBoundary(params.value, useMidGrades)
     local upperWifeBound
     if gradeTier > 1 then --if its not an AAAAA
-        upperWifeBound = getUpperGradeBoundary(params.value, useMidGrades)
+        upperWifeBound = gradeUtils.getUpperGradeBoundary(params.value, useMidGrades)
     else
         upperWifeBound = 1
     end
@@ -205,8 +104,8 @@ cgf.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     local stupidY = math.max(params.GraphLength - params.coord, 0) --cant be bothered to remake this function cleanly so fuck you
-    local minGrade = cgf.GetGradeNum(params.minValue, useMidGrades)
-    local maxGrade = cgf.GetGradeNum(params.maxValue, useMidGrades)
+    local minGrade = gradeUtils.GetGradeNum(params.minValue, useMidGrades)
+    local maxGrade = gradeUtils.GetGradeNum(params.maxValue, useMidGrades)
     if params.maxValue == 1 then --special case for 100%, because we want a label for 100%
         maxGrade = 0
     end
@@ -216,8 +115,8 @@ cgf.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
     local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
     local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
     local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
-    local lowerWifeBound = gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
-    local upperWifeBound = gradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
+    local lowerWifeBound = gradeUtils.gradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
+    local upperWifeBound = gradeUtils.gradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
     local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
     return acc
 end
@@ -325,7 +224,7 @@ cgf.MinValueFuncAcc = function(params, useMidGrades)
     --compare minValue with the lower grade boundary of value
     --e.g. if yValue = 0.932 (93.2%) then minYvalue is compared with 0.93
     --this is so minYvalue ends up being a grade boundary
-    return math.min(params.minValue, getLowerGradeBoundary(params.value, useMidGrades))
+    return math.min(params.minValue, gradeUtils.getLowerGradeBoundary(params.value, useMidGrades))
 end
 
 cgf.MaxValueFuncAcc = function(params, useMidGrades)
@@ -333,7 +232,7 @@ cgf.MaxValueFuncAcc = function(params, useMidGrades)
         useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     --same as MinValueFuncAcc, except round up
-    return math.max(params.maxValue, getUpperGradeBoundary(params.value, useMidGrades))
+    return math.max(params.maxValue, gradeUtils.getUpperGradeBoundary(params.value, useMidGrades))
 end
 
 return cgf

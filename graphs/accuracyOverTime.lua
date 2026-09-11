@@ -1,4 +1,5 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
@@ -60,7 +61,7 @@ end
 
 local values = {}
 setValues(values)
-local YaxisLabelsCount = (cgf.GetGradeNum(minFoundWife, useMidGrades) - cgf.GetGradeNum(maxFoundWife, useMidGrades)) + 2
+local YaxisLabelsCount = (gradeUtils.GetGradeNum(minFoundWife, useMidGrades) - gradeUtils.GetGradeNum(maxFoundWife, useMidGrades)) + 2
 
 local t = Def.ActorFrame{
     Name = "AccuracyOverTimeGraphContainer",
