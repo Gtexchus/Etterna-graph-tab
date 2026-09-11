@@ -125,32 +125,11 @@ local values = {} --values[1] is the highest acc
 setValues(values, useMidGrades)
 
 
-local wholeGrades = { --stupid fucking midgrade preference
-    THEME:GetString("Grade", "Tier01"), -- AAAAA
-    THEME:GetString("Grade", "Tier04"), -- AAAA
-    THEME:GetString("Grade", "Tier07"), -- AAA
-    THEME:GetString("Grade", "Tier10"), -- AA
-    THEME:GetString("Grade", "Tier13"), -- A
-    THEME:GetString("Grade", "Tier14"), -- B
-	THEME:GetString("Grade", "Tier15"), -- C
-	THEME:GetString("Grade", "Tier16"),
-	THEME:GetString("Grade", "Failed")
-}
 local layerNames = {}
 
 for i=1, #values do
     local gradeNum = gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) + (i-1)
-    if useMidGrades then
-        local gradenumStr
-        if gradeNum < 10 then
-            gradeNumStr = 0 .. tostring(gradeNum)
-        else
-            gradeNumStr = tostring(gradeNum)
-        end
-        layerNames[i] = getGradeStrings("Grade_Tier" .. gradeNumStr)
-    else
-        layerNames[i] = wholeGrades[gradeNum]
-    end
+    layerNames[i] = getGradeStrings(gradeUtils.GradeNumToGradeTier(gradeNum, useMidGrades))
 end
 
 local t = Def.ActorFrame{
