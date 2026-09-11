@@ -102,4 +102,47 @@ gradeUtils.GetUpperGradeBoundary = function(wife, useMidGrades)
     return gradeUtils.GradeNumToWife(gradeUtils.GetGradeNum(wife, useMidGrades) - 1, useMidGrades)
 end
 
+--given a gradeNum, returns the color corresponding to that grade
+--if the gradeNum is a midGrade, the color returned is somewhere 
+--between the midGrade's whole grade and the next whole grade
+--differenceFactor is used to determine how close to the next color it should be
+--e.g. if gradeNum corresponds to an AA., 
+--with differenceFactor = 1, the color will be 33% between AA and AAA
+--with differenceFactor = 2, the color will be 16.5% between AA and AAA
+--its basically a gradient ok
+gradeUtils.GetMidGradeColor = function(gradeNum, useMidGrades, differenceFactor)
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
+    local differenceFactor = differenceFactor or 3
+    local grades = {"Grade_Tier01",
+    "Grade_Tier04",
+    "Grade_Tier07",
+    "Grade_Tier10",
+    "Grade_Tier13",
+    "Grade_Tier14",
+    "Grade_Tier15",
+    "Grade_Tier16",
+    "Grade_Failed"}
+    if not useMidGrades then
+        return colorByGrade(grades[gradeNum])
+    end
+    local gradeTierStr = tostring(gradeNum)
+    if gradeNum < 10 then
+        gradeTierStr = "0" .. gradeTierStr
+    end
+    local gradeFamily = getGradeFamilyForMidGrade("Grade_Tier" .. gradeTierStr):sub(11, 12)
+    local diff = gradeFamily - gradeNum
+    local baseColor = colorByGrade(grades[gradeUtils.midGradeNumToGradeNum[gradeNum]])
+    if diff == 0 then 
+        return baseColor 
+    end
+    local nextColor = colorByGrade(grades[gradeUtils.midGradeNumToGradeNum[gradeNum] - 1])
+    local color = {}
+    for j=1, 4 do
+        color[j] = ((nextColor[j] - baseColor[j]) * (diff/(3 * differenceFactor))) + baseColor[j]
+    end
+    return color
+end
+
 return gradeUtils
