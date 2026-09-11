@@ -139,12 +139,16 @@ end
 gradeUtils.GradeTierToGradeNum = function(gradeTier, useMidGrades)
     --this function allows the input of both number and string
     --e.g. Grade_Tier05 and 5 are both valid inputs
+    if useMidGrades == nil then 
+        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+    end
+    if gradeTier == "Failed" or gradeTier == "Grade_Failed" then --special case for failed
+        if useMidGrades then return 17 end
+        return 9
+    end
     if type(gradeTier) == string then --if we pass in Grade_Tier05 instead of 5
         gradeTier = tonumber(gradeTier:sub(11, 12))
         ms.ok("string")
-    end
-    if useMidGrades == nil then 
-        useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
     end
     if useMidGrades then return gradeTier end
     return gradeUtils.midGradeNumToGradeNum[gradeTier]
