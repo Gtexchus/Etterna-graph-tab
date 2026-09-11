@@ -180,20 +180,7 @@ t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = gradeCounts,
     ColorFunc = function(params) 
-        local grades = {"Grade_Tier01",
-        "Grade_Tier04",
-        "Grade_Tier07",
-        "Grade_Tier10",
-        "Grade_Tier13",
-        "Grade_Tier14",
-        "Grade_Tier15",
-        "Grade_Tier16",
-        "Grade_Failed"}
-        local i = params.barNum
-        if useMidGrades then
-            i = gradeUtils.midGradeNumToGradeNum[i]
-        end
-        return colorByGrade(grades[i])
+        return gradeUtils.GetMidGradeColor(params.barNum, useMidGrades)
     end,
 
     BarNumToStringFunc = function(params) 
