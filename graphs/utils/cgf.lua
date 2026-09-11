@@ -115,8 +115,8 @@ cgf.ValueFuncAcc = function(params, useMidGrades) --i fucking hate this too
     local upperSectionBound = ((sectionNumber) / numberOfSections) * params.GraphLength
     local lowerSectionBound = ((sectionNumber+1) / numberOfSections) * params.GraphLength
     local progressIntoSection = ((lowerSectionBound - stupidY) / (lowerSectionBound - upperSectionBound))
-    local lowerWifeBound = gradeUtils.GradeTierToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
-    local upperWifeBound = gradeUtils.GradeTierToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
+    local lowerWifeBound = gradeUtils.GradeNumToWife((minGrade - (numberOfSections - sectionNumber)) + 1, useMidGrades)
+    local upperWifeBound = gradeUtils.GradeNumToWife(minGrade - (numberOfSections - sectionNumber), useMidGrades)
     local acc = (lowerWifeBound + ((upperWifeBound - lowerWifeBound) * progressIntoSection))
     return acc
 end
