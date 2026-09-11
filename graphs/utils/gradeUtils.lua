@@ -1,6 +1,17 @@
 --helper functions for grade stuff
 local gradeUtils = {}
 
+--slightly confusing terminology used for this; wtf is a gradeNum????
+--a gradeNum is basically the end number of a Grade_Tier, e.g. the gradeNum for Grade_Tier08 would be 8
+--however, if midgrades are turned off, then gradeNum is the end number of the Grade_Tier if midgrades never existed in the first place
+--"What the fuck does this even mean????"
+--If midgrades are turned off, then the gradeNum for Grade_Tier08 would be 4
+--"Why the fuck does an 8 turn into a 4???"
+--Grade_Tier08 corresponds to the midgrade AA: (the : is part of the midgrade)
+--the 'whole grade' for AA: is AA
+--AA is the 4th grade if you dont include midgrades, as it goes AAAAA, AAAA, AAA, AA, ...
+--hence, if midgrades didnt exist, then Grade_Tier08 would actually be Grade_Tier04
+
 gradeUtils.midGradeNumToGradeNum = {
     [0] = 0,
     [1] = 1,
