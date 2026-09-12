@@ -6,6 +6,8 @@ local actuals = {
     BarWidth = ratios.BarWidth * SCREEN_WIDTH
 }
 
+local barColor = color("#9c6dd1")
+
 SCOREMAN:SortRecentScoresForGame()
 
 local function initialiseValues(values)
@@ -56,7 +58,8 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
             "Saturday"
         }
         return days[params.barNum]
-    end
+    end,
+    ColorFunc = function(params) return barColor end,
 })
 
 return t
