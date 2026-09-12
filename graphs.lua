@@ -53,6 +53,7 @@ local buttons = {
         {graphActorName = "MSDdistributionContainer", graphFileName = "msdDistribution", graphButtonText = "MSD distribution"},
         {graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonText = "Cleartypes"},
         {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart playcounts"},
+        {graphActorName = "PlaycountPerDayDistributionContainer", graphFileName = "playcountPerDayDistribution", graphButtonText = "Playcount per day"},
     },
 
     --scatter graphs
