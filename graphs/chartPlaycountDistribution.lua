@@ -49,7 +49,7 @@ SCOREMAN:SortRecentScoresForGame()
 local playcounts = {0}
 setPlaycounts(playcounts)
 
-t = Def.ActorFrame{
+local t = Def.ActorFrame{
     Name = "ChartPlaycountDistributionContainer",
 }
 

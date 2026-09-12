@@ -52,7 +52,7 @@ else
 end
 
 
-t = Def.ActorFrame{
+local t = Def.ActorFrame{
     Name = "JudgementDistributionGraphContainer",
 }
 
