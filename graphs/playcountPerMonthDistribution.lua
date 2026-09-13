@@ -16,7 +16,7 @@ local minYear
 local function setValues(values)
     for i = 1, SCOREMAN:GetTotalNumberOfScores() do
         --loop through scores backwards so minMonth/Year can be set correctly
-        local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
+        local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - (i-1))
         if score ~= nil then
             local dateText = score:GetDate()
             if dateText ~= nil then

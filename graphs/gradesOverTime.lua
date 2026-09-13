@@ -62,7 +62,7 @@ local function setValues(values, useMidGrades)
         local minTime = -1 --time of the first score in the sample
 
         while minTime < 0 and i <= SCOREMAN:GetTotalNumberOfScores() do --get the next valid time
-            local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
+            local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - (i-1))
             if score ~= nil then
                 local dateText = score:GetDate()
                 if dateText ~= nil then
@@ -79,7 +79,7 @@ local function setValues(values, useMidGrades)
         end
         --while we are still within the time bounds for this sample
         while dt < samplerate and i <= SCOREMAN:GetTotalNumberOfScores() do
-            local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i) --loop through scores backwards (most recent is last)
+            local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - (i-1)) --loop through scores backwards (most recent is last)
             if score ~= nil then
                 local grade = score:GetWifeGrade()
                 local wife = score:GetWifeScore()

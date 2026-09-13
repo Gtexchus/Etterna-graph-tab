@@ -56,7 +56,7 @@ SCOREMAN:SortRecentScoresForGame()
 
 --find max msd
 for i = 1, SCOREMAN:GetTotalNumberOfScores() do
-    local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - i)
+    local score = SCOREMAN:GetRecentScoreForGame(SCOREMAN:GetTotalNumberOfScores() - (i-1))
     if score ~= nil then
         if score:GetSkillsetSSR("overall") > maxMSD then
             maxMSD = score:GetSkillsetSSR("overall")
