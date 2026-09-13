@@ -55,6 +55,7 @@ local buttons = {
         {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart playcounts"},
         {graphActorName = "PlaycountPerDayDistributionContainer", graphFileName = "playcountPerDayDistribution", graphButtonText = "Playcount per day"},
         {graphActorName = "PlaycountPerHourDistributionContainer", graphFileName = "playcountPerHourDistribution", graphButtonText = "Playcount per hour"},
+        {graphActorName = "PlaycountPerMonthDistributionContainer", graphFileName = "playcountPerMonthDistribution", graphButtonText = "Playcount per month"},
     },
 
     --scatter graphs
