@@ -105,7 +105,7 @@ local gradeCounts = {}
 
 setGradeCounts(gradeCounts, false)
 
-t = Def.ActorFrame{
+local t = Def.ActorFrame{
     Name = "GradeDistributionGraphContainer",
 
     UIElements.TextButton(1, 1, "Common Normal") .. {

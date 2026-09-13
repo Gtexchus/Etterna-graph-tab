@@ -72,7 +72,7 @@ end
 setMSDcounts(msdCounts, "overall")
 
 
-t = Def.ActorFrame{
+local t = Def.ActorFrame{
     Name = "MSDdistributionContainer",
 }
 
