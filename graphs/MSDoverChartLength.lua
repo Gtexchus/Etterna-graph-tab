@@ -1,7 +1,6 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
 
 local ratios = {
-    YaxisLabelOffset = 5 / 1920,
     SkillsetButtonsX = 590 / 1920,
     SkillsetButtonsY = -80 / 1080,
     SkillsetButtonsHorizontalSpacing = 80 / 1920,
@@ -9,7 +8,6 @@ local ratios = {
 }
 
 local actuals = {
-    YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
@@ -22,12 +20,10 @@ local skillsetButtonsMaxWidth = 100
 local buttonHoverAlpha = 0.6
 local maxSkillsetButtonsPerColumn = 4
 local plotAlpha = 0.5
-local xAxisLabelScale = 4
-local yAxisLabelCount = 10
-local xAxisLabelInnerLineAlpha = 0.3
-local yAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelTextSize = 0.5
-local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
+local yAxisLabelScale = 4
+local xAxisLabelCount = 10
+local yAxisLabelInnerLineAlpha = 0.3
+local xAxisLabelInnerLineColor = color("#52525280")
 
 --if you want to zoom in on the highest density section of the graph (where the most scores are)
 --try increasing minLen and scaleDivisor
@@ -58,8 +54,8 @@ local function setValues(values, skillset)
                 if len > minLen then
                     local index = #values + 1
                     values[index] = {}
-                    values[index][1] = ssr
-                    values[index][2] = len
+                    values[index][1] = len
+                    values[index][2] = ssr
                 end
             end
         end
@@ -70,7 +66,7 @@ local values = {}
 setValues(values, "overall")
 
 local t = Def.ActorFrame{
-    Name = "ChartLengthOverMSDGraphContainer",
+    Name = "MSDoverChartLengthGraphContainer",
 }
 
 
@@ -142,36 +138,33 @@ t[#t + 1] = sbc
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
-    ColorFunc = function(params) return colorByMSD(params.xValue) end,
+    ColorFunc = function(params) return colorByMSD(params.yValue) end,
 
-    Yfunc = function(params)
+    Xfunc = function(params)
         return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
-    YvalueFunc = function(params)
+    XvalueFunc = function(params)
         return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
 
-    XvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
+    YvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
-    YvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
-
-    XaxisLabelColorFunc = function(params)
-        return cgf.AxisLabelColorFuncMSD(params, xAxisLabelInnerLineAlpha)
-    end,
+    XvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
 
     YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
+        return cgf.AxisLabelColorFuncMSD(params, yAxisLabelInnerLineAlpha)
     end,
 
-    XaxisLabelScale = xAxisLabelScale,
-    YaxisLabelCount = yAxisLabelCount,
-    YaxisLabelOffset = actuals.YaxisLabelOffset,
-    YaxisLabelTextSize = yAxisLabelTextSize,
-    YaxisLabelTextMaxWidth = yAxisLabelTextMaxWidth,
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+    end,
+
+    YaxisLabelScale = yAxisLabelScale,
+    XaxisLabelCount = xAxisLabelCount,
     PlotAlpha = plotAlpha,
-    Xunits = "MSD",
-    Yunits = "Chart length"
+    Xunits = "Chart length",
+    Yunits = "MSD",
 })
 
 return t
