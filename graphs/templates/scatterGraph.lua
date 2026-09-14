@@ -93,7 +93,7 @@ yValue [number] (point's y value)
 returns: color (color for the point)
 ]]
 
-local xAxisLabelColorFunc = Var("XaxisLabelColorFunc") or function(params) return {text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = color("#ffffff")} end
+local xAxisLabelColorFunc = Var("XaxisLabelColorFunc") or function(params) return color("#ffffff") end
 --[[xAxisLabelColorFunc
 purpose: colors all parts of the x axis label (text, outer line, inner line)
 
@@ -103,7 +103,7 @@ value [number] (label's x value)
 returns: table of colors, with keys {text, outerLine, innerLine}
 ]]
 
-local yAxisLabelColorFunc = Var("YaxisLabelColorFunc") or function(params) return {text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = color("#ffffff")} end
+local yAxisLabelColorFunc = Var("YaxisLabelColorFunc") or function(params) return color("#ffffff") end
 --[[yAxisLabelColorFunc
 purpose: colors all parts of the y axis label (text, outer line, inner line)
 
@@ -218,11 +218,9 @@ end
 
 
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
-local xAxisLabelOuterLineColor = Var("XaxisLabelOuterLineColor") or color("#ffffff")
-local xAxisLabelInnerLineColor = Var("XaxisLabelInnerLineColor") or color("#ffffff")
-local yAxisLabelOuterLineColor = Var("YaxisLabelOuterLineColor") or color("#ffffff")
-local yAxisLabelInnerLineColor = Var("XaxisLabelInnerLineColor") or color("#ffffff")
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
+local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.3
+local yAxisLabelInnerLineAlpha = Var("YaxisLabelInnerLineAlpha") or 0.3
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
 local xAxisLabelTextMaxWidth = Var("XaxisLabelTextMaxWidth") or 500 --max width of x axis label text
@@ -440,7 +438,7 @@ for i=1, (xAxisLabelsCount) do
                 maxValue = maxXvalue
                 }) 
                 self:settext(xStr)
-                self:diffuse(xAxisLabelColorFunc({value = xValue}).text)
+                self:diffuse(xAxisLabelColorFunc({value = xValue}))
                 self:maxwidth(xAxisLabelTextMaxWidth)
             end
         },
@@ -463,7 +461,7 @@ for i=1, (xAxisLabelsCount) do
                 GraphLength = actuals.GraphWidth
                 })
 
-                self:diffuse(xAxisLabelColorFunc({value = xValue}).outerLine)
+                self:diffuse(xAxisLabelColorFunc({value = xValue}))
             end
         },
 
@@ -473,7 +471,6 @@ for i=1, (xAxisLabelsCount) do
                 self:valign(0)
                 self:y(-(actuals.XaxisLabelOffset + actuals.GraphHeight))
                 self:zoomto(actuals.XaxisLabelLineThickness, actuals.GraphHeight)
-                self:diffuse(xAxisLabelInnerLineColor)
                 self:playcommand("Set")
             end,
 
@@ -486,7 +483,8 @@ for i=1, (xAxisLabelsCount) do
                 GraphLength = actuals.GraphWidth
                 })
 
-                self:diffuse(xAxisLabelColorFunc({value = xValue}).innerLine)
+                self:diffuse(xAxisLabelColorFunc({value = xValue}))
+                self:diffusealpha(xAxisLabelInnerLineAlpha)
             end
         }
     }
@@ -535,7 +533,7 @@ for i=1, (yAxisLabelsCount) do
                 maxValue = maxYvalue
                 })
                 self:settext(yStr)
-                self:diffuse(yAxisLabelColorFunc({value = yValue}).text)
+                self:diffuse(yAxisLabelColorFunc({value = yValue}))
                 self:maxwidth(yAxisLabelTextMaxWidth)
             end
         },
@@ -558,7 +556,7 @@ for i=1, (yAxisLabelsCount) do
                 GraphLength = actuals.GraphHeight
                 })
 
-                self:diffuse(yAxisLabelColorFunc({value = yValue}).outerLine)
+                self:diffuse(yAxisLabelColorFunc({value = yValue}))
             end
         },
 
@@ -568,7 +566,6 @@ for i=1, (yAxisLabelsCount) do
                 self:halign(0)
                 self:x(actuals.YaxisLabelOffset)
                 self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineThickness)
-                self:diffuse(yAxisLabelInnerLineColor)
                 self:playcommand("Set")
             end,
 
@@ -581,7 +578,8 @@ for i=1, (yAxisLabelsCount) do
                 GraphLength = actuals.GraphHeight
                 })
 
-                self:diffuse(yAxisLabelColorFunc({value = yValue}).innerLine)
+                self:diffuse(yAxisLabelColorFunc({value = yValue}))
+                self:diffusealpha(yAxisLabelInnerLineAlpha)
             end
         }
     }
