@@ -10,10 +10,10 @@ local actuals = {
 }
 
 local plotAlpha = 0.5
-local yAxisLabelCount = 10
+local xAxisLabelCount = 10
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
-local yAxisLabelInnerLineColor = color("#52525280")
+local xAxisLabelInnerLineColor = color("#52525280")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
@@ -47,8 +47,8 @@ local function setValues(values, skillset)
             if wife >= (minWife) and wife <= (maxWife) and grade ~= "Failed" and grade ~= "Grade_Failed" and len > minLen and notes >= 200 then
                 local index = #values + 1
                 values[index] = {}
-                values[index][1] = wife
-                values[index][2] = len
+                values[index][1] = len
+                values[index][2] = wife
                 minFoundWife = math.min(minFoundWife, wife)
                 maxFoundWife = math.max(maxFoundWife, wife)
             end
@@ -58,56 +58,56 @@ end
 
 local values = {}
 setValues(values)
-local xAxisLabelCount = (gradeUtils.WifeToGradeNum(minFoundWife, useMidGrades) - gradeUtils.WifeToGradeNum(maxFoundWife, useMidGrades)) + 2
+local yAxisLabelCount = (gradeUtils.WifeToGradeNum(minFoundWife, useMidGrades) - gradeUtils.WifeToGradeNum(maxFoundWife, useMidGrades)) + 2
 
 local t = Def.ActorFrame{
-    Name = "ChartLengthOverAccuracyGraphContainer"
+    Name = "AccuracyOverChartLengthGraphContainer"
 }
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
     Xfunc = function(params)
-        return cgf.CoordFuncAcc(params, useMidGrades)
-    end,
-
-    XvalueFunc = function(params)
-        return cgf.ValueFuncAcc(params, useMidGrades)
-    end,
-
-    MinXvalueFunc = function(params)
-        return cgf.MinValueFuncAcc(params, useMidGrades)
-    end,
-    
-    MaxXvalueFunc = function(params)
-        return cgf.MaxValueFuncAcc(params, useMidGrades)
-    end,
-
-    XvalueToStringFunc = cgf.ValueToStringFuncAcc,
-    XaxisLabelColorFunc = cgf.AxisLabelColorFuncAcc,
-
-    Yfunc = function(params)
         return cgf.CoordFuncAsinh(params, scaleDivisor)
     end,
 
-    YvalueFunc = function(params)
+    XvalueFunc = function(params)
         return cgf.ValueFuncAsinh(params, scaleDivisor)
     end,
 
-    YvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
+    XvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
 
-    YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
+    XaxisLabelColorFunc = function(params)
+        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
     end,
 
+    Yfunc = function(params)
+        return cgf.CoordFuncAcc(params, useMidGrades)
+    end,
+
+    YvalueFunc = function(params)
+        return cgf.ValueFuncAcc(params, useMidGrades)
+    end,
+
+    MinYvalueFunc = function(params)
+        return cgf.MinValueFuncAcc(params, useMidGrades)
+    end,
+    
+    MaxYvalueFunc = function(params)
+        return cgf.MaxValueFuncAcc(params, useMidGrades)
+    end,
+
+    YvalueToStringFunc = cgf.ValueToStringFuncAcc,
+    YaxisLabelColorFunc = cgf.AxisLabelColorFuncAcc,
+
     ColorFunc = function(params)
-        return colorByGrade(GetGradeFromPercent(params.xValue))
+        return colorByGrade(GetGradeFromPercent(params.yValue))
     end,
 
     XaxisLabelCount = xAxisLabelCount,
     YaxisLabelCount = yAxisLabelCount,
     PlotAlpha = plotAlpha,
-    Xunits = "Accuracy",
-    Yunits = "Chart length",
+    Xunits = "Chart length",
+    Yunits = "Accuracy",
     YaxisLabelOffset = actuals.YaxisLabelOffset,
     YaxisLabelTextSize = yAxisLabelTextSize,
     YaxisLabelTextMaxWidth = yAxisLabelTextMaxWidth

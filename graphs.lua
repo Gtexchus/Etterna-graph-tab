@@ -68,7 +68,7 @@ local buttons = {
         {graphActorName = "MAoverAccuracyGraphContainer", graphFileName = "MAoverAccuracy", graphButtonText = "MA over Accuracy"},
         {graphActorName = "MSDoverChartLengthGraphContainer", graphFileName = "MSDoverChartLength", graphButtonText = "MSD over Chart Length"},
         {graphActorName = "ChartLengthOverTimeGraphContainer", graphFileName = "chartLengthOverTime", graphButtonText = "Chart Length over Time"},
-        {graphActorName = "ChartLengthOverAccuracyGraphContainer", graphFileName = "chartLengthOverAccuracy", graphButtonText = "Chart Length over Accuracy"},
+        {graphActorName = "AccuracyOverChartLengthGraphContainer", graphFileName = "accuracyOverChartLength", graphButtonText = "Accuracy over Chart Length"},
     },
 
     --line graphs
