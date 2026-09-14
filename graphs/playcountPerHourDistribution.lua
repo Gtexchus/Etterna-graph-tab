@@ -27,10 +27,13 @@ local function setValues(values)
         if score ~= nil then
             local dateText = score:GetDate()
             if dateText ~= nil then
-                local hour = tonumber(dateText:sub(12, 13)) + 1
-                --midnight is 00
-                -- +1 because we need the first bar to be at index 1
-                values[hour] = values[hour] + 1
+                local hour = tonumber(dateText:sub(12, 13))
+                if hour ~= nil then --just in case
+                    --midnight is 00
+                    -- +1 because we need the first bar to be at index 1
+                    hour = hour + 1
+                    values[hour] = values[hour] + 1
+                end
             end
         end
     end
