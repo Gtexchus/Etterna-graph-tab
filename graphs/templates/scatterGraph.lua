@@ -100,7 +100,7 @@ purpose: colors all parts of the x axis label (text, outer line, inner line)
 params:
 value [number] (label's x value)
 
-returns: table of colors, with keys {text, outerLine, innerLine}
+returns: color
 ]]
 
 local yAxisLabelColorFunc = Var("YaxisLabelColorFunc") or function(params) return color("#ffffff") end
@@ -110,7 +110,7 @@ purpose: colors all parts of the y axis label (text, outer line, inner line)
 params:
 value [number] (label's y value)
 
-returns: table of colors, with keys {text, outerLine, innerLine}
+returns: color
 ]]
 
 local xValueToStringFunc = Var("XvalueToStringFunc") or function(params) return tostring(params.value) end
