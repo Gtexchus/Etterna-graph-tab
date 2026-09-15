@@ -684,7 +684,6 @@ for i=1, (xAxisLabelsCount) do
                 self:valign(0)
                 self:y(-(actuals.XaxisLabelOffset + actuals.GraphHeight))
                 self:zoomto(actuals.XaxisLabelLineThickness, actuals.GraphHeight)
-                self:diffuse(xAxisLabelInnerLineColor)
                 self:playcommand("Set")
             end,
 
@@ -780,7 +779,6 @@ for i=1, (yAxisLabelsCount) do
                 self:halign(0)
                 self:x(actuals.YaxisLabelOffset)
                 self:zoomto(actuals.GraphWidth, actuals.YaxisLabelLineThickness)
-                self:diffuse(yAxisLabelInnerLineColor)
                 self:playcommand("Set")
             end,
 
