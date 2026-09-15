@@ -138,7 +138,7 @@ t[#t + 1] = sbc
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
-    ColorFunc = function(params) return colorByMSD(params.yValue) end,
+    ColorFunc = function(params) return cgf.AxisLabelColorFuncMSD({value = params.yValue}) end,
 
     Xfunc = function(params)
         return cgf.CoordFuncAsinh(params, scaleDivisor)
@@ -152,13 +152,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
     XvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
 
-    YaxisLabelColorFunc = function(params)
-        return cgf.AxisLabelColorFuncMSD(params, yAxisLabelInnerLineAlpha)
-    end,
-
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
+    YaxisLabelColorFunc = cgf.AxisLabelColorFuncMSD,
 
     YaxisLabelScale = yAxisLabelScale,
     XaxisLabelCount = xAxisLabelCount,

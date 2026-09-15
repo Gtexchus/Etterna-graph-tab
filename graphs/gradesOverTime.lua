@@ -25,9 +25,6 @@ local actuals = {
 local buttonHoverAlpha = 0.6
 local layerLabelSize = 0.6
 local bgColour = color("#000000")
-
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineColor = color("#52525280")
 local plotAnimationSeconds = 0.5
 
 
@@ -147,14 +144,6 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     ColorFunc = function(params) 
         local gradeNum = params.layer + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
         return gradeUtils.GetMidGradeColor(gradeNum, useMidGrades)
-    end,
-
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
-
-    YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
     end,
 
     LayerNames = layerNames,

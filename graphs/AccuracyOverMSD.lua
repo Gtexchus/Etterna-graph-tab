@@ -40,8 +40,6 @@ local plotAlpha = 0.5
 local maxSkillsetButtonsPerColumn = 4
 
 local XaxisLabelsScale = 4
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelLineAlpha = 0.3
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
@@ -161,7 +159,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return cgf.ValueFuncAcc(params, useMidGrades)
     end,
 
-    ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.yValue)) end,
+    ColorFunc = function(params) return cgf.AxisLabelColorFuncAcc({value = params.yValue}) end,
     XvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
     YvalueToStringFunc = cgf.ValueToStringFuncAcc,
@@ -174,14 +172,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return cgf.MaxValueFuncAcc(params, useMidGrades)
     end,
 
-    
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
-
-    YaxisLabelColorFunc = function(params)
-        return cgf.AxisLabelColorFuncAcc(params, yAxisLabelLineAlpha)
-    end,
+    YaxisLabelColorFunc = cgf.AxisLabelColorFuncAcc,
 
     XaxisLabelScale = XaxisLabelsScale,
     YaxisLabelCount = YaxisLabelsCount,

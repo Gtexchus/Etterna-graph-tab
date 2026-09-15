@@ -37,8 +37,6 @@ local maxSkillsetButtonsPerColumn = 4
 local plotAlpha = 0.5
 local XaxisLabelScale = 4
 local YaxisLabelCount = 21
-local yAxisLabelInnerLineColor = color("#52525280")
-local xAxisLabelInnerLineAlpha = 0.3
 
 local minWife = 0.93
 local maxWife = 1
@@ -117,15 +115,10 @@ local t = Def.ActorFrame{
                 return cgf.MaxValueFuncAcc(params, useMidGrades)
             end,
 
-            ColorFunc = function(params) return colorByGrade(GetGradeFromPercent(params.xValue)) end,
+            ColorFunc = function(params) return cgf.AxisLabelColorFuncAcc({value = params.xValue}) end,
 
-            XaxisLabelColorFunc = function(params)
-                return cgf.AxisLabelColorFuncAcc(params, xAxisLabelInnerLineAlpha)
-            end,
+            XaxisLabelColorFunc = cgf.AxisLabelColorFuncAcc,
 
-            YaxisLabelColorFunc = function(params)
-                return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
-            end,
             GraphWidth = actuals.GraphWidth,
             GraphHeight = actuals.GraphHeight,
             PlotAlpha = plotAlpha,

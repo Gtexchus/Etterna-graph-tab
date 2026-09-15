@@ -12,8 +12,6 @@ local actuals = {
 local xAxisLabelCount = 5
 local yAxisLabelCount = 10
 local plotAlpha = 0.5
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineAlpha = 0.3
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
@@ -67,7 +65,7 @@ local t = Def.ActorFrame{
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
-    ColorFunc = function(params) return colorByMusicLength(params.yValue) end,
+    ColorFunc = function(params) return cgf.AxisLabelColorFuncChartLength({value = params.yValue}) end,
 
     Yfunc = function(params)
         return cgf.CoordFuncAsinh(params, scaleDivisor)
@@ -80,21 +78,10 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     XvalueToStringFunc = cgf.ValueToStringFuncTime,
 
     YvalueToStringFunc = function(params)
-        return SecondsToMMSS(params.value) end,
-
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
+        return SecondsToMMSS(params.value) 
     end,
 
-    YaxisLabelColorFunc = function(params)
-        local color = colorByMusicLength(params.value)
-        local innerLineColor = {}
-        for k, v in pairs(color) do
-            innerLineColor[k] = v
-        end
-        innerLineColor[4] = yAxisLabelInnerLineAlpha
-        return {text = color, outerLine = color, innerLine = innerLineColor}
-    end,
+    YaxisLabelColorFunc = cgf.AxisLabelColorFuncChartLength,
 
     XaxisLabelCount = xAxisLabelCount,
     YaxisLabelCount = yAxisLabelCount,

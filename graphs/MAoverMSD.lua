@@ -24,8 +24,6 @@ local maxSkillsetButtonsPerColumn = 4
 local plotAlpha = 0.5
 local xAxisLabelScale = 4
 local yAxisLabelCount = 10
-local xAxisLabelInnerLineAlpha = 0.3
-local yAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 local base = 10
@@ -139,7 +137,7 @@ t[#t + 1] = sbc
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
-    ColorFunc = function(params) return colorByMSD(params.xValue) end,
+    ColorFunc = function(params) return cgf.AxisLabelColorFuncMSD({value = params.xValue}) end,
 
     Yfunc = function(params)
         return cgf.CoordFuncLog(params, base)
@@ -155,13 +153,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
         return string.format("%5.2f", params.value)
     end,
 
-    XaxisLabelColorFunc = function(params)
-        return cgf.AxisLabelColorFuncMSD(params, xAxisLabelInnerLineAlpha)
-    end,
-
-    YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
-    end,
+    XaxisLabelColorFunc = cgf.AxisLabelColorFuncMSD,
 
     --[[ --use this to make the axis labels start and end on some power of base
     MinYvalueFunc = function(params)

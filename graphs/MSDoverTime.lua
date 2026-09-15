@@ -21,8 +21,6 @@ local actuals = {
 
 local smallButtonTextSize = 0.5
 local skillsetButtonsMaxWidth = 100
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelLineAlpha = 0.3
 local buttonHoverAlpha = 0.6
 local XaxisLabelsCount = 5
 local YaxisLabelsScale = 4
@@ -132,19 +130,13 @@ t[#t + 1] = sbc
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     Values = values,
-    ColorFunc = function(params) return colorByMSD(params.yValue) end,
+    ColorFunc = function(params) return cgf.AxisLabelColorFuncMSD({value = params.yValue}) end,
 
     XvalueToStringFunc = cgf.ValueToStringFuncTime,
 
     YvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
-
-    YaxisLabelColorFunc = function(params)
-        return cgf.AxisLabelColorFuncMSD(params, yAxisLabelLineAlpha)
-    end,
+    YaxisLabelColorFunc = cgf.AxisLabelColorFuncMSD,
 
     XaxisLabelCount = 5,
     YaxisLabelScale = YaxisLabelsScale,
