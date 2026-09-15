@@ -199,6 +199,10 @@ cgf.AxisLabelColorFuncAcc = function(params)
     return colorByGrade(GetGradeFromPercent(params.value))
 end
 
+cgf.AxisLabelColorFuncChartLength = function(params)
+    return colorByMusicLength(params.value)
+end
+
 
 
 --min/max value funcs
