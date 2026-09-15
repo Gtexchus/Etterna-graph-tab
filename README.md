@@ -1,5 +1,5 @@
 # Etterna Graph Tab
-Visualise your Etterna savefile with 23 different graphs
+Visualise your Etterna savefile with 23 different graphs.
 
 ## Installation
 ### Pre-installed
@@ -45,7 +45,7 @@ The following preferences are not yet fully supported:
 
 Every graph respects the midgrade preference.
 
-It is strongly advised to enable the midgrade preference when viewing graphs, as they were designed to be viewed with midgrades on. ***This will still work even if you have set all of you scores with midgrades off.***
+It is strongly advised to enable the midgrade preference when viewing graphs, as they were designed to be viewed with midgrades on. ***This will still work even if you have set all of your scores with midgrades off.***
 
 The midgrade preference is purely visual, and won't affect your save file.
 
