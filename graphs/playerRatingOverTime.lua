@@ -42,8 +42,6 @@ local buttonHoverAlpha = 0.6
 local bgAlpha = 0.7
 local bgColour = color("#000000")
 local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineColor = color("#52525280")
 local buttonHoverAlpha = 0.6
 local XaxisLabelCount = 5
 local YaxisLabelScale = 2
@@ -114,12 +112,6 @@ t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
     end,
     ColorFunc = function(params)
         return skillsetColors[params.layer]
-    end,
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
-    YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
     end,
     GraphWidth = actuals.GraphWidth,
     GraphHeight = actuals.GraphHeight,

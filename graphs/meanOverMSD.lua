@@ -34,8 +34,6 @@ local maxSkillsetButtonsPerColumn = 4
 local plotAlpha = 0.5
 local XaxisLabelScale = 4
 local YaxisLabelCount = 21
-local yAxisLabelInnerLineColor = color("#52525280")
-local xAxisLabelLineAlpha = 0.3
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
@@ -109,14 +107,10 @@ local t = Def.ActorFrame{
                 return string.format("%5.2f", params.value)
             end,
 
-            ColorFunc = function(params) return colorByMSD(params.xValue) end,
+            ColorFunc = function(params) return cgf.AxisLabelColorFuncMSD({value = params.xValue}) end,
 
-            XaxisLabelColorFunc = function(params)
-                return cgf.AxisLabelColorFuncMSD(params, xAxisLabelLineAlpha)
-            end,
-            YaxisLabelColorFunc = function(params)
-                return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
-            end,
+            XaxisLabelColorFunc = cgf.AxisLabelColorFuncMSD,
+
             PlotAlpha = plotAlpha,
             XaxisLabelScale = XaxisLabelScale,
             YaxisLabelCount = YaxisLabelCount,

@@ -191,26 +191,16 @@ end
 
 --axis label color funcs
 
-cgf.AxisLabelColorFuncMSD = function(params, innerLineAlpha)
-    innerLineAlpha = innerLineAlpha or 0.3
-    local color = colorByMSD(params.value)
-    local innerLineColor = {}
-    for k, v in pairs(color) do
-        innerLineColor[k] = v
-    end
-    innerLineColor[4] = innerLineAlpha
-    return {text = color, outerLine = color, innerLine = innerLineColor}
+cgf.AxisLabelColorFuncMSD = function(params)
+    return colorByMSD(params.value)
 end
 
-cgf.AxisLabelColorFuncAcc = function(params, innerLineAlpha)
-    innerLineAlpha = innerLineAlpha or 0.3
-    local color = colorByGrade(GetGradeFromPercent(params.value))
-    local innerLineColor = {}
-    for k, v in pairs(color) do
-        innerLineColor[k] = v
-    end
-    innerLineColor[4] = innerLineAlpha
-    return {text = color, outerLine = color, innerLine = innerLineColor}
+cgf.AxisLabelColorFuncAcc = function(params)
+    return colorByGrade(GetGradeFromPercent(params.value))
+end
+
+cgf.AxisLabelColorFuncChartLength = function(params)
+    return colorByMusicLength(params.value)
 end
 
 

@@ -13,7 +13,6 @@ local plotAlpha = 0.5
 local xAxisLabelCount = 10
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
-local xAxisLabelInnerLineColor = color("#52525280")
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
@@ -76,10 +75,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
     XvalueToStringFunc = function(params) return SecondsToMMSS(params.value) end,
 
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
-
     Yfunc = function(params)
         return cgf.CoordFuncAcc(params, useMidGrades)
     end,
@@ -100,7 +95,7 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
     YaxisLabelColorFunc = cgf.AxisLabelColorFuncAcc,
 
     ColorFunc = function(params)
-        return colorByGrade(GetGradeFromPercent(params.yValue))
+        return cgf.AxisLabelColorFuncAcc({value = params.yValue})
     end,
 
     XaxisLabelCount = xAxisLabelCount,

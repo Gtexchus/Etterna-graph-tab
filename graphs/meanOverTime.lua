@@ -21,8 +21,6 @@ local scaleDivisor = 50
 local plotAlpha = 0.5
 local XaxisLabelCount = 5
 local YaxisLabelCount = 21
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineColor = color("#52525280")
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
 
@@ -81,14 +79,6 @@ local t = Def.ActorFrame{
 
             YvalueToStringFunc = function(params)
                 return string.format("%5.2f", params.value)
-            end,
-
-            XaxisLabelColorFunc = function(params)
-                return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-            end,
-
-            YaxisLabelColorFunc = function(params)
-                return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
             end,
 
             GraphWidth = actuals.GraphWidth,

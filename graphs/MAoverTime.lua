@@ -14,9 +14,6 @@ local xAxisLabelCount = 5
 local yAxisLabelCount = 10
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
-local xAxisLabelInnerLineColor = color("#52525280")
-local yAxisLabelInnerLineColor = color("#52525280")
-
 
 local base = 10
 
@@ -79,14 +76,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
     YvalueToStringFunc = function(params)
         return string.format("%5.2f", params.value)
-    end,
-
-    XaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = xAxisLabelInnerLineColor}
-    end,
-
-    YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
     end,
 
     --[[ --use this to make the axis labels start and end on some power of base

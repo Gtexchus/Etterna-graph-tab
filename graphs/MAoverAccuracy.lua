@@ -16,7 +16,6 @@ local plotAlpha = 0.5
 local yAxisLabelCount = 10
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
-local yAxisLabelInnerLineColor = color("#52525280")
 
 
 local minWife = 0.93
@@ -100,12 +99,8 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
     YvalueToStringFunc = cgf.ValueToStringFuncIntegerOr2DP,
 
-    YaxisLabelColorFunc = function(params)
-        return{text = color("#ffffff"), outerLine = color("#ffffff"), innerLine = yAxisLabelInnerLineColor}
-    end,
-
     ColorFunc = function(params)
-        return colorByGrade(GetGradeFromPercent(params.xValue))
+        return cgf.AxisLabelColorFuncAcc({value = params.xValue})
     end,
 
     XaxisLabelCount = xAxisLabelCount,
