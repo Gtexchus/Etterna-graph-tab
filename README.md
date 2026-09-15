@@ -3,7 +3,8 @@ Visualise your Etterna savefile with 23 different graphs
 
 ## Installation
 ### Pre-installed
-Download the Rebirth-graphtab.zip file and extract into Etterna/Themes. Then head to Main Menu -> Options -> Display Options -> Appearance Options -> Change theme to Rebirth-graphtab. 'Til Death is not yet supported.
+1. Download the Rebirth-graphtab.zip file and extract into Etterna/Themes.
+2. Head to Main Menu -> Options -> Display Options -> Appearance Options -> Change theme to Rebirth-graphtab.
 
 ### Manual installation [REBIRTH ONLY]
 1. Download the Source Code zip, and extract the contents into **Etterna/Themes/[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalPages**, making sure to keep all files that were there previously. The generalPages folder should look like this: <img width="646" height="317" alt="image" src="https://github.com/user-attachments/assets/3af29965-cfe8-4abd-bf63-345778b41407" />
