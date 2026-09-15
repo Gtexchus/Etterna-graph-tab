@@ -3,16 +3,58 @@ Visualise your Etterna savefile with 23 different graphs
 
 ## Installation
 ### Pre-installed
-1. Download the Rebirth-graphtab.zip file and extract into Etterna/Themes.
-2. Head to Main Menu -> Options -> Display Options -> Appearance Options -> Change theme to Rebirth-graphtab.
+1. Download the `Rebirth-graphtab.zip` file and extract into Etterna/Themes.
+2. Head to Main Menu -> Options -> Display Options -> Appearance Options -> Change theme to `Rebirth-graphtab`.
 
 ### Manual installation [REBIRTH ONLY]
-1. Download the Source Code zip, and extract the contents into **Etterna/Themes/[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalPages**, making sure to keep all files that were there previously. The generalPages folder should look like this: <img width="646" height="317" alt="image" src="https://github.com/user-attachments/assets/3af29965-cfe8-4abd-bf63-345778b41407" />
+1. Download the Source Code zip, and extract the contents into `Etterna/Themes/[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalPages`, making sure to keep all files that were there previously. The generalPages folder should look like this:
+  
+   <img width="646" height="317" alt="image" src="https://github.com/user-attachments/assets/3af29965-cfe8-4abd-bf63-345778b41407" />
 
-2. #### [ThemeName]/Scripts/10 ScuffManager.lua
-   * line 13: change **SCUFF.generaltabcount = 6** to **SCUFF.generaltabcount = 7**
-   * line 20: add **SCUFF.graphstabindex = 7**
-3. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
-   * line 41: add **"Graphs"** to the end of choiceNames (make sure to add a comma to the end of the previous line!)
-   * line 237: add **actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")** to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line)
+3. #### [ThemeName]/Scripts/10 ScuffManager.lua
+   * line 13: change `SCUFF.generaltabcount = 6` to `SCUFF.generaltabcount = 7`
+   * line 20: add `SCUFF.graphstabindex = 7`
+4. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
+   * line 41: add `"Graphs"` to the end of choiceNames (make sure to add a comma to the end of the previous line!)
+   * line 237: add `actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")` to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line)
 
+# Screenshots
+
+## Main graph tab
+
+<img width="783" height="603" alt="image" src="https://github.com/user-attachments/assets/c3172f8f-f212-45ad-ba5e-a11c7ab7ef3c" />
+
+## Bar graphs
+
+<img width="775" height="599" alt="image" src="https://github.com/user-attachments/assets/28efde39-a361-4fb2-9124-d3a9672bb6b6" />
+<img width="775" height="599" alt="image" src="https://github.com/user-attachments/assets/302f2e72-eaa2-4c3e-80a3-134eebf294d3" />
+<img width="772" height="608" alt="image" src="https://github.com/user-attachments/assets/cf608b9f-cbf3-4229-8b00-c43c803a3631" />
+<img width="771" height="611" alt="image" src="https://github.com/user-attachments/assets/1aae292c-04f6-4f5d-b8d6-ae12f3f95b65" />
+<img width="771" height="606" alt="image" src="https://github.com/user-attachments/assets/bb5d0a06-058c-4aef-8d66-69964f820618" />
+<img width="774" height="603" alt="image" src="https://github.com/user-attachments/assets/d0d2dc3f-7608-40ed-b065-d5eb283e4494" />
+<img width="770" height="605" alt="image" src="https://github.com/user-attachments/assets/a4b460eb-7cbd-43e6-a86e-bb5b657b2e0b" />
+<img width="771" height="604" alt="image" src="https://github.com/user-attachments/assets/5c8eaee3-95fe-4ffa-9a7e-26539b511056" />
+<img width="771" height="602" alt="image" src="https://github.com/user-attachments/assets/b4c42058-dcb5-43c4-b392-15966a66f50b" />
+
+## Scatter graphs
+
+<img width="772" height="611" alt="image" src="https://github.com/user-attachments/assets/5bf5edf4-82ae-4438-95c1-7ac6a8433031" />
+<img width="771" height="605" alt="image" src="https://github.com/user-attachments/assets/49858cd9-f1ee-487d-a1d0-7f437cc4f8e2" />
+<img width="775" height="607" alt="image" src="https://github.com/user-attachments/assets/6c5578aa-82bb-49b4-9ad0-33cdc03023d0" />
+<img width="778" height="608" alt="image" src="https://github.com/user-attachments/assets/3d759f55-83fa-4e8f-b681-9b4f1bfd24e0" />
+<img width="785" height="611" alt="image" src="https://github.com/user-attachments/assets/df6b2356-1f48-4291-b430-562733fc777d" />
+<img width="776" height="611" alt="image" src="https://github.com/user-attachments/assets/5f913600-9e3c-4b8f-a3eb-4f53c50848f5" />
+<img width="774" height="606" alt="image" src="https://github.com/user-attachments/assets/f8fd664b-acb3-42e0-b5f8-115733906d59" />
+<img width="781" height="602" alt="image" src="https://github.com/user-attachments/assets/fa047f65-3ee1-4067-a765-65d5e76bab5d" />
+<img width="781" height="607" alt="image" src="https://github.com/user-attachments/assets/903be2ed-e284-47f0-9fc1-29e075338e5c" />
+
+## Line graphs
+
+<img width="773" height="602" alt="image" src="https://github.com/user-attachments/assets/30af643b-4591-43a3-b3d0-7d58b4002267" />
+<img width="775" height="601" alt="image" src="https://github.com/user-attachments/assets/71aecb7a-a8af-46e3-85fb-949b8925baae" />
+
+## Intensive graphs
+
+<img width="779" height="606" alt="image" src="https://github.com/user-attachments/assets/8dfd0e81-ba47-44ac-8b5d-f1a088faf83d" />
+<img width="779" height="605" alt="image" src="https://github.com/user-attachments/assets/f2c83957-aa9e-4887-98b4-87da7a403ad1" />
+<img width="781" height="604" alt="image" src="https://github.com/user-attachments/assets/51da4701-ef7c-43a0-bfed-51532b2b9ae3" />
