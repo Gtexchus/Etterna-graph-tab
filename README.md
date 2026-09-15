@@ -18,6 +18,45 @@ Visualise your Etterna savefile with 23 different graphs
    * line 41: add `"Graphs"` to the end of choiceNames (make sure to add a comma to the end of the previous line!)
    * line 237: add `actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")` to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line)
 
+
+## Intensive graphs
+
+The Intensive graphs section houses graphs that take very long to load. This is because those graphs require every replay to be loaded, which is very slow. 
+
+When loading these graphs, a progress bar will appear to display how many replays out of the total have been loaded.
+
+The game may freeze for extended periods during loading.
+
+**Leaving the Select Music screen while a graph is loading will cancel the process.**
+
+For a profile with 4000 scores, loading takes approximately 2 minutes. ***Time will vary based on hardware specs and number of scores on the profile***.
+
+## Supported preferences
+
+All graphs currently repsect the following preferences:
+* Mid Grades
+* SSRNorm Sort
+
+The following preferences are not yet fully supported:
+* Color config
+* Translations
+
+## Midgrades
+
+Every graph respects the midgrade preference.
+
+It is strongly advised to enable the midgrade preference when viewing graphs, as they were designed to be viewed with midgrades on. ***This will still work even if you have set all of you scores with midgrades off.***
+
+The midgrade preference is purely visual, and won't affect your save file.
+
+**If you wish to view a certain graph without midgrades, but still wish to view other graphs with midgrades:**
+1. Navigate to the graph file, found in `generalPages/graphs`
+2. Locate the line that says `local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")`
+3. Underneath this, add `useMidGrades = false`
+
+This will only work if you want to set the graph to not use midgrades. Setting `useMidGrades = true` and disabling the preference will break the graph.
+
+
 # Screenshots
 
 ## Main graph tab
