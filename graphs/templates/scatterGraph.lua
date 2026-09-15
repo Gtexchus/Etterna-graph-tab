@@ -219,8 +219,8 @@ end
 
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
-local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.3
-local yAxisLabelInnerLineAlpha = Var("YaxisLabelInnerLineAlpha") or 0.3
+local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.2
+local yAxisLabelInnerLineAlpha = Var("YaxisLabelInnerLineAlpha") or 0.2
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
 local xAxisLabelTextMaxWidth = Var("XaxisLabelTextMaxWidth") or 500 --max width of x axis label text
