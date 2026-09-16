@@ -60,11 +60,11 @@ local function makeButton(i)
             if self:IsInvisible() then return end
             if params.update == "OnMouseDown" then
                 local graphContainer = self:GetParent():GetParent()
-                local plots = graphContainer:GetChild(graphName):GetChild("Plots")
+                local graph = graphContainer:GetChild(graphName)
                 local buttonContainer = self:GetParent()
                 --update everything
                 onClick(values, buttonValues[i])
-                plots:playcommand("Set")
+                graph:playcommand("Set")
                 buttonContainer:PlayCommandsOnChildren("Update", {selected = buttonNames[i]})
             end
         end,
