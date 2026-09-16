@@ -23,6 +23,7 @@ local bottomLabelTextSize = 0.4
 local smallButtonTextSize = 0.5
 local buttonHoverAlpha = 0.6
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
+local topLabelDefaultAlpha = (not useMidGrades and 1) or 0
 
 
 local function initialise(gradeCounts)
@@ -167,7 +168,7 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
 
     BarSpacing = actuals.BarSpacing,
     BottomLabelTextSize = bottomLabelTextSize,
-    TopLabelDefaultAlpha = 0
+    TopLabelDefaultAlpha = topLabelDefaultAlpha
 })
 
 return t
