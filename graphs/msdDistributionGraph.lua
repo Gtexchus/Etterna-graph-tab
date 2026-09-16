@@ -89,7 +89,8 @@ t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     ColorFunc = function(params) return colorByMSD(getMSDfromi(params.barNum)) end,
     BarNumToStringFunc = function(params) return getMSDfromi(params.barNum) end,
     BarSpacing = actuals.BarSpacing,
-    TopLabelDefaultAlpha = 0
+    TopLabelDefaultAlpha = 0,
+    BottomLabelTextSize = 0.3
 })
 
 return t
