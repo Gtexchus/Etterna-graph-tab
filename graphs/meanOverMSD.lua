@@ -7,8 +7,6 @@ local ratios = {
     GraphHeight = 412 / 1080,
     SkillsetButtonsX = 590 / 1920,
     SkillsetButtonsY = -80 / 1080,
-    SkillsetButtonsHorizontalSpacing = 80 / 1920,
-    SkillsetButtonsVerticalSpacing = 20 / 1080,
     YaxisLabelOffset = 5 / 1920,
 }
 
@@ -19,19 +17,14 @@ local actuals = {
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
-    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
-    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
 
 local scaleDivisor = 50
 
-local smallButtonTextSize = 0.5
-local skillsetButtonsMaxWidth = 100
-local buttonHoverAlpha = 0.6
-local maxSkillsetButtonsPerColumn = 4
 local plotAlpha = 0.5
+local selectedColor = color("#A400FF")
 local XaxisLabelScale = 4
 local YaxisLabelCount = 21
 local yAxisLabelTextSize = 0.5
@@ -85,6 +78,10 @@ local values = {}
 
 local t = Def.ActorFrame{
     Name = "MeanOverMSDGraphContainer",
+    InitCommand = function(self)
+        --we dont want to see the buttons while loading
+        self:GetChild("SingleSelectButtonContainer"):diffusealpha(0)
+    end,
 
     FinishedLoadingCommand = function(self)
         --loadingHandler has finished loading values
@@ -124,73 +121,21 @@ local t = Def.ActorFrame{
             GraphHeight = actuals.GraphHeight,
         })
         self:AddChild(graph)
-        self:GetChild("SkillsetButtonsContainer"):diffusealpha(1) --make skillset buttons visible
+        self:GetChild("SingleSelectButtonContainer"):diffusealpha(1) --make skillset buttons visible
     end
 }
 
---make skillset buttons
-local function makeSkillsetButton(skillset_, x, y)
-    return UIElements.TextButton(1, 1, "Common Normal") .. {
-        Name = skillset_ .. "Button",
-        InitCommand = function(self)
-            local txt = self:GetChild("Text")
-            local bg = self:GetChild("BG")
-            self:xy(x, y)
-            bg:zoomto(actuals.SkillsetButtonsHorizontalSpacing, actuals.SkillsetButtonsVerticalSpacing)
-            txt:zoom(smallButtonTextSize)
-            txt:diffusealpha(1)
-            txt:settext(ms.SkillSetsTranslatedByName[skillset_])
-            txt:maxwidth(skillsetButtonsMaxWidth)
-            self:playcommand("Update", {skillset = "Overall"}) --so overall is highlighted when the graph is first loaded
-        end,
 
-        UpdateCommand = function(self, params)
-            local txt = self:GetChild("Text")
-            if params.skillset == skillset_ then
-                txt:strokecolor(color("#A400FF"))
-            else
-                txt:strokecolor(color("0,0,0,0"))
-            end
-        end,
+t[#t + 1] = LoadActorWithParams("commonActors/singleSelectButtons.lua", {
+    Values = values,
+    OnClick = setValuesSkillsetOnly,
+    ButtonNames = ms.SkillSets,
+    ButtonValues = ms.SkillSets,
+    X = actuals.SkillsetButtonsX,
+    Y = actuals.SkillsetButtonsY,
+    SelectedColor = selectedColor
+})
 
-        ClickCommand = function(self, params)
-            if self:IsInvisible() then return end
-            if params.update == "OnMouseDown" then
-                local graphContainer = self:GetParent():GetParent()
-                local plots = graphContainer:GetChild("Graph"):GetChild("Plots")
-                local sbc = graphContainer:GetChild("SkillsetButtonsContainer")
-                local labelsContainer = self:GetParent():GetParent():GetChild("Graph"):GetChild("LabelsContainer")
-                local skillsetButtons = sbc:GetChildren()
-                --update everything
-                setValuesSkillsetOnly(values, skillset_)
-                plots:playcommand("Set")
-                sbc:PlayCommandsOnChildren("Update", {skillset = skillset_})
-            end
-        end,
-
-        RolloverUpdateCommand = function(self, params)
-            if self:IsInvisible() then return end
-            if params.update == "in" then
-                self:diffusealpha(buttonHoverAlpha)
-            else
-                self:diffusealpha(1)
-            end
-        end
-    }
-end
-local sbc = Def.ActorFrame{
-    Name = "SkillsetButtonsContainer",
-
-    InitCommand = function(self)
-        self:xy(actuals.SkillsetButtonsX, actuals.SkillsetButtonsY)
-        self:diffusealpha(0) --invisible on init
-    end
-}
-for i=1, #ms.SkillSets do
-    sbc[#sbc + 1] = makeSkillsetButton(ms.SkillSets[i], math.floor((i-1)/ maxSkillsetButtonsPerColumn) * actuals.SkillsetButtonsHorizontalSpacing, ((i-1) % maxSkillsetButtonsPerColumn) * actuals.SkillsetButtonsVerticalSpacing)
-end
-
-t[#t + 1] = sbc
 
 t[#t + 1] = LoadActorWithParams("commonActors/loadingHandler.lua", {
     Values = values, 
