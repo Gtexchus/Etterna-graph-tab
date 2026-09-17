@@ -234,7 +234,7 @@ end
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
 local mouseHoverIndicatorColor = Var("MouseHoverIndicatorColor") or color("#ff000080")
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
-local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.2
+local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.2 --alpha of inner line
 local yAxisLabelInnerLineAlpha = Var("YaxisLabelInnerLineAlpha") or 0.2
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
@@ -245,6 +245,22 @@ local plotAnimationSeconds = Var("PlotAnimationSeconds") or 1 --tween time of pl
 local lineThickness = Var("LineThickness") or 1
 local xUnits = Var("Xunits") or "X" --units of measurement the x axis is in, e.g. MSD, time, etc.
 local yUnits = Var("Yunits") or "Y" --units of measurement the y axis is in
+
+actuals.LayerLabelsContainerX = Var("LayerLabelsContainerX") or 0 --x of layer labels container
+actuals.LayerLabelsContainerY = Var("LayerLabelsContainerY") or 0 --y of layer labels container
+actuals.LayerLabelWidth = Var("LayerLabelWidth") or actuals.GraphWidth / 8 --width of a single label
+actuals.LayerLabelHeight = Var("LayerLabelHeight") or actuals.GraphHeight / 20 --height of a single label
+actuals.LayerLabelHorizontalPadding = (5 / 1920) * SCREEN_WIDTH --having params for these is pointless
+actuals.LayerLabelVerticalPadding = (10 / 1080) * SCREEN_HEIGHT
+actuals.LayerLabelsContainerWidth = (actuals.LayerLabelWidth * 2) + (actuals.LayerLabelHorizontalPadding * 2)
+actuals.LayerLabelsContainerHeight = (actuals.LayerLabelHeight * #values) + (actuals.LayerLabelVerticalPadding * 2)
+local layerLabelsContainerHalign = Var("LayerLabelsContainerHalign") or 0 --halign of layer labels container 
+local layerLabelsContainerValign = Var("LayerLabelsContainerValign") or 0 --valign of layer labels container
+local layerLabelTextSize = Var("LayerLabelTextSize") or 0.6 --text size of a single label
+
+local showLayerLabels = Var("ShowLayerLabels") or true
+
+local buttonHoverAlpha = 0.6
 
 local xAxisLabelsCount = 1
 local xAxisLabelScale = 1
@@ -798,7 +814,127 @@ for i=1, (yAxisLabelsCount) do
     }
 end
 
+local function makeLayerLabelsContainer()
+    local clicked = {}
+    for i=1, #values do
+        clicked[i] = false
+    end
+    local function makeLayerLabel(i)
+        local p = ((i-1)/(#values-1))
+        return Def.ActorFrame{
+            Name = "LayerLabel",
+            InitCommand = function(self)
+                self:y(p * actuals.LayerLabelsContainerHeight + ((0.5-p) * actuals.LayerLabelVerticalPadding))
+            end,
+
+            UIElements.TextButton(1, 1, "Common Normal") .. {
+                Name = "LayerStr",
+                InitCommand = function(self)
+                    self:x(actuals.LayerLabelHorizontalPadding)
+                    local txt = self:GetChild("Text")
+                    local bg = self:GetChild("BG")
+                    bg:halign(0):valign(p)
+                    txt:halign(0):valign(p)
+                    bg:zoomto(actuals.LayerLabelWidth * 2, actuals.LayerLabelHeight)
+                    txt:zoom(layerLabelTextSize)
+                    txt:settext(layerNames[i])
+                    local len = #values[i]
+                    txt:diffuse(colorFunc({xValue = values[i][len][1], yValue = values[i][len][2], layer = i}))
+                    txt:diffusealpha(1)
+                    txt:maxwidth(actuals.LayerLabelWidth / layerLabelTextSize)
+                end,
+                ClickCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "OnMouseDown" then
+                        local txt = self:GetChild("Text")
+                        clicked[i] = not clicked[i]
+                        if clicked[i] then
+                            local len = #values[i]
+                            local c = colorFunc({xValue = values[i][len][1], yValue = values[i][len][2], layer = i})
+                            c[4] = 0.8
+                            txt:strokecolor(c)
+                        else
+                            txt:strokecolor(color("#00000000"))
+                        end
+                        local allNotClicked = true
+                        for j=1, #clicked do
+                            if clicked[j] then
+                                allNotClicked = false
+                                break
+                            end
+                        end
+                        if allNotClicked then
+                            local a = {} for i = 1, #values do a[i] = true end
+                            self:GetParent():GetParent():GetParent():playcommand("SetFocusedLayers", a)
+                        else
+                            self:GetParent():GetParent():GetParent():playcommand("SetFocusedLayers", clicked)
+                        end
+                    end
+                end,
+
+                RolloverUpdateCommand = function(self, params)
+                    if self:IsInvisible() then return end
+                    if params.update == "in" then
+                        self:diffusealpha(buttonHoverAlpha)
+                    else
+                        self:diffusealpha(1)
+                    end
+                end
+            },
+
+            LoadFont("Common Normal") .. {
+                Name = "LayerValueStr",
+                InitCommand = function(self)
+                    self:halign(1):valign(p)
+                    self:zoom(layerLabelTextSize)
+                    self:x(actuals.LayerLabelsContainerWidth - actuals.LayerLabelHorizontalPadding)
+                    local value = 
+                    yValueToStringFunc({value = values[i][#values[i]][2],
+                            GraphLength = actuals.GraphHeight,
+                            minValue = minYvalue,
+                            maxValue = maxYvalue,
+                            })
+                    self:settext(tostring(value))
+                    self:diffuse(yAxisLabelColorFunc({value = values[i][#values[i]][2]}))
+                    self:diffusealpha(1)
+                    self:maxwidth(actuals.LayerLabelWidth / layerLabelTextSize)
+                end
+            }
+        }
+    end
+    local t = Def.ActorFrame{
+        Name = "LayerLabelsContainer",
+        InitCommand = function(self)
+            self:diffusealpha(1)
+            --this is the easiest way to h/valign an entire actorframe that I can think of
+            --this means that the h/valigns will only work for setting coordinates, and wont work for rotations and stuff
+            --why would you want to rotate this anyway...
+            self:x(actuals.LayerLabelsContainerX - (layerLabelsContainerHalign * actuals.LayerLabelsContainerWidth))
+            self:y(actuals.LayerLabelsContainerY - (layerLabelsContainerValign * actuals.LayerLabelsContainerHeight))
+        end,
+        Def.Quad{
+            Name = "BG",
+            InitCommand = function(self)
+                self:zoomto(actuals.LayerLabelsContainerWidth, actuals.LayerLabelsContainerHeight)
+                self:diffuse(bgColor)
+                self:halign(0):valign(0)
+                self:xy(0, 0) 
+            end
+        },
+    }
+    --make the layer labels box
+    for i=1, #values do
+        t[#t +1 ] = makeLayerLabel(i)
+    end
+    return t
+end
+
+
 t[#t + 1] = XaxisLabelsContainer
 t[#t + 1] = YaxisLabelsContainer
+
+if showLayerLabels then
+    t[#t+1] = makeLayerLabelsContainer()
+end
 
 return t

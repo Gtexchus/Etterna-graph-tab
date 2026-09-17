@@ -1,3 +1,5 @@
+local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
+
 local ratios = {
     Width = 780 / 1920, -- width of the box taken from the loading file default.lua
     Height = 612 / 1080,
@@ -110,6 +112,7 @@ t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
             return string.format("%5.2f", params.value)
         end
     end,
+    YaxisLabelColorFunc = cgf.AxisLabelColorFuncMSD,
     ColorFunc = function(params)
         return skillsetColors[params.layer]
     end,
@@ -121,118 +124,11 @@ t[#t+1] = LoadActorWithParams("templates/lineGraph.lua",{
     XaxisLabelCount = XaxisLabelCount,
     YaxisLabelScale = YaxisLabelScale,
     PlotAnimationSeconds = plotAnimationSeconds,
-    TooltipTextSize = tooltipTextSize
+    TooltipTextSize = tooltipTextSize,
+    LayerLabelsContainerHalign = 1,
+    LayerLabelsContainerValign = 1,
+    LayerLabelsContainerX = actuals.GraphWidth,
+    LayerLabelsContainerY = actuals.GraphHeight
 })
-
-
-
-
-
-local function makeSkillsetLabelsContainer()
-    local clicked = {}
-    for i=1, #ms.SkillSets do
-        clicked[i] = false
-    end
-    local function makeSkillsetLabel(i)
-        local profile = GetPlayerOrMachineProfile(PLAYER_1)
-        local p = ((i-1)/(#ms.SkillSets-1))
-        return Def.ActorFrame{
-            Name = "skillset",
-            InitCommand = function(self)
-                self:y(p * actuals.SkillsetLabelsContainerHeight + ((0.5-p) * actuals.SkillsetLabelsVerticalPadding))
-            end,
-
-            UIElements.TextButton(1, 1, "Common Normal") .. {
-                Name = "SkillsetStr",
-                InitCommand = function(self)
-                    self:x(actuals.SkillsetLabelsHorizontalPadding)
-                    local txt = self:GetChild("Text")
-                    local bg = self:GetChild("BG")
-                    bg:halign(0):valign(p)
-                    txt:halign(0):valign(p)
-                    bg:zoomto(actuals.SkillsetLabelsContainerWidth - (actuals.SkillsetLabelsHorizontalPadding * 2), actuals.SkillsetLabelsContainerHeight / #ms.SkillSets)
-                    txt:zoom(skillsetLabelsSize)
-                    txt:settext(ms.SkillSetsTranslatedByName[ms.SkillSets[i]])
-                    txt:diffuse(skillsetColors[i])
-                    txt:diffusealpha(1)
-                end,
-                ClickCommand = function(self, params)
-                    if self:IsInvisible() then return end
-                    if params.update == "OnMouseDown" then
-                        local txt = self:GetChild("Text")
-                        clicked[i] = not clicked[i]
-                        if clicked[i] then
-                            local c = skillsetColors[i]
-                            c[4] = 0.8
-                            txt:strokecolor(c)
-                        else
-                            txt:strokecolor(color("#00000000"))
-                        end
-                        local allNotClicked = true
-                        for j=1, #clicked do
-                            if clicked[j] then
-                                allNotClicked = false
-                                break
-                            end
-                        end
-                        if allNotClicked then
-                            local a = {} for i = 1, #ms.SkillSets do a[i] = true end
-                            self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", a)
-                        else
-                            self:GetParent():GetParent():GetParent():GetChild("Graph"):playcommand("SetFocusedLayers", clicked)
-                        end
-                    end
-                end,
-
-                RolloverUpdateCommand = function(self, params)
-                    if self:IsInvisible() then return end
-                    if params.update == "in" then
-                        self:diffusealpha(buttonHoverAlpha)
-                    else
-                        self:diffusealpha(1)
-                    end
-                end
-            },
-
-            LoadFont("Common Normal") .. {
-                Name = "SsrStr",
-                InitCommand = function(self)
-                    self:halign(1):valign(p)
-                    self:zoom(skillsetLabelsSize)
-                    self:x(actuals.SkillsetLabelsContainerWidth - actuals.SkillsetLabelsHorizontalPadding)
-                    local ssr = profile:GetPlayerSkillsetRating(ms.SkillSets[i])
-                    self:settextf("%5.2f", ssr)
-                    self:diffuse(colorByMSD(ssr))
-                    self:diffusealpha(1)
-                end
-            }
-        }
-    end
-    local t = Def.ActorFrame{
-        Name = "SkillsetLabelsContainer",
-        InitCommand = function(self)
-            self:diffusealpha(1)
-            self:xy(actuals.GraphWidth - actuals.SkillsetLabelsContainerWidth, actuals.GraphHeight - actuals.SkillsetLabelsContainerHeight)
-        end,
-        Def.Quad{
-            Name = "BG",
-            InitCommand = function(self)
-                self:zoomto(actuals.SkillsetLabelsContainerWidth, actuals.SkillsetLabelsContainerHeight)
-                self:diffuse(bgColour)
-                self:halign(0):valign(0)
-                self:xy(0, 0) 
-            end
-        },
-    }
-    --make the skillset labels box
-    for i=1, #ms.SkillSets do
-        t[#t +1 ] = makeSkillsetLabel(i)
-    end
-    return t
-end
-
-
-t[#t+1] = makeSkillsetLabelsContainer()
-
 
 return t
