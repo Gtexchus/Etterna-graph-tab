@@ -1,55 +1,22 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
 
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     GraphWidth = 680 / 1920,
     GraphHeight = 412 / 1080,
-    XaxisLabelsYpadding = 20 / 1080,
-    YaxisLabelsXpadding = 8 / 1920,
-    XaxisLabelLineWidth = 1 / 1920,
-    YaxisLabelLineHeight = 1 / 1080,
-    SkillsetLabelsHorizontalPadding = 5 / 1920,
-    SkillsetLabelsVerticalPadding = 10 / 1080,
 }
-
---for some fuckass reason you cant reference values in tables during initialisation so they must be done after the fact
-ratios.SkillsetLabelsContainerWidth = ratios.GraphWidth / 3
-ratios.SkillsetLabelsContainerHeight = ratios.GraphHeight / 2
 
 
 local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
-    SkillsetLabelsContainerWidth = ratios.SkillsetLabelsContainerWidth * SCREEN_WIDTH,
-    SkillsetLabelsContainerHeight  =ratios.SkillsetLabelsContainerHeight * SCREEN_HEIGHT,
-    XaxisLabelsYpadding = ratios.XaxisLabelsYpadding * SCREEN_HEIGHT,
-    YaxisLabelsXpadding = ratios.YaxisLabelsXpadding * SCREEN_WIDTH,
-    XaxisLabelLineWidth = ratios.XaxisLabelLineWidth * SCREEN_WIDTH,
-    YaxisLabelLineHeight = ratios.YaxisLabelLineHeight * SCREEN_HEIGHT,
-    SkillsetLabelsHorizontalPadding = ratios.SkillsetLabelsHorizontalPadding * SCREEN_WIDTH,
-    SkillsetLabelsVerticalPadding = ratios.SkillsetLabelsVerticalPadding * SCREEN_HEIGHT
 }
 
---SCOREMAN:GetPlayerRatingOverTime()
---find out what this does when trying to make a line graph:
---self:SetDrawState {Mode = "DrawMode_LineStrip", First = 1, Num = #v}
---where self is an actorMultiVertex
 
-local skillsetLabelsSize = 0.7
 local tooltipTextSize = 0.3
-local buttonHoverAlpha = 0.6
-local bgAlpha = 0.7
-local bgColour = color("#000000")
 local skillsetColors = {color("#ffffff"), color("#3399ff80"), color("#ff333380"), color("#ff993380"), color("#9966cc80"), color("#00cccc80"), color("#66ff6680"),  color("#ffff6680")}
-local buttonHoverAlpha = 0.6
 local XaxisLabelCount = 5
 local YaxisLabelScale = 2
 
-local lineThickness = (1.5 / 1080) * SCREEN_HEIGHT
-local plotAlpha = 1
 local plotAnimationSeconds = 0.5
 
 

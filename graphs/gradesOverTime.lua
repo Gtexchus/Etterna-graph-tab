@@ -11,9 +11,6 @@ local actuals = {
     LayerLabelWidth = ratios.LayerLabelWidth * SCREEN_WIDTH,
 }
 
-local buttonHoverAlpha = 0.6
-local layerLabelSize = 0.6
-local bgColour = color("#000000")
 local plotAnimationSeconds = 0.5
 
 

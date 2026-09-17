@@ -2,15 +2,11 @@ local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSele
 local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     YaxisLabelOffset = 5 / 1920,
 }
 
 
 local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
@@ -24,8 +20,6 @@ local maxFoundWife = 0
 
 local plotAlpha = 0.5
 
-local smallButtonTextSize = 0.5
-local buttonHoverAlpha = 0.6
 local XaxisLabelsCount = 5
 local yAxisLabelTextSize = 0.5
 local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize --ok trust me this just works
@@ -93,8 +87,6 @@ t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
 
     XaxisLabelCount= XaxisLabelsCount,
     YaxisLabelCount = YaxisLabelsCount,
-    XaxisLabelInnerLineColor =xAxisLabelInnerLineColor,
-    YaxisLabelInnerLineColor = yAxisLabelInnerLineColor,
     PlotAlpha = plotAlpha,
     Xunits = "Date",
     Yunits = "Accuracy",

@@ -1,6 +1,4 @@
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     BarSpacing = 10 / 1920,
     SkillsetButtonsX = 590 / 1920,
     SkillsetButtonsY = -80 / 1080,

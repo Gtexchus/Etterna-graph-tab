@@ -1,9 +1,9 @@
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
+    BarSpacing = 2 / 1920
 }
 
 local actuals = {
+    BarSpacing = ratios.BarSpacing * SCREEN_WIDTH
 }
 
 local barColor = color("#9c6dd1")
@@ -57,7 +57,7 @@ local t = Def.ActorFrame{
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = playcounts,
     ColorFunc = function(params) return barColor end,
-    BarSpacing = 1,
+    BarSpacing = actuals.BarSpacing,
     TopLabelDefaultAlpha = 0,
     BottomLabelDefaultAlpha = 0,
 })

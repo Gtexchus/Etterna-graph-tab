@@ -2,8 +2,6 @@ local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.Scr
 
 --credit to martzi for the idea for this graph
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     BarSpacing = 20 / 1920,
     GraphTypeButtonX = 650 / 1920,
     GraphTypeButtonY = -80 / 1080,

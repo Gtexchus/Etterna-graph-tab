@@ -1,8 +1,6 @@
 local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.cgf")
 
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     GraphWidth = 680 / 1920,
     GraphHeight = 412 / 1080,
     SkillsetButtonsX = 590 / 1920,
@@ -11,8 +9,6 @@ local ratios = {
 }
 
 local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
@@ -32,9 +28,6 @@ local yAxisLabelTextMaxWidth = ((45 / 1920) * SCREEN_WIDTH) / yAxisLabelTextSize
 
 SCOREMAN:SortRecentScoresForGame()
 
-local function asinh(x)
-    return math.log(x + math.sqrt(x * x + 1))
-end
 
 local function initialiseValues(values)
     for i = 1, #values do

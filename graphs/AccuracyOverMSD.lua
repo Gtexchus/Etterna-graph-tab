@@ -2,8 +2,6 @@ local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSele
 local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     SkillsetButtonsX = 590 / 1920,
     SkillsetButtonsY = -80 / 1080,
     YaxisLabelOffset = 5 / 1920,
@@ -11,8 +9,6 @@ local ratios = {
 
 
 local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH

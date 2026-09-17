@@ -2,26 +2,18 @@ local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSele
 local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     GraphWidth = 680 / 1920,
     GraphHeight = 412 / 1080,
     SkillsetButtonsX = 590 / 1920,
     SkillsetButtonsY = -80 / 1080,
-    SkillsetButtonsHorizontalSpacing = 80 / 1920,
-    SkillsetButtonsVerticalSpacing = 20 / 1080,
     YaxisLabelOffset = 5 / 1920,
 }
 
 local actuals = {
-    Width = ratios.Width * SCREEN_WIDTH,
-    Height = ratios.Height * SCREEN_HEIGHT,
     GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
     GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     SkillsetButtonsX = ratios.SkillsetButtonsX * SCREEN_WIDTH,
     SkillsetButtonsY = ratios.SkillsetButtonsY * SCREEN_HEIGHT,
-    SkillsetButtonsHorizontalSpacing = ratios.SkillsetButtonsHorizontalSpacing * SCREEN_WIDTH,
-    SkillsetButtonsVerticalSpacing  =ratios.SkillsetButtonsVerticalSpacing * SCREEN_HEIGHT,
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH
 }
 
@@ -30,10 +22,6 @@ local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
 local scaleDivisor = 10
 
-local smallButtonTextSize = 0.5
-local skillsetButtonsMaxWidth = 100
-local buttonHoverAlpha = 0.6
-local maxSkillsetButtonsPerColumn = 4
 local plotAlpha = 0.5
 local XaxisLabelScale = 4
 local YaxisLabelCount = 21

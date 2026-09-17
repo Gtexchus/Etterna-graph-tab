@@ -1,6 +1,4 @@
 local ratios = {
-    Width = 780 / 1920, -- width of the box taken from the loading file default.lua
-    Height = 612 / 1080,
     BarWidth = 50 / 1920,
 }
 
