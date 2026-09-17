@@ -234,7 +234,7 @@ end
 local bgColor = Var("BGcolor") or color("#000000A2") --color of bg quad
 local mouseHoverIndicatorColor = Var("MouseHoverIndicatorColor") or color("#ff000080")
 local plotAlpha = Var("PlotAlpha") or 1 --alpha of plot
-local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.2
+local xAxisLabelInnerLineAlpha = Var("XaxisLabelInnerLineAlpha") or 0.2 --alpha of inner line
 local yAxisLabelInnerLineAlpha = Var("YaxisLabelInnerLineAlpha") or 0.2
 local xAxisLabelTextSize = Var("XaxisLabelTextSize") or 0.5 --size of x axis label text
 local yAxisLabelTextSize = Var("YaxisLabelTextSize") or 0.5 --size of y axis label text
@@ -246,17 +246,17 @@ local lineThickness = Var("LineThickness") or 1
 local xUnits = Var("Xunits") or "X" --units of measurement the x axis is in, e.g. MSD, time, etc.
 local yUnits = Var("Yunits") or "Y" --units of measurement the y axis is in
 
-actuals.LayerLabelsContainerX = Var("LayerLabelsContainerX") or 0
-actuals.LayerLabelsContainerY = Var("LayerLabelsContainerY") or 0
+actuals.LayerLabelsContainerX = Var("LayerLabelsContainerX") or 0 --x of layer labels container
+actuals.LayerLabelsContainerY = Var("LayerLabelsContainerY") or 0 --y of layer labels container
 actuals.LayerLabelWidth = Var("LayerLabelWidth") or actuals.GraphWidth / 8 --width of a single label
 actuals.LayerLabelHeight = Var("LayerLabelHeight") or actuals.GraphHeight / 20 --height of a single label
 actuals.LayerLabelHorizontalPadding = (5 / 1920) * SCREEN_WIDTH --having params for these is pointless
 actuals.LayerLabelVerticalPadding = (10 / 1080) * SCREEN_HEIGHT
 actuals.LayerLabelsContainerWidth = (actuals.LayerLabelWidth * 2) + (actuals.LayerLabelHorizontalPadding * 2)
 actuals.LayerLabelsContainerHeight = (actuals.LayerLabelHeight * #values) + (actuals.LayerLabelVerticalPadding * 2)
-local layerLabelsContainerHalign = Var("LayerLabelsContainerHalign") or 0
-local layerLabelsContainerValign = Var("LayerLabelsContainerValign") or 0
-local layerLabelTextSize = Var("LayerLabelTextSize") or 0.6
+local layerLabelsContainerHalign = Var("LayerLabelsContainerHalign") or 0 --halign of layer labels container 
+local layerLabelsContainerValign = Var("LayerLabelsContainerValign") or 0 --valign of layer labels container
+local layerLabelTextSize = Var("LayerLabelTextSize") or 0.6 --text size of a single label
 
 local showLayerLabels = Var("ShowLayerLabels") or true
 
