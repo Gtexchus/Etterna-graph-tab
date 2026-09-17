@@ -835,7 +835,7 @@ local function makeLayerLabelsContainer()
                     local bg = self:GetChild("BG")
                     bg:halign(0):valign(p)
                     txt:halign(0):valign(p)
-                    bg:zoomto(actuals.LayerLabelsContainerWidth - (actuals.LayerLabelHorizontalPadding * 2), actuals.LayerLabelsContainerHeight / #values)
+                    bg:zoomto(actuals.LayerLabelWidth * 2, actuals.LayerLabelHeight)
                     txt:zoom(layerLabelTextSize)
                     txt:settext(layerNames[i])
                     local len = #values[i]
