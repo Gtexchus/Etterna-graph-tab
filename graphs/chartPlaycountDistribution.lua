@@ -6,8 +6,7 @@ local ratios = {
 local actuals = {
 }
 
-
-local bottomLabelTextSize = 0.3
+local barColor = color("#9c6dd1")
 
 local function setPlaycounts(playcounts)
     for i=1, #playcounts do
@@ -57,10 +56,10 @@ local t = Def.ActorFrame{
 
 t[#t + 1] = LoadActorWithParams("templates/barGraph.lua", {
     Values = playcounts,
-    ColorFunc = function(params) return colorByMSD((params.barNum/#playcounts)*40) end, --i dont really know a better color scheme
+    ColorFunc = function(params) return barColor end,
     BarSpacing = 1,
     TopLabelDefaultAlpha = 0,
-    BottomLabelTextSize = bottomLabelTextSize
+    BottomLabelDefaultAlpha = 0,
 })
 
 return t
