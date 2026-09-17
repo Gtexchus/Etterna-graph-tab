@@ -248,7 +248,7 @@ local yUnits = Var("Yunits") or "Y" --units of measurement the y axis is in
 
 actuals.LayerLabelsContainerX = Var("LayerLabelsContainerX") or 0
 actuals.LayerLabelsContainerY = Var("LayerLabelsContainerY") or 0
-actuals.LayerLabelWidth = Var("LayerLabelWidth") or actuals.GraphWidth / 10 --width of a single label
+actuals.LayerLabelWidth = Var("LayerLabelWidth") or actuals.GraphWidth / 8 --width of a single label
 actuals.LayerLabelHeight = Var("LayerLabelHeight") or actuals.GraphHeight / 20 --height of a single label
 actuals.LayerLabelHorizontalPadding = (5 / 1920) * SCREEN_WIDTH --having params for these is pointless
 actuals.LayerLabelVerticalPadding = (10 / 1080) * SCREEN_HEIGHT
