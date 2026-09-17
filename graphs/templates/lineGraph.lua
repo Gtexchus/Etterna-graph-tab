@@ -246,16 +246,16 @@ local lineThickness = Var("LineThickness") or 1
 local xUnits = Var("Xunits") or "X" --units of measurement the x axis is in, e.g. MSD, time, etc.
 local yUnits = Var("Yunits") or "Y" --units of measurement the y axis is in
 
-actuals.LayerLabelsX = Var("LayerLabelsX") or 0
-actuals.LayerLabelsY = Var("LayerLabelsY") or 0
+actuals.LayerLabelsContainerX = Var("LayerLabelsContainerX") or 0
+actuals.LayerLabelsContainerY = Var("LayerLabelsContainerY") or 0
 actuals.LayerLabelWidth = Var("LayerLabelWidth") or actuals.GraphWidth / 10 --width of a single label
 actuals.LayerLabelHeight = Var("LayerLabelHeight") or actuals.GraphHeight / 20 --height of a single label
 actuals.LayerLabelHorizontalPadding = (5 / 1920) * SCREEN_WIDTH --having params for these is pointless
 actuals.LayerLabelVerticalPadding = (10 / 1080) * SCREEN_HEIGHT
 actuals.LayerLabelsContainerWidth = (actuals.LayerLabelWidth * 2) + (actuals.LayerLabelHorizontalPadding * 2)
 actuals.LayerLabelsContainerHeight = (actuals.LayerLabelHeight * #values) + (actuals.LayerLabelVerticalPadding * 2)
-local layerLabelsHalign = Var("LayerLabelsHalign") or 0
-local layerLabelsValign = Var("LayerLabelsValign") or 0
+local layerLabelsContainerHalign = Var("LayerLabelsContainerHalign") or 0
+local layerLabelsContainerValign = Var("LayerLabelsContainerValign") or 0
 local layerLabelTextSize = Var("LayerLabelTextSize") or 0.6
 
 local showLayerLabels = Var("ShowLayerLabels") or true
@@ -906,7 +906,11 @@ local function makeLayerLabelsContainer()
         Name = "LayerLabelsContainer",
         InitCommand = function(self)
             self:diffusealpha(1)
-            --self:xy(actuals.GraphWidth - actuals.LayerLabelsContainerWidth, actuals.GraphHeight - actuals.LayerLabelsContainerHeight)
+            --this is the easiest way to h/valign an entire actorframe that I can think of
+            --this means that the h/valigns will only work for setting coordinates, and wont work for rotations and stuff
+            --why would you want to rotate this anyway...
+            self:x(actuals.LayerLabelsContainerX - (layerLabelsContainerHalign * actuals.LayerLabelsContainerWidth))
+            self:y(actuals.LayerLabelsContainerY - (layerLabelsContainerValign * actuals.LayerLabelsContainerHeight))
         end,
         Def.Quad{
             Name = "BG",
