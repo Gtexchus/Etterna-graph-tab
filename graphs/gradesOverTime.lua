@@ -138,7 +138,7 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
     XvalueToStringFunc = cgf.ValueToStringFuncTime,
     
     XaxisLabelCount = 5,
-    YaxisLabelScale = 200,
+    YaxisLabelCount = 5,
     Xunits = "Date", 
     Yunits = "",
     YaxisLabelOffset = actuals.YaxisLabelOffset,
