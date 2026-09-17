@@ -2,24 +2,13 @@ local cgf = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSele
 local gradeUtils = require(THEME:GetCurrentThemeDirectory() .. "BGAnimations.ScreenSelectMusic decorations.generalPages.graphs.utils.gradeUtils")
 
 local ratios = {
-    GraphWidth = 680 / 1920,
-    GraphHeight = 412 / 1080,
     YaxisLabelOffset = 5 / 1920,
-    LayerLabelsHorizontalPadding = 5 / 1920,
-    LayerLabelsVerticalPadding = 10 / 1080,
+    LayerLabelWidth = 70 / 1920
 }
 
-ratios.LayerLabelsContainerWidth = ratios.GraphWidth / 5
-ratios.LayerLabelsContainerHeight = ratios.GraphHeight / 1.5
-
 local actuals = {
-    GraphWidth = ratios.GraphWidth * SCREEN_WIDTH,
-    GraphHeight = ratios.GraphHeight * SCREEN_HEIGHT,
     YaxisLabelOffset = ratios.YaxisLabelOffset * SCREEN_WIDTH,
-    LayerLabelsContainerWidth = ratios.LayerLabelsContainerWidth * SCREEN_WIDTH,
-    LayerLabelsContainerHeight  =ratios.LayerLabelsContainerHeight * SCREEN_HEIGHT,
-    LayerLabelsHorizontalPadding = ratios.LayerLabelsHorizontalPadding * SCREEN_WIDTH,
-    LayerLabelsVerticalPadding = ratios.LayerLabelsVerticalPadding * SCREEN_HEIGHT
+    LayerLabelWidth = ratios.LayerLabelWidth * SCREEN_WIDTH,
 }
 
 local buttonHoverAlpha = 0.6
@@ -145,6 +134,7 @@ t[#t + 1] = LoadActorWithParams("templates/lineGraph.lua", {
         local gradeNum = params.layer + (gradeUtils.GradeTierToGradeNum(maxGradeTier, useMidGrades) - 1)
         return gradeUtils.GetMidGradeColor(gradeNum, useMidGrades)
     end,
+    LayerLabelWidth = actuals.LayerLabelWidth,
 
     LayerNames = layerNames,
 
