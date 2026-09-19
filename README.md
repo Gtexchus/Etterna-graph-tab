@@ -16,7 +16,8 @@ Visualise your Etterna savefile with 23 different graphs.
   
  The generalPages folder should look like this:
   
-   <img width="646" height="317" alt="image" src="https://github.com/user-attachments/assets/3af29965-cfe8-4abd-bf63-345778b41407" />
+   <img width="627" height="330" alt="image" src="https://github.com/user-attachments/assets/ca3af518-22db-4b1e-9d7e-8d11df00e911" />
+
 
 3. #### [ThemeName]/Scripts/10 ScuffManager.lua
    * line 13: change `SCUFF.generaltabcount = 6` to the following:
