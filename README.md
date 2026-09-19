@@ -19,7 +19,7 @@ Visualise your Etterna savefile with 23 different graphs.
    <img width="627" height="330" alt="image" src="https://github.com/user-attachments/assets/ca3af518-22db-4b1e-9d7e-8d11df00e911" />
 
 
-3. #### Navigate to [ThemeName]/Scripts/10 ScuffManager.lua
+3. #### Navigate to `[ThemeName]/Scripts/10 ScuffManager.lua`
    * line 13: change `SCUFF.generaltabcount = 6` to the following:
    
      `SCUFF.generaltabcount = 7`
@@ -28,7 +28,7 @@ Visualise your Etterna savefile with 23 different graphs.
 
      `SCUFF.graphstabindex = 7`
      
-4. #### Navigate to [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
+4. #### Navigate to `[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua`
    * line 41: add the following line to the end of choiceNames (make sure there is a comma at the end of the previous line!):
      
        `"Graphs"`
