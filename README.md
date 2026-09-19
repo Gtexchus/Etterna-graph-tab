@@ -50,9 +50,10 @@ It is strongly advised to enable the midgrade preference when viewing graphs, as
 The midgrade preference is purely visual, and won't affect your save file.
 
 **If you wish to view a certain graph without midgrades, but still wish to view other graphs with midgrades:**
-1. Navigate to the graph file, found in `generalPages/graphs`
-2. Locate the line that says `local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")`
-3. Underneath this, add `useMidGrades = false`
+1. Enable the midgrade preference
+2. Navigate to the graph file, found in `generalPages/graphs`
+3. Locate the line that says `local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")`
+4. Underneath this, add `useMidGrades = false`
 
 This will only work if you want to set the graph to not use midgrades. Setting `useMidGrades = true` and disabling the preference will break the graph.
 
