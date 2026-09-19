@@ -50,7 +50,7 @@ setValues(values)
 
 
 local t = Def.ActorFrame{
-    Name = "playerRatingOverTimeGraphContainer",
+    Name = "PlayerRatingOverTimeGraphContainer",
 }
 
 

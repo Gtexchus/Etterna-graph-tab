@@ -73,7 +73,7 @@ local buttons = {
 
     --line graphs
     {
-        {graphActorName = "playerRatingOverTimeGraphContainer", graphFileName = "playerRatingOverTime", graphButtonText = "Player Rating over Time"},
+        {graphActorName = "PlayerRatingOverTimeGraphContainer", graphFileName = "playerRatingOverTime", graphButtonText = "Player Rating over Time"},
         {graphActorName = "GradesOverTimeGraphContainer", graphFileName = "gradesOverTime", graphButtonText = "Grades over Time"},
     },
 
