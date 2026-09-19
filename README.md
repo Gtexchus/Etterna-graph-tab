@@ -7,7 +7,10 @@ Visualise your Etterna savefile with 23 different graphs.
 2. Head to Main Menu -> Options -> Display Options -> Appearance Options -> Change theme to `Rebirth-graphtab`.
 
 ### Manual installation [REBIRTH ONLY]
-1. Download the Source Code zip, and extract the contents into the following directory, making sure to keep all files that were there previously:
+
+1. Make a backup of your theme folder
+   
+3.  Download the Source Code zip, and extract the contents into the following directory, making sure to keep all files that were there previously:
 
   `Etterna/Themes/[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalPages`
   
@@ -15,7 +18,7 @@ Visualise your Etterna savefile with 23 different graphs.
   
    <img width="646" height="317" alt="image" src="https://github.com/user-attachments/assets/3af29965-cfe8-4abd-bf63-345778b41407" />
 
-2. #### [ThemeName]/Scripts/10 ScuffManager.lua
+3. #### [ThemeName]/Scripts/10 ScuffManager.lua
    * line 13: change `SCUFF.generaltabcount = 6` to the following:
    
      `SCUFF.generaltabcount = 7`
@@ -24,7 +27,7 @@ Visualise your Etterna savefile with 23 different graphs.
 
      `SCUFF.graphstabindex = 7`
      
-3. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
+4. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
    * line 41: add the following line to the end of choiceNames (make sure to add a comma to the end of the previous line!):
      
        `"Graphs"`
@@ -32,6 +35,23 @@ Visualise your Etterna savefile with 23 different graphs.
    * line 237: add the following line to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line):
      
        `actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")`
+
+
+## Midgrades
+
+Every graph respects the midgrade preference.
+
+**It is strongly advised to enable the midgrade preference when viewing graphs**, as they were designed to be viewed with midgrades on. ***This will still work even if you have set all of your scores with midgrades off.***
+
+The midgrade preference is purely visual, and won't affect your save file.
+
+**If you wish to view a certain graph without midgrades, but still wish to view other graphs with midgrades:**
+1. Enable the midgrade preference
+2. Navigate to the graph file, found in `generalPages/graphs`
+3. Locate the line that says `local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")`
+4. Underneath this, add `useMidGrades = false`
+
+This will only work if you want to set the graph to not use midgrades. Setting `useMidGrades = true` and disabling the preference will break the graph.
 
 
 ## Intensive graphs
@@ -46,6 +66,7 @@ The game may freeze for extended periods during loading.
 
 For a profile with 4000 scores, loading takes approximately 2 minutes. ***Time will vary based on hardware specs and number of scores on the profile***.
 
+
 ## Supported preferences
 
 All graphs currently repsect the following preferences:
@@ -55,22 +76,6 @@ All graphs currently repsect the following preferences:
 The following preferences are not yet fully supported:
 * Color config
 * Translations
-
-## Midgrades
-
-Every graph respects the midgrade preference.
-
-It is strongly advised to enable the midgrade preference when viewing graphs, as they were designed to be viewed with midgrades on. ***This will still work even if you have set all of your scores with midgrades off.***
-
-The midgrade preference is purely visual, and won't affect your save file.
-
-**If you wish to view a certain graph without midgrades, but still wish to view other graphs with midgrades:**
-1. Enable the midgrade preference
-2. Navigate to the graph file, found in `generalPages/graphs`
-3. Locate the line that says `local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")`
-4. Underneath this, add `useMidGrades = false`
-
-This will only work if you want to set the graph to not use midgrades. Setting `useMidGrades = true` and disabling the preference will break the graph.
 
 
 # Screenshots
