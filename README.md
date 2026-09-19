@@ -29,11 +29,11 @@ Visualise your Etterna savefile with 23 different graphs.
      `SCUFF.graphstabindex = 7`
      
 4. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
-   * line 41: add the following line to the end of choiceNames (make sure to add a comma to the end of the previous line!):
+   * line 41: add the following line to the end of choiceNames (make sure there is a comma at the end of the previous line!):
      
        `"Graphs"`
      
-   * line 237: add the following line to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line):
+   * line 237: add the following line to the end of the "Container" ActorFrame (make sure there is a comma at the end of the previous line!):
      
        `actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")`
 
