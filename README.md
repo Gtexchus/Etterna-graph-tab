@@ -7,16 +7,31 @@ Visualise your Etterna savefile with 23 different graphs.
 2. Head to Main Menu -> Options -> Display Options -> Appearance Options -> Change theme to `Rebirth-graphtab`.
 
 ### Manual installation [REBIRTH ONLY]
-1. Download the Source Code zip, and extract the contents into `Etterna/Themes/[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalPages`, making sure to keep all files that were there previously. The generalPages folder should look like this:
+1. Download the Source Code zip, and extract the contents into the following directory, making sure to keep all files that were there previously:
+
+  `Etterna/Themes/[ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalPages`
+  
+ The generalPages folder should look like this:
   
    <img width="646" height="317" alt="image" src="https://github.com/user-attachments/assets/3af29965-cfe8-4abd-bf63-345778b41407" />
 
-3. #### [ThemeName]/Scripts/10 ScuffManager.lua
-   * line 13: change `SCUFF.generaltabcount = 6` to `SCUFF.generaltabcount = 7`
-   * line 20: add `SCUFF.graphstabindex = 7`
-4. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
-   * line 41: add `"Graphs"` to the end of choiceNames (make sure to add a comma to the end of the previous line!)
-   * line 237: add `actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")` to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line)
+2. #### [ThemeName]/Scripts/10 ScuffManager.lua
+   * line 13: change `SCUFF.generaltabcount = 6` to the following:
+   
+     `SCUFF.generaltabcount = 7`
+     
+   * line 20: add the following line:
+
+     `SCUFF.graphstabindex = 7`
+     
+3. #### [ThemeName]/BGAnimations/ScreenSelectMusic decorations/generalBox.lua
+   * line 41: add the following line to the end of choiceNames (make sure to add a comma to the end of the previous line!):
+     
+       `"Graphs"`
+     
+   * line 237: add the following line to the end of the "Container" ActorFrame (don't forget the comma on the end of the previous line):
+     
+       `actorLoader(SCUFF.graphstabindex, "generalPages/graphs.lua")`
 
 
 ## Intensive graphs
