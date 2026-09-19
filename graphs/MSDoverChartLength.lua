@@ -57,7 +57,7 @@ local values = {}
 setValues(values, "overall")
 
 local t = Def.ActorFrame{
-    Name = "MSDoverChartLengthGraphContainer",
+    Name = "MSDOverChartLengthGraphContainer",
 }
 
 

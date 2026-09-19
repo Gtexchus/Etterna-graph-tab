@@ -47,26 +47,26 @@ Each button displays text defined by buttonText, and loads actor named acctorNam
 local buttons = {
     --Bar graphs
     {
-        {graphActorName = "MSDdistributionContainer", graphFileName = "msdDistribution", graphButtonText = "MSD Distribution"},
+        {graphActorName = "MSDDistributionGraphContainer", graphFileName = "msdDistribution", graphButtonText = "MSD Distribution"},
         {graphActorName = "GradeDistributionGraphContainer", graphFileName = "gradeDistribution", graphButtonText = "Grades"},
         {graphActorName = "JudgementDistributionGraphContainer", graphFileName = "judgementDistribution", graphButtonText = "Judgements"},
-        {graphActorName = "CleartypeDistributionContainer", graphFileName = "cleartypeDistribution", graphButtonText = "Cleartypes"},
-        {graphActorName = "SkillsetPlaycountDistributionContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonText = "Skillset Playcounts"}, 
-        {graphActorName = "ChartPlaycountDistributionContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart Playcounts"},
-        {graphActorName = "PlaycountPerHourDistributionContainer", graphFileName = "playcountPerHourDistribution", graphButtonText = "Playcount per Hour of Day"},
-        {graphActorName = "PlaycountPerDayDistributionContainer", graphFileName = "playcountPerDayDistribution", graphButtonText = "Playcount per Day of Week"},
-        {graphActorName = "PlaycountPerMonthDistributionContainer", graphFileName = "playcountPerMonthDistribution", graphButtonText = "Playcount per Month"},
+        {graphActorName = "CleartypeDistributionGraphContainer", graphFileName = "cleartypeDistribution", graphButtonText = "Cleartypes"},
+        {graphActorName = "SkillsetPlaycountDistributionGraphContainer", graphFileName = "skillsetPlaycountDistribution", graphButtonText = "Skillset Playcounts"}, 
+        {graphActorName = "ChartPlaycountDistributionGraphContainer", graphFileName = "chartPlaycountDistribution", graphButtonText = "Chart Playcounts"},
+        {graphActorName = "PlaycountPerHourDistributionGraphContainer", graphFileName = "playcountPerHourDistribution", graphButtonText = "Playcount per Hour of Day"},
+        {graphActorName = "PlaycountPerDayDistributionGraphContainer", graphFileName = "playcountPerDayDistribution", graphButtonText = "Playcount per Day of Week"},
+        {graphActorName = "PlaycountPerMonthDistributionGraphContainer", graphFileName = "playcountPerMonthDistribution", graphButtonText = "Playcount per Month"},
     },
 
     --scatter graphs
     {
-        {graphActorName = "MSDoverTimeGraphContainer", graphFileName = "msdOverTime", graphButtonText = "MSD over Time"},
+        {graphActorName = "MSDOverTimeGraphContainer", graphFileName = "msdOverTime", graphButtonText = "MSD over Time"},
         {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "accuracyOverMSD", graphButtonText = "Accuracy over MSD"}, 
         {graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonText = "Accuracy over Time"},
-        {graphActorName = "MAoverMSDGraphContainer", graphFileName = "maOverMSD", graphButtonText = "MA over MSD"},
-        {graphActorName = "MAoverTimeGraphContainer", graphFileName = "maOverTime", graphButtonText = "MA over Time"},
-        {graphActorName = "MAoverAccuracyGraphContainer", graphFileName = "maOverAccuracy", graphButtonText = "MA over Accuracy"},
-        {graphActorName = "MSDoverChartLengthGraphContainer", graphFileName = "msdOverChartLength", graphButtonText = "MSD over Chart Length"},
+        {graphActorName = "MAOverMSDGraphContainer", graphFileName = "maOverMSD", graphButtonText = "MA over MSD"},
+        {graphActorName = "MAOverTimeGraphContainer", graphFileName = "maOverTime", graphButtonText = "MA over Time"},
+        {graphActorName = "MAOverAccuracyGraphContainer", graphFileName = "maOverAccuracy", graphButtonText = "MA over Accuracy"},
+        {graphActorName = "MSDOverChartLengthGraphContainer", graphFileName = "msdOverChartLength", graphButtonText = "MSD over Chart Length"},
         {graphActorName = "ChartLengthOverTimeGraphContainer", graphFileName = "chartLengthOverTime", graphButtonText = "Chart Length over Time"},
         {graphActorName = "AccuracyOverChartLengthGraphContainer", graphFileName = "accuracyOverChartLength", graphButtonText = "Accuracy over Chart Length"},
     },

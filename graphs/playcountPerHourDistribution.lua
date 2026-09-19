@@ -43,7 +43,7 @@ local values = {}
 setValues(values)
 
 local t = Def.ActorFrame{
-    Name = "PlaycountPerHourDistributionContainer",
+    Name = "PlaycountPerHourDistributionGraphContainer",
 }
 
 
