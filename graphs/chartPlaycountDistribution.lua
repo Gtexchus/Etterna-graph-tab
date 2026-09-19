@@ -49,7 +49,7 @@ local playcounts = {0}
 setPlaycounts(playcounts)
 
 local t = Def.ActorFrame{
-    Name = "ChartPlaycountDistributionContainer",
+    Name = "ChartPlaycountDistributionGraphContainer",
 }
 
 

@@ -64,7 +64,7 @@ setMSDcounts(msdCounts, "overall")
 
 
 local t = Def.ActorFrame{
-    Name = "MSDdistributionContainer",
+    Name = "MSDDistributionGraphContainer",
 }
 
 

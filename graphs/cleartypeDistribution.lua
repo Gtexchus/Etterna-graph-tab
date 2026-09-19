@@ -32,7 +32,7 @@ setCleartypeCounts(cleartypeCounts)
 
 
 local t = Def.ActorFrame{
-    Name = "CleartypeDistributionContainer",
+    Name = "CleartypeDistributionGraphContainer",
 }
 
 

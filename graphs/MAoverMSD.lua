@@ -56,7 +56,7 @@ local values = {}
 setValues(values, "overall")
 
 local t = Def.ActorFrame{
-    Name = "MAoverMSDGraphContainer",
+    Name = "MAOverMSDGraphContainer",
 }
 
 t[#t + 1] = LoadActorWithParams("commonActors/singleSelectButtons.lua", {

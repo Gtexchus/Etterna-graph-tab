@@ -43,7 +43,7 @@ setValues(values, "overall")
 
 
 local t = Def.ActorFrame{
-    Name = "MSDoverTimeGraphContainer",
+    Name = "MSDOverTimeGraphContainer",
 }
 
 

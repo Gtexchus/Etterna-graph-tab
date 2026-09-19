@@ -57,7 +57,7 @@ local values = {}
 setValues(values)
 
 local t = Def.ActorFrame{
-    Name = "MAoverTimeGraphContainer"
+    Name = "MAOverTimeGraphContainer"
 }
 
 

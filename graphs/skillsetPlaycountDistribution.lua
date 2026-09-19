@@ -19,7 +19,7 @@ table.remove(playsbyskillset, 1) --for some reason "overall" is included in the 
 
 
 local t = Def.ActorFrame{
-    Name = "SkillsetPlaycountDistributionContainer",
+    Name = "SkillsetPlaycountDistributionGraphContainer",
 }
 
 

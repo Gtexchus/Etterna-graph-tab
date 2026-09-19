@@ -65,7 +65,7 @@ setValues(values)
 local xAxisLabelCount = (gradeUtils.WifeToGradeNum(minFoundWife, useMidGrades) - gradeUtils.WifeToGradeNum(maxFoundWife, useMidGrades)) + 2
 
 local t = Def.ActorFrame{
-    Name = "MAoverAccuracyGraphContainer"
+    Name = "MAOverAccuracyGraphContainer"
 }
 
 t[#t + 1] = LoadActorWithParams("templates/scatterGraph.lua", {
