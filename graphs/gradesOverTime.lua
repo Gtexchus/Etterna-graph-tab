@@ -18,7 +18,7 @@ SCOREMAN:SortRecentScoresForGame()
 
 local useMidGrades = PREFSMAN:GetPreference("UseMidGrades")
 
-local samplerate = 7 * 24 * 60 * 60 --time between each sample for the line, in seconds
+local samplerate = 3 * 24 * 60 * 60 --time between each sample for the line, in seconds
 --lower samplerate makes the line more accurate, but uses more vertices
 
 local minGradeTier = 13 --confusing name because lower acc means higher GradeTier
