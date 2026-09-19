@@ -60,13 +60,13 @@ local buttons = {
 
     --scatter graphs
     {
-        {graphActorName = "MSDoverTimeGraphContainer", graphFileName = "MSDoverTime", graphButtonText = "MSD over Time"},
-        {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "AccuracyOverMSD", graphButtonText = "Accuracy over MSD"}, 
+        {graphActorName = "MSDoverTimeGraphContainer", graphFileName = "msdOverTime", graphButtonText = "MSD over Time"},
+        {graphActorName = "AccuracyOverMSDGraphContainer", graphFileName = "accuracyOverMSD", graphButtonText = "Accuracy over MSD"}, 
         {graphActorName = "AccuracyOverTimeGraphContainer", graphFileName = "accuracyOverTime", graphButtonText = "Accuracy over Time"},
-        {graphActorName = "MAoverMSDGraphContainer", graphFileName = "MAoverMSD", graphButtonText = "MA over MSD"},
-        {graphActorName = "MAoverTimeGraphContainer", graphFileName = "MAoverTime", graphButtonText = "MA over Time"},
-        {graphActorName = "MAoverAccuracyGraphContainer", graphFileName = "MAoverAccuracy", graphButtonText = "MA over Accuracy"},
-        {graphActorName = "MSDoverChartLengthGraphContainer", graphFileName = "MSDoverChartLength", graphButtonText = "MSD over Chart Length"},
+        {graphActorName = "MAoverMSDGraphContainer", graphFileName = "maOverMSD", graphButtonText = "MA over MSD"},
+        {graphActorName = "MAoverTimeGraphContainer", graphFileName = "maOverTime", graphButtonText = "MA over Time"},
+        {graphActorName = "MAoverAccuracyGraphContainer", graphFileName = "maOverAccuracy", graphButtonText = "MA over Accuracy"},
+        {graphActorName = "MSDoverChartLengthGraphContainer", graphFileName = "msdOverChartLength", graphButtonText = "MSD over Chart Length"},
         {graphActorName = "ChartLengthOverTimeGraphContainer", graphFileName = "chartLengthOverTime", graphButtonText = "Chart Length over Time"},
         {graphActorName = "AccuracyOverChartLengthGraphContainer", graphFileName = "accuracyOverChartLength", graphButtonText = "Accuracy over Chart Length"},
     },
